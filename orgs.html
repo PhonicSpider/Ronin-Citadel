@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080808">
   <title>Ronin Citadel — Organizations</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/portal.css">
@@ -116,6 +118,7 @@
 </head>
 <body>
 <div class="dash-layout">
+  <div class="sidebar-overlay"></div>
 
   <!-- ── Sidebar ── -->
   <aside class="dash-sidebar">
@@ -132,6 +135,7 @@
   <!-- ── Main ── -->
   <main class="dash-main">
     <div class="dash-topbar">
+      <button class="sb-toggle" aria-label="Toggle menu">☰</button>
       <div class="breadcrumb">
         <span class="crumb active" id="crumbPage">Organizations</span>
         <span class="crumb-sep" id="crumbSep" style="display:none">›</span>
@@ -155,12 +159,10 @@
       <div id="pageAlert" class="alert" style="display:none; margin-bottom:16px;"></div>
 
       <div class="two-col">
-        <!-- Left: org list -->
         <div class="list-panel" id="orgList">
           <div class="loading-text">Loading…</div>
         </div>
 
-        <!-- Right: org detail -->
         <div class="detail-panel" id="orgDetail">
           <div class="empty-state">
             <div class="empty-icon">⊞</div>
@@ -226,18 +228,15 @@
 <script src="js/api.js"></script>
 <script src="js/shell.js"></script>
 <script>
-  // ── State ──────────────────────────────────────────────────────────────────
   let _orgs         = [];
-  let _selectedOrg  = null;   // { id, name, slug, role, members: [] }
+  let _selectedOrg  = null;
   let _currentUser  = null;
 
-  // ── Init ───────────────────────────────────────────────────────────────────
   initShell('orgs', async function (user) {
     _currentUser = user;
     await loadOrgs();
   });
 
-  // ── Data loading ───────────────────────────────────────────────────────────
   async function loadOrgs() {
     const list = document.getElementById('orgList');
     list.innerHTML = '<div class="loading-text">Loading…</div>';
@@ -283,7 +282,6 @@
     const detail = document.getElementById('orgDetail');
     detail.innerHTML = '<div class="loading-text">Loading…</div>';
 
-    // update breadcrumb
     const org = _orgs.find(o => o.id === orgId);
     document.getElementById('crumbSep').style.display = '';
     document.getElementById('crumbOrg').style.display  = '';
@@ -303,11 +301,8 @@
     }
 
     _selectedOrg = { ...data.org, members: data.members ?? [], role: org?.role };
-
-    // re-render list to update selected state
     _orgs = _orgs.map(o => o.id === orgId ? { ...o, memberCount: data.members?.length } : o);
     renderOrgList();
-
     renderOrgDetail();
   }
 
@@ -349,7 +344,7 @@
         <span class="role-badge ${m.role}">${m.role}</span>
         ${showRemove
           ? `<button class="btn-icon" title="Remove member"
-                     onclick="removeMember('${orgId}','${m.user_id}','${escHtml(m.username)}')">✕</button>`
+                     onclick="removeMember('${orgId}','${m.user_id}','${escHtml(m.username)}')">&#x2715;</button>`
           : '<span style="width:24px;"></span>'}
       </div>`;
   }
@@ -372,7 +367,6 @@
     document.getElementById('crumbPage').onclick      = null;
   }
 
-  // ── Create org ─────────────────────────────────────────────────────────────
   function openNewOrgModal() {
     document.getElementById('newOrgName').value = '';
     document.getElementById('newOrgNameError').classList.remove('visible');
@@ -420,7 +414,6 @@
     selectOrg(data.org.id);
   }
 
-  // ── Add member ─────────────────────────────────────────────────────────────
   function openAddMemberModal() {
     document.getElementById('addMemberUsername').value = '';
     document.getElementById('addMemberUsernameError').classList.remove('visible');
@@ -471,7 +464,6 @@
     await selectOrg(_selectedOrg.id);
   }
 
-  // ── Remove member ──────────────────────────────────────────────────────────
   async function removeMember(orgId, userId, username) {
     if (!confirm(`Remove ${username} from this organization?`)) return;
 
@@ -486,7 +478,6 @@
     await selectOrg(orgId);
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
   function closeModal(id) {
     document.getElementById(id).classList.remove('open');
   }
