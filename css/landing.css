@@ -1,0 +1,446 @@
+/* landing.css — Ronin Citadel landing page styles
+   Depends on: css/main.css (shared design tokens in :root)
+   Config vars below extend those tokens with landing-page-specific values.
+   Content config (text, icons, card data) lives in js/landing-config.js     */
+
+/* ════════════════════════════════════════════════════════════════════════════
+   LANDING PAGE CONFIG VARS — layout dimensions and component sizes.
+   ════════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Page layout ── */
+  --sidebar-left-width:  220px;
+  --sidebar-right-width: 200px;
+  --main-pad-h:          32px;
+  --main-pad-v:          28px;
+
+  /* ── Hero ── */
+  --hero-title-size: 52px;
+  --hero-sub-size:   17px;
+  --hero-top-pad:    40px;
+
+  /* ── Feature cards ── */
+  --card-height: 680px;
+  --cards-gap:   16px;
+  --card-radius: var(--radius-lg);
+
+  /* ── Card overlay gradient ── */
+  --card-overlay-top:    rgba(0, 0, 0, 0.05);
+  --card-overlay-mid1:   rgba(0, 0, 0, 0.25);
+  --card-overlay-mid2:   rgba(0, 0, 0, 0.78);
+  --card-overlay-bottom: rgba(0, 0, 0, 0.97);
+
+  /* ── Card icon area ── */
+  --card-icon-height:  52%;
+  --card-icon-size:    56px;
+  --card-icon-opacity: 0.45;
+
+  /* ── Card body ── */
+  --card-body-pad-h: 22px;
+  --card-body-pad-b: 20px;
+
+  /* ── Tags ── */
+  --tag-bg:     rgba(55, 8, 0, 0.75);
+  --tag-color:  rgba(205, 120, 95, 0.9);
+  --tag-border: rgba(90, 14, 0, 0.55);
+}
+
+/* ── Landing layout ─────────────────────────────────────────────────────────*/
+.page-layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-left-width) 1fr var(--sidebar-right-width);
+  min-height: calc(100vh - 60px);
+}
+
+/* ── Left sidebar ────────────────────────────────────────────────────────── */
+.sidebar-left {
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+  padding: var(--space-lg) 14px;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.sidebar-heading {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border);
+}
+
+.feature-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.feature-item {
+  padding: var(--space-sm) 12px;
+  font-size: var(--font-base);
+  color: var(--text-dim);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  user-select: none;
+}
+
+.feature-item:hover,
+.feature-item.active {
+  background: var(--bg-3);
+  color: var(--text);
+  border-left-color: var(--red-bright);
+}
+
+/* ── Center main ─────────────────────────────────────────────────────────── */
+.main-content {
+  padding: var(--main-pad-v) var(--main-pad-h);
+  overflow-y: auto;
+}
+
+.search-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: var(--space-xl);
+}
+
+.search-input {
+  flex: 1;
+  background: var(--bg-2);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-md);
+  padding: 10px var(--space-md);
+  color: var(--text);
+  font-size: var(--font-base);
+  outline: none;
+  transition: border-color var(--t-base), box-shadow var(--t-base);
+}
+
+.search-input::placeholder { color: var(--text-muted); }
+
+.search-input:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px var(--red-dim);
+}
+
+.search-btn {
+  padding: 10px 22px;
+  background: var(--red);
+  color: var(--text);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-base);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background var(--t-base), box-shadow var(--t-base);
+}
+
+.search-btn:hover {
+  background: var(--red-bright);
+  box-shadow: 0 0 12px var(--red-glow);
+}
+
+/* ── Feature cards ───────────────────────────────────────────────────────── */
+.feature-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--cards-gap);
+}
+
+.feature-card {
+  position: relative;
+  height: var(--card-height);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
+/* The image/gradient layer.
+   To use a real photo: add style="background-image:url('images/photo.jpg')"
+   directly on the .card-img element. */
+.card-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.45s ease;
+}
+
+.feature-card:hover .card-img { transform: scale(1.05); }
+
+/* Dark gradient overlay — transparent top, near-black bottom */
+.card-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--card-overlay-top)    0%,
+    var(--card-overlay-mid1)   35%,
+    var(--card-overlay-mid2)   62%,
+    var(--card-overlay-bottom) 100%
+  );
+}
+
+/* ── Atmospheric gradient per card (unique colour palette) ────────────────── */
+#card-rsm .card-img {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
+    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
+    radial-gradient(ellipse at 22% 28%, #1c2268 0%, transparent 52%),
+    radial-gradient(ellipse at 80% 72%, #001c30 0%, transparent 52%),
+    linear-gradient(155deg, #060912 0%, #020408 100%);
+}
+
+#card-portier .card-img {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
+    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
+    radial-gradient(ellipse at 75% 22%, #4a0808 0%, transparent 52%),
+    radial-gradient(ellipse at 20% 75%, #280300 0%, transparent 52%),
+    linear-gradient(155deg, #0c0404 0%, #050202 100%);
+}
+
+#card-disk .card-img {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
+    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
+    radial-gradient(ellipse at 28% 32%, #003848 0%, transparent 52%),
+    radial-gradient(ellipse at 75% 72%, #001828 0%, transparent 52%),
+    linear-gradient(155deg, #030a10 0%, #020508 100%);
+}
+
+#card-forge .card-img {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
+    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
+    radial-gradient(ellipse at 62% 22%, #342005 0%, transparent 52%),
+    radial-gradient(ellipse at 28% 78%, #1e0900 0%, transparent 52%),
+    linear-gradient(155deg, #0a0600 0%, #060400 100%);
+}
+
+#card-console .card-img {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 19px, rgba(0,255,80,0.018) 20px),
+    repeating-linear-gradient(90deg,  transparent, transparent 59px, rgba(0,255,80,0.018) 60px),
+    radial-gradient(ellipse at 20% 30%, #002812 0%, transparent 55%),
+    radial-gradient(ellipse at 78% 68%, #001a0c 0%, transparent 52%),
+    linear-gradient(155deg, #030d06 0%, #020805 100%);
+}
+
+#card-monitor .card-img {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(0,180,255,0.018) 40px),
+    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(0,180,255,0.018) 40px),
+    radial-gradient(ellipse at 72% 25%, #001c3a 0%, transparent 55%),
+    radial-gradient(ellipse at 22% 75%, #000c20 0%, transparent 52%),
+    linear-gradient(155deg, #020810 0%, #010508 100%);
+}
+
+#card-roles .card-img {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(140,0,255,0.018) 40px),
+    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(140,0,255,0.018) 40px),
+    radial-gradient(ellipse at 30% 25%, #1a0835 0%, transparent 55%),
+    radial-gradient(ellipse at 74% 72%, #0d0020 0%, transparent 52%),
+    linear-gradient(155deg, #080410 0%, #040208 100%);
+}
+
+#card-2fa .card-img {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(255,190,0,0.018) 40px),
+    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(255,190,0,0.018) 40px),
+    radial-gradient(ellipse at 65% 22%, #281a00 0%, transparent 55%),
+    radial-gradient(ellipse at 25% 75%, #180e00 0%, transparent 52%),
+    linear-gradient(155deg, #0a0700 0%, #060400 100%);
+}
+
+#card-team .card-img {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(0,200,180,0.018) 40px),
+    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(0,200,180,0.018) 40px),
+    radial-gradient(ellipse at 25% 28%, #002828 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 72%, #001818 0%, transparent 52%),
+    linear-gradient(155deg, #020c0c 0%, #010808 100%);
+}
+
+#card-remote .card-img {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(100,150,255,0.018) 40px),
+    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(100,150,255,0.018) 40px),
+    radial-gradient(ellipse at 60% 20%, #08102a 0%, transparent 55%),
+    radial-gradient(ellipse at 25% 78%, #040818 0%, transparent 52%),
+    linear-gradient(155deg, #030610 0%, #020408 100%);
+}
+
+/* Large icon floating in the upper visual area */
+.card-icon-wrap {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: var(--card-icon-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.card-icon-large {
+  font-size: var(--card-icon-size);
+  line-height: 1;
+  opacity: var(--card-icon-opacity);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.feature-card:hover .card-icon-large {
+  opacity: 0.8;
+  transform: scale(1.1) translateY(-5px);
+}
+
+/* Text body sits above the gradient overlay */
+.card-body {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 0 var(--card-body-pad-h) var(--card-body-pad-b);
+  z-index: 3;
+}
+
+.card-eyebrow {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--red-bright);
+  margin-bottom: 5px;
+}
+
+.card-title {
+  font-size: var(--font-2xl);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: var(--space-sm);
+  letter-spacing: 0.01em;
+}
+
+.card-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  background: rgba(35, 35, 0, 0.85);
+  color: #bbbb44;
+  border: 1px solid rgba(70, 70, 0, 0.6);
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.card-desc {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgba(195, 195, 205, 0.65);
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 2px 9px;
+  background: var(--tag-bg);
+  color: var(--tag-color);
+  border: 1px solid var(--tag-border);
+  border-radius: 8px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  backdrop-filter: blur(6px);
+}
+
+/* ── Right sidebar ───────────────────────────────────────────────────────── */
+.sidebar-right {
+  background: var(--bg-2);
+  border-left: 1px solid var(--border);
+}
+
+/* ── Hero section ────────────────────────────────────────────────────────── */
+.hero {
+  margin-bottom: var(--space-xl);
+  padding: var(--hero-top-pad) 0 0;
+  text-align: center;
+}
+
+.hero-eyebrow {
+  font-size: var(--font-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--red-bright);
+  margin-bottom: 14px;
+}
+
+.hero-title {
+  font-size: var(--hero-title-size);
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 18px;
+  letter-spacing: -0.01em;
+}
+
+.hero-title span {
+  color: var(--red-bright);
+  text-shadow: 0 0 32px var(--red-glow);
+}
+
+.hero-sub {
+  font-size: var(--hero-sub-size);
+  color: var(--text-dim);
+  line-height: 1.65;
+  max-width: 600px;
+  margin: 0 auto 26px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.hero-divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--red-dim), transparent);
+  margin-bottom: 28px;
+}
+
+.section-label {
+  font-size: var(--font-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}

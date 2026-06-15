@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ronin Citadel</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+  <div class="top-accent-bar"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo" id="navLogo"></a>
+    <div class="nav-center">
+      <span class="nav-title" id="navTitle"></span>
+    </div>
+    <div class="nav-actions" id="navActions"></div>
+  </nav>
+
+  <div class="page-layout">
+
+    <aside class="sidebar-left">
+      <div class="sidebar-heading">Features</div>
+      <ul class="feature-list" id="featureList"></ul>
+    </aside>
+
+    <main class="main-content">
+
+      <div class="hero" id="hero"></div>
+
+      <div class="hero-divider"></div>
+
+      <div id="features">
+        <div class="search-container">
+          <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="Search features and documentation..."
+          >
+          <button class="search-btn" onclick="filterCards()">Search</button>
+        </div>
+
+        <div class="section-label">Core Applications</div>
+
+        <div class="feature-cards" id="featureCards"></div>
+      </div>
+
+    </main>
+
+    <aside class="sidebar-right"></aside>
+
+  </div>
+
+  <!-- landing-config.js must load before landing.js -->
+  <script src="js/landing-config.js"></script>
+  <script src="js/landing.js"></script>
+
+  <script>
+    // If the visitor already has a live session, swap the CTAs so they don't
+    // see "Sign Up / Open Portal" — instead give them direct portal nav links.
+    (function () {
+      try {
+        const raw = sessionStorage.getItem('rc_access_token');
+        if (!raw) return;
+        const payload = JSON.parse(atob(raw.split('.')[1]));
+        if (payload.exp * 1000 < Date.now() + 10_000) return;
+      } catch { return; }
+
+      // Replace navbar action buttons
+      const navEl = document.getElementById('navActions');
+      if (navEl) {
+        navEl.innerHTML = '<a href="dashboard.html" class="btn btn-primary">⬡ Dashboard</a>';
+      }
+
+      // Replace hero CTAs
+      const heroEl = document.querySelector('.hero-actions');
+      if (heroEl) {
+        heroEl.innerHTML = '<a href="dashboard.html" class="btn btn-primary">⬡ Go to Dashboard</a>';
+      }
+    })();
+  </script>
+</body>
+</html>

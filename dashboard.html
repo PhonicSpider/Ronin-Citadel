@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ronin Citadel — Portal</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    /* ════════════════════════════════════════════════════════════════════════
+       DASHBOARD CONFIGURATION — layout dimensions and component colours.
+       Change these vars; the rules below will pick them up automatically.
+       ════════════════════════════════════════════════════════════════════════ */
+    :root {
+      /* ── Layout ── */
+      --dash-sidebar-width: 210px;
+      --dash-topbar-height: 40px;
+      --dash-main-bg:       #050505;
+      --dash-sidebar-bg:    #090909;
+
+      /* ── Stat bars ── */
+      --stat-track-bg:  #1a1a1a;
+      --stat-cpu-color: var(--red);
+      --stat-ram-color: #006680;
+      --stat-val-color: #444444;
+
+      /* ── Server list ── */
+      --server-hover-bg: #141414;
+
+      /* ── Topbar ── */
+      --topbar-bg:        rgba(5, 5, 5, 0.95);
+      --topbar-border:    #111111;
+      --crumb-color:      #3a3a3a;
+      --crumb-hover:      #cc8866;
+      --crumb-active:     #888888;
+      --crumb-sep-color:  #222222;
+      --topbar-user-color:#444444;
+
+      /* ── User avatar ── */
+      --avatar-size:  24px;
+      --avatar-color: #cc8877;
+
+      /* ── Sidebar sections ── */
+      --sb-section-border: #131313;
+
+      /* ── Logout button ── */
+      --logout-color:       #444444;
+      --logout-hover-bg:    var(--red-dim);
+      --logout-hover-color: #cc8877;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .dash-layout {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .dash-sidebar {
+      width: var(--dash-sidebar-width);
+      min-width: var(--dash-sidebar-width);
+      display: flex;
+      flex-direction: column;
+      background: var(--dash-sidebar-bg);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-2);
+    }
+
+    .sb-section {
+      padding: 14px 14px;
+      border-bottom: 1px solid var(--sb-section-border);
+    }
+
+    .sb-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    /* Side nav */
+    .side-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .side-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      font-size: 12px;
+      color: var(--text-dim);
+      text-decoration: none;
+      border-radius: 4px;
+      border-left: 2px solid transparent;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+      cursor: pointer;
+    }
+
+    .side-nav-item:hover {
+      background: var(--bg-3);
+      color: var(--text);
+    }
+
+    .side-nav-item.active {
+      background: var(--bg-3);
+      color: var(--text);
+      border-left-color: var(--red-bright);
+    }
+
+    /* Stat rows */
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+
+    .stat-row:last-child { margin-bottom: 0; }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--cyan);
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      width: 32px;
+      flex-shrink: 0;
+    }
+
+    .stat-bar {
+      flex: 1;
+      height: 3px;
+      background: var(--stat-track-bg);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .stat-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+
+    .stat-fill.cpu { background: var(--stat-cpu-color); }
+    .stat-fill.ram { background: var(--stat-ram-color); }
+
+    .stat-val {
+      font-size: 10px;
+      color: var(--stat-val-color);
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      width: 28px;
+      text-align: right;
+    }
+
+    /* Server list */
+    .sb-section.servers { flex: 1; }
+
+    .server-entry {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .server-entry:hover { background: var(--server-hover-bg); }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .server-entry.online .status-dot {
+      background: var(--online);
+      box-shadow: 0 0 5px var(--online);
+    }
+
+    .server-entry.offline .status-dot { background: var(--offline); }
+
+    .server-name {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .server-entry.online .server-name { color: #ccc; }
+
+    .sb-logout {
+      margin-top: auto;
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px;
+      font-size: 12px;
+      color: var(--logout-color);
+      cursor: pointer;
+      border-top: 1px solid var(--border);
+      text-decoration: none;
+      transition: color var(--t-base), background var(--t-base);
+    }
+
+    .logout-btn:hover {
+      background: var(--logout-hover-bg);
+      color: var(--logout-hover-color);
+    }
+
+    /* ── Main area ── */
+    .dash-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--dash-main-bg);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Top bar inside main */
+    .dash-topbar {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 16px;
+      height: var(--dash-topbar-height);
+      border-bottom: 1px solid var(--topbar-border);
+      background: var(--topbar-bg);
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .crumb {
+      font-size: 11px;
+      color: var(--crumb-color);
+      cursor: pointer;
+      transition: color var(--t-fast);
+      padding: 2px 4px;
+      border-radius: var(--radius-sm);
+    }
+
+    .crumb:hover { color: var(--crumb-hover); }
+
+    .crumb.active {
+      color: var(--crumb-active);
+      cursor: default;
+    }
+
+    .crumb-sep {
+      font-size: 11px;
+      color: var(--crumb-sep-color);
+    }
+
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--topbar-user-color);
+    }
+
+    .user-avatar {
+      width: var(--avatar-size);
+      height: var(--avatar-size);
+      border-radius: 50%;
+      background: var(--red-dim);
+      border: 1px solid var(--red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--avatar-color);
+    }
+
+    /* ── Web canvas area ── */
+    .web-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #webContainer {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      will-change: transform, opacity;
+    }
+
+    #webSvg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ── Node info tooltip ── */
+    .node-tooltip {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(12,12,12,0.95);
+      border: 1px solid #1e1e1e;
+      border-top: 2px solid var(--red);
+      padding: 10px 22px;
+      border-radius: 4px;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s;
+      min-width: 180px;
+      max-width: 300px;
+      z-index: 20;
+    }
+
+    .node-tooltip.visible { opacity: 1; }
+
+    .tooltip-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .tooltip-desc {
+      font-size: 11px;
+      color: #555;
+    }
+
+    /* ── Action panel (shown for leaf nodes) ── */
+    .action-panel {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(5,5,5,0.96);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .action-panel.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .action-panel-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .action-panel-desc {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 14px;
+    }
+
+    .action-confirm {
+      padding: 10px 32px;
+      background: var(--red);
+      color: var(--text);
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+
+    .action-confirm:hover {
+      background: var(--red-bright);
+      box-shadow: 0 0 16px var(--red-glow);
+    }
+
+    .action-deny {
+      padding: 10px 32px;
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border-2);
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .action-deny:hover {
+      border-color: #444;
+      color: var(--text);
+    }
+
+    /* ── Home / action rows ── */
+    .dash-home {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      overflow-y: auto;
+    }
+
+    .home-welcome {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .home-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .home-sub {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .home-actions {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .action-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--dash-sidebar-bg);
+      border: 1px solid #111111;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .action-row:hover {
+      background: #111111;
+      border-color: #1e1e1e;
+    }
+
+    .action-icon {
+      font-size: 20px;
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+      color: var(--text-dim);
+    }
+
+    .action-body { flex: 1; }
+
+    .action-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .action-desc {
+      font-size: 12px;
+      color: #444444;
+      line-height: 1.4;
+    }
+
+    .action-arrow {
+      font-size: 20px;
+      color: #333333;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+
+    .action-row:hover .action-arrow { color: var(--red); }
+
+    /* ── Password change modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      background: #0d0d0d;
+      border: 1px solid #1e1e1e;
+      border-top: 2px solid var(--red-bright);
+      border-radius: 8px;
+      padding: 28px;
+      width: 100%;
+      max-width: 420px;
+      animation: modalIn 0.18s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to   { opacity: 1; transform: scale(1)    translateY(0); }
+    }
+    .modal-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .modal-sub   { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5; }
+    .modal-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .modal-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--text-dim);
+    }
+    .modal-input {
+      padding: 8px 12px;
+      background: #131313;
+      border: 1px solid #222;
+      border-radius: 4px;
+      font-size: 13px;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    .modal-input:focus { border-color: var(--red); }
+    .modal-error {
+      font-size: 12px; color: #ff6655;
+      padding: 8px 12px;
+      background: rgba(139,21,0,0.12);
+      border: 1px solid var(--red);
+      border-radius: 4px;
+      margin-bottom: 10px;
+      display: none;
+    }
+    .modal-error.visible { display: block; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="dash-layout">
+
+    <!-- ── Sidebar ── -->
+    <aside class="dash-sidebar">
+      <a href="index.html" class="sidebar-logo" style="text-decoration:none; color:inherit;">
+        <span class="logo-icon">⛩</span>
+        <span class="logo-text">Ronin Citadel</span>
+      </a>
+
+      <div class="sb-section servers" id="sidebarServers">
+        <div class="sb-label">Servers</div>
+        <div style="font-size:11px; color:var(--text-muted); padding:4px 0;">Loading…</div>
+      </div>
+
+      <div class="sb-logout">
+        <a href="#" class="logout-btn">↩ Logout</a>
+      </div>
+    </aside>
+
+    <!-- ── Main ── -->
+    <main class="dash-main">
+
+      <div class="dash-topbar">
+        <div class="breadcrumb" id="breadcrumb">
+          <span class="crumb active">Home</span>
+        </div>
+        <div class="topbar-user">
+          <span class="user-name"></span>
+          <div class="user-avatar"></div>
+        </div>
+      </div>
+
+      <div class="web-area">
+        <div id="webContainer">
+          <svg id="webSvg"></svg>
+        </div>
+        <div class="node-tooltip" id="nodeTooltip">
+          <div class="tooltip-title" id="tooltipTitle"></div>
+          <div class="tooltip-desc"  id="tooltipDesc"></div>
+        </div>
+        <div class="action-panel" id="actionPanel">
+          <div class="action-panel-title" id="actionTitle"></div>
+          <div class="action-panel-desc"  id="actionDesc"></div>
+          <div class="action-buttons">
+            <button class="action-confirm" id="actionConfirm">Confirm</button>
+            <button class="action-deny"    id="actionDeny">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── Change Password Modal ── -->
+  <div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-card">
+      <div class="modal-title">Change Password</div>
+      <div class="modal-sub">Enter your current password, then choose a new one (minimum 8 characters).</div>
+
+      <div class="modal-error" id="pwdModalError"></div>
+
+      <div class="modal-field">
+        <label class="modal-label" for="pwdCurrent">Current Password</label>
+        <input class="modal-input" type="password" id="pwdCurrent" autocomplete="current-password">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="pwdNew">New Password</label>
+        <input class="modal-input" type="password" id="pwdNew" autocomplete="new-password">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="pwdConfirm">Confirm New Password</label>
+        <input class="modal-input" type="password" id="pwdConfirm" autocomplete="new-password">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="pwdSaveBtn" onclick="changePassword()">Save Password</button>
+        <button class="btn btn-ghost"   onclick="closeModal('changePasswordModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="js/api.js"></script>
+  <script src="js/shell.js"></script>
+  <script>
+    initShell('dashboard', async function () {
+      await loadSidebarServers();
+    });
+
+    async function loadSidebarServers() {
+      const section = document.getElementById('sidebarServers');
+
+      const orgsRes  = await RC.apiFetch('/api/orgs');
+      const orgsData = await orgsRes.json();
+
+      if (!orgsRes.ok || !orgsData.orgs?.length) {
+        section.innerHTML = '<div class="sb-label">Servers</div>'
+          + '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">No orgs yet — <a href="orgs.html" style="color:var(--cyan-dim);">create one</a>.</div>';
+        return;
+      }
+
+      const results = await Promise.all(
+        orgsData.orgs.map(org =>
+          RC.apiFetch(`/api/servers?orgId=${org.id}`).then(r => r.json())
+        )
+      );
+
+      const servers = results.flatMap(r => r.servers ?? []);
+      section.innerHTML = `<div class="sb-label">Servers (${servers.length})</div>`;
+
+      if (servers.length === 0) {
+        section.innerHTML += '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">No servers yet.</div>';
+        return;
+      }
+
+      servers.forEach(srv => {
+        const div = document.createElement('div');
+        div.className = 'server-entry ' + (srv.status === 'online' ? 'online' : 'offline');
+        div.innerHTML = `<span class="status-dot"></span><span class="server-name">${escHtml(srv.name)}</span>`;
+        section.appendChild(div);
+      });
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    // ── Password change modal ─────────────────────────────────────────────────
+    function closeModal(id) {
+      document.getElementById(id)?.classList.remove('open');
+    }
+
+    async function changePassword() {
+      const current = document.getElementById('pwdCurrent').value;
+      const newPwd  = document.getElementById('pwdNew').value;
+      const confirm = document.getElementById('pwdConfirm').value;
+      const errEl   = document.getElementById('pwdModalError');
+      const btn     = document.getElementById('pwdSaveBtn');
+
+      errEl.classList.remove('visible');
+
+      if (!current || !newPwd || !confirm) {
+        errEl.textContent = 'All fields are required.';
+        errEl.classList.add('visible');
+        return;
+      }
+      if (newPwd !== confirm) {
+        errEl.textContent = 'New passwords do not match.';
+        errEl.classList.add('visible');
+        return;
+      }
+      if (newPwd.length < 8) {
+        errEl.textContent = 'New password must be at least 8 characters.';
+        errEl.classList.add('visible');
+        return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = 'Saving…';
+
+      const res  = await RC.apiFetch('/api/users/password', {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword: current, newPassword: newPwd }),
+      });
+      const data = await res.json();
+
+      btn.disabled    = false;
+      btn.textContent = 'Save Password';
+
+      if (!res.ok) {
+        errEl.textContent = data.error ?? 'Failed to update password.';
+        errEl.classList.add('visible');
+        return;
+      }
+
+      closeModal('changePasswordModal');
+      ['pwdCurrent','pwdNew','pwdConfirm'].forEach(id => { document.getElementById(id).value = ''; });
+    }
+
+    // Modal password inputs — Enter key submits
+    ['pwdCurrent','pwdNew','pwdConfirm'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') changePassword();
+      });
+    });
+
+    // Close modal on overlay click
+    document.getElementById('changePasswordModal').addEventListener('click', function (e) {
+      if (e.target === this) closeModal('changePasswordModal');
+    });
+  </script>
+  <script src="js/spiderweb.js"></script>
+</body>
+</html>

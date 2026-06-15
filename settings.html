@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ronin Citadel — Account Settings</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/portal.css">
+  <style>
+    .settings-col {
+      max-width: 560px;
+      width: 100%;
+    }
+
+    /* ── Profile card ── */
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: var(--space-lg);
+    }
+
+    .profile-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--red-dim);
+      border: 1px solid var(--red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: #cc8877;
+      flex-shrink: 0;
+    }
+
+    .profile-name {
+      font-size: var(--font-lg);
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .profile-meta {
+      font-size: var(--font-sm);
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    /* ── Info row (read-only fields) ── */
+    .info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-label {
+      font-size: var(--font-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+    }
+
+    .info-value {
+      font-size: var(--font-base);
+      color: var(--text);
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 12px;
+    }
+
+    /* ── 2FA section ── */
+    .tfa-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+
+    .tfa-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--font-sm);
+      font-weight: 600;
+    }
+
+    .tfa-status-badge.enabled  { color: var(--online); }
+    .tfa-status-badge.disabled { color: var(--text-dim); }
+
+    /* ── QR container ── */
+    .qr-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 20px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-lg);
+      margin: var(--space-md) 0;
+    }
+
+    .qr-canvas-wrap {
+      background: #ffffff;
+      border-radius: 6px;
+      padding: 10px;
+      line-height: 0;
+    }
+
+    .qr-caption {
+      font-size: var(--font-xs);
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* ── Manual code block ── */
+    .manual-code-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .manual-code {
+      flex: 1;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-md);
+      padding: 9px 14px;
+      word-break: break-all;
+    }
+
+    /* ── 2FA OTP input ── */
+    .otp-input {
+      text-align: center;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 26px;
+      letter-spacing: 0.3em;
+      padding: 10px;
+    }
+
+    /* ── Section views — only one shown at a time ── */
+    .tfa-view { display: none; }
+    .tfa-view.active { display: block; }
+  </style>
+</head>
+<body>
+<div class="dash-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="dash-sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <span class="logo-icon">⛩</span>
+      <span class="logo-text">Ronin Citadel</span>
+    </a>
+
+    <div class="sb-footer">
+      <a href="#" class="logout-btn">↩ Logout</a>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="dash-main">
+    <div class="dash-topbar">
+      <div class="breadcrumb">
+        <span class="crumb active">Account Settings</span>
+      </div>
+      <div class="topbar-user">
+        <span class="user-name"></span>
+        <div class="user-avatar"></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="settings-col">
+
+        <!-- ── Profile ── -->
+        <div class="section-card">
+          <div class="profile-row">
+            <div class="profile-avatar" id="profileAvatar">?</div>
+            <div>
+              <div class="profile-name" id="profileName">Loading…</div>
+              <div class="profile-meta" id="profileMeta"></div>
+            </div>
+          </div>
+
+          <div id="profileInfo">
+            <!-- info rows rendered by JS -->
+          </div>
+        </div>
+
+        <!-- ── Two-Factor Authentication ── -->
+        <div class="section-card" style="margin-top:16px;">
+          <div class="section-title" style="margin-bottom:4px;">Two-Factor Authentication</div>
+          <div class="section-sub" style="margin-bottom:var(--space-md);">
+            Protect your account with a time-based one-time code from an authenticator app.
+          </div>
+
+          <!-- View A: disabled → prompt to enable -->
+          <div class="tfa-view" id="tfaDisabledView">
+            <div class="tfa-status-row">
+              <span class="tfa-status-badge disabled">● Not enabled</span>
+              <button class="btn btn-ghost" onclick="startTfaSetup()">Enable 2FA</button>
+            </div>
+            <div class="alert alert-info">
+              <span>ℹ</span>
+              <span>Without 2FA, your account relies solely on your password. We recommend enabling it.</span>
+            </div>
+          </div>
+
+          <!-- View B: setup in progress — QR + code entry -->
+          <div class="tfa-view" id="tfaSetupView">
+            <div class="alert alert-warn" style="margin-bottom:var(--space-md);">
+              <span>⚠</span>
+              <span>Scan the QR code with Google Authenticator, Authy, or any TOTP app. Then enter the 6-digit code to confirm.</span>
+            </div>
+
+            <div class="qr-wrap">
+              <div class="qr-canvas-wrap">
+                <canvas id="tfaQrCanvas"></canvas>
+              </div>
+              <div class="qr-caption">Scan with your authenticator app</div>
+            </div>
+
+            <div class="sb-label" style="margin-bottom:6px;">Can't scan? Enter manually:</div>
+            <div class="manual-code-row" style="margin-bottom:var(--space-md);">
+              <div class="manual-code" id="tfaManualCode"></div>
+              <button class="btn btn-ghost btn-sm" onclick="copyManualCode()">Copy</button>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="tfaVerifyCode">Enter the 6-digit code to confirm</label>
+              <input class="field-input otp-input" type="text" id="tfaVerifyCode"
+                     placeholder="000000" inputmode="numeric" maxlength="6" autocomplete="one-time-code" spellcheck="false">
+              <span class="field-error" id="tfaVerifyError"></span>
+            </div>
+
+            <div id="tfaSetupAlert" class="alert alert-error" style="display:none; margin-bottom:14px;"></div>
+
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-primary" id="tfaEnableBtn" onclick="enableTfa()">Verify &amp; Enable 2FA</button>
+              <button class="btn btn-ghost" onclick="cancelTfaSetup()">Cancel</button>
+            </div>
+          </div>
+
+          <!-- View C: enabled → show status + disable option -->
+          <div class="tfa-view" id="tfaEnabledView">
+            <div class="tfa-status-row">
+              <span class="tfa-status-badge enabled">● Active</span>
+              <button class="btn btn-ghost" onclick="openDisableTfaModal()">Disable 2FA</button>
+            </div>
+            <div class="alert alert-success">
+              <span>✓</span>
+              <span>Two-factor authentication is protecting your account.</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div><!-- /.settings-col -->
+    </div><!-- /.page-content -->
+  </main>
+</div>
+
+<!-- ── Disable 2FA Modal ── -->
+<div class="modal-overlay" id="disableTfaModal">
+  <div class="modal-card">
+    <div class="modal-title">Disable Two-Factor Authentication</div>
+    <div class="modal-sub">
+      Enter your current authenticator code to confirm. Once disabled, your account will only be protected by your password.
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="disableTfaCode">Authenticator Code</label>
+      <input class="field-input otp-input" type="text" id="disableTfaCode"
+             placeholder="000000" inputmode="numeric" maxlength="6" autocomplete="one-time-code" spellcheck="false">
+      <span class="field-error" id="disableTfaError"></span>
+    </div>
+
+    <div id="disableTfaAlert" class="alert alert-error" style="display:none;"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="disableTfaBtn" onclick="disableTfa()"
+              style="background:var(--red-bright); border-color:var(--red-bright);">Disable 2FA</button>
+      <button class="btn btn-ghost" onclick="closeModal('disableTfaModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- qrious — renders QR codes onto a canvas element, no external requests -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"
+        integrity="sha512-FRWs7TDxmsT5qAeTm0SWaRFSBEaKC1P5qvOkEDMWRa8O7vBqBjTMkC8WBfQRZSG4qHAKEBQlAGJnRaJrIxnA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="js/api.js"></script>
+<script src="js/shell.js"></script>
+<script>
+  // ── State ──────────────────────────────────────────────────────────────────
+  let _fullUser    = null;
+  let _otpauthUrl  = '';
+  let _manualCode  = '';
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  initShell('settings', async function (sessionUser) {
+    await loadProfile();
+  });
+
+  async function loadProfile() {
+    const res  = await RC.apiFetch('/api/users/me');
+    const data = await res.json();
+
+    if (!res.ok) {
+      document.getElementById('profileName').textContent = 'Error loading profile';
+      return;
+    }
+
+    _fullUser = data.user;
+
+    // Profile card
+    const initial = _fullUser.username.charAt(0).toUpperCase();
+    document.getElementById('profileAvatar').textContent = initial;
+    document.getElementById('profileName').textContent   = _fullUser.username;
+    document.getElementById('profileMeta').textContent   =
+      'Member since ' + fmtDate(_fullUser.createdAt);
+
+    document.getElementById('profileInfo').innerHTML = `
+      <div class="info-row">
+        <span class="info-label">Username</span>
+        <span class="info-value">${escHtml(_fullUser.username)}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value">${escHtml(_fullUser.email)}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Account ID</span>
+        <span class="info-value" style="font-size:10px;color:var(--text-muted);">${escHtml(_fullUser.id)}</span>
+      </div>`;
+
+    // 2FA section
+    setTfaView(_fullUser.totpEnabled ? 'enabled' : 'disabled');
+  }
+
+  // ── 2FA views ──────────────────────────────────────────────────────────────
+  function setTfaView(view) {
+    ['disabled', 'setup', 'enabled'].forEach(v => {
+      document.getElementById(`tfa${cap(v)}View`).classList.toggle('active', v === view);
+    });
+  }
+
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // ── Setup flow ─────────────────────────────────────────────────────────────
+  async function startTfaSetup() {
+    const res  = await RC.apiFetch('/api/auth/totp/setup', { method: 'POST' });
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (res.status === 409) {
+        // Already enabled — refresh profile to sync state
+        await loadProfile();
+        return;
+      }
+      alert(data.error ?? 'Failed to start 2FA setup. Please try again.');
+      return;
+    }
+
+    _otpauthUrl = data.otpauthUrl;
+    _manualCode = data.manualCode;
+
+    // Render QR
+    const canvas = document.getElementById('tfaQrCanvas');
+    new QRious({ element: canvas, value: _otpauthUrl, size: 180, background: '#ffffff', foreground: '#000000' });
+
+    // Show manual code
+    document.getElementById('tfaManualCode').textContent = formatSecret(_manualCode);
+
+    // Clear any previous state
+    document.getElementById('tfaVerifyCode').value = '';
+    document.getElementById('tfaVerifyError').classList.remove('visible');
+    document.getElementById('tfaSetupAlert').style.display = 'none';
+
+    setTfaView('setup');
+    setTimeout(() => document.getElementById('tfaVerifyCode').focus(), 60);
+  }
+
+  function cancelTfaSetup() {
+    setTfaView('disabled');
+  }
+
+  // Auto-submit when 6 digits entered
+  document.getElementById('tfaVerifyCode').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 6);
+    document.getElementById('tfaVerifyError').classList.remove('visible');
+    if (this.value.length === 6) enableTfa();
+  });
+
+  document.getElementById('tfaVerifyCode').addEventListener('keydown', e => {
+    if (e.key === 'Enter') enableTfa();
+  });
+
+  async function enableTfa() {
+    const code    = document.getElementById('tfaVerifyCode').value.trim();
+    const errEl   = document.getElementById('tfaVerifyError');
+    const alertEl = document.getElementById('tfaSetupAlert');
+    const btn     = document.getElementById('tfaEnableBtn');
+
+    errEl.classList.remove('visible');
+    alertEl.style.display = 'none';
+
+    if (!code || code.length !== 6) {
+      errEl.textContent = 'Enter the 6-digit code from your authenticator app.';
+      errEl.classList.add('visible');
+      return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = 'Verifying…';
+
+    const res  = await RC.apiFetch('/api/auth/totp/enable', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+
+    btn.disabled    = false;
+    btn.textContent = 'Verify & Enable 2FA';
+
+    if (!res.ok) {
+      document.getElementById('tfaVerifyCode').value = '';
+      alertEl.textContent   = data.error ?? 'Verification failed.';
+      alertEl.style.display = 'flex';
+      return;
+    }
+
+    _fullUser.totpEnabled = true;
+    setTfaView('enabled');
+  }
+
+  function copyManualCode() {
+    navigator.clipboard.writeText(_manualCode).catch(() => {});
+  }
+
+  // ── Disable flow ───────────────────────────────────────────────────────────
+  function openDisableTfaModal() {
+    document.getElementById('disableTfaCode').value = '';
+    document.getElementById('disableTfaError').classList.remove('visible');
+    document.getElementById('disableTfaAlert').style.display = 'none';
+    document.getElementById('disableTfaModal').classList.add('open');
+    setTimeout(() => document.getElementById('disableTfaCode').focus(), 60);
+  }
+
+  document.getElementById('disableTfaCode').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 6);
+    document.getElementById('disableTfaError').classList.remove('visible');
+    if (this.value.length === 6) disableTfa();
+  });
+
+  document.getElementById('disableTfaCode').addEventListener('keydown', e => {
+    if (e.key === 'Enter') disableTfa();
+  });
+
+  async function disableTfa() {
+    const code    = document.getElementById('disableTfaCode').value.trim();
+    const errEl   = document.getElementById('disableTfaError');
+    const alertEl = document.getElementById('disableTfaAlert');
+    const btn     = document.getElementById('disableTfaBtn');
+
+    errEl.classList.remove('visible');
+    alertEl.style.display = 'none';
+
+    if (!code || code.length !== 6) {
+      errEl.textContent = 'Enter the 6-digit code from your authenticator app.';
+      errEl.classList.add('visible');
+      return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = 'Disabling…';
+
+    const res  = await RC.apiFetch('/api/auth/totp/disable', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+
+    btn.disabled    = false;
+    btn.textContent = 'Disable 2FA';
+
+    if (!res.ok) {
+      document.getElementById('disableTfaCode').value = '';
+      alertEl.textContent   = data.error ?? 'Failed to disable 2FA.';
+      alertEl.style.display = 'flex';
+      return;
+    }
+
+    _fullUser.totpEnabled = false;
+    closeModal('disableTfaModal');
+    setTfaView('disabled');
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  // Insert spaces every 4 chars for readability
+  function formatSecret(s) {
+    return s.replace(/(.{4})/g, '$1 ').trim();
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   SHARED DESIGN TOKENS — every colour, size, and timing value used across
+   the portal lives here. Edit these vars; do not scatter magic numbers.
+   ════════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Colours ── */
+  --bg:           #080808;
+  --bg-2:         #0f0f0f;
+  --bg-3:         #141414;
+  --border:       #1c1c1c;
+  --border-2:     #282828;
+  --red:          #8b1500;
+  --red-bright:   #cc2200;
+  --red-dim:      #3a0800;
+  --red-glow:     rgba(204, 34, 0, 0.35);
+  --cyan:         #00e5ff;
+  --cyan-dim:     #00b8cc;
+  --cyan-glow:    rgba(0, 229, 255, 0.2);
+  --text:         #f0f0f0;
+  --text-dim:     #888888;
+  --text-muted:   #3a3a3a;
+  --online:       #00cc44;
+  --offline:      #444444;
+  --scrollbar-thumb:       #2a2a2a;
+  --scrollbar-thumb-hover: var(--red);
+
+  /* ── Typography ── */
+  --font-xs:   10px;
+  --font-sm:   11px;
+  --font-base: 13px;
+  --font-md:   15px;
+  --font-lg:   18px;
+  --font-xl:   20px;
+  --font-2xl:  28px;
+
+  /* ── Spacing ── */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+
+  /* ── Border radii ── */
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 10px;
+
+  /* ── Transition durations ── */
+  --t-fast: 0.12s;
+  --t-base: 0.15s;
+  --t-slow: 0.4s;
+
+  /* ── Layout ── */
+  --navbar-height:      56px;
+  --accent-bar-height:  4px;
+  --navbar-pad-h:       var(--space-lg);
+  --btn-pad:            7px 18px;
+  --btn-font:           var(--font-base);
+  --scrollbar-width:    6px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top accent bar ── */
+.top-accent-bar {
+  height: var(--accent-bar-height);
+  background: linear-gradient(90deg,
+    #1a0000 0%,
+    #6b0000 20%,
+    #cc2200 50%,
+    #6b0000 80%,
+    #1a0000 100%);
+}
+
+/* ── Navbar ── */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--navbar-pad-h);
+  height: var(--navbar-height);
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-icon {
+  font-size: var(--font-xl);
+  line-height: 1;
+}
+
+.logo-text {
+  font-size: var(--font-md);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.nav-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-title {
+  font-size: var(--font-lg);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-shadow: 0 0 24px var(--red-glow);
+  white-space: nowrap;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--btn-pad);
+  border-radius: var(--radius-md);
+  font-size: var(--btn-font);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background var(--t-base), border-color var(--t-base), color var(--t-base), box-shadow var(--t-base);
+  white-space: nowrap;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border-2);
+  color: var(--text-dim);
+}
+.btn-ghost:hover {
+  border-color: var(--red-bright);
+  color: var(--text);
+}
+
+.btn-primary {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--text);
+}
+.btn-primary:hover {
+  background: var(--red-bright);
+  border-color: var(--red-bright);
+  box-shadow: 0 0 14px var(--red-glow);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-width);
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}

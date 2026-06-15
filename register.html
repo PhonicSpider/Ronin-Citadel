@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ronin Citadel — Create Account</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── Auth layout ── */
+    .auth-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl) var(--space-md);
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(139,21,0,0.07) 0%, transparent 70%),
+        var(--bg);
+    }
+
+    /* ── Card ── */
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--red-bright);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl) var(--space-xl);
+    }
+
+    .auth-card-header {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+    }
+
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: var(--space-md);
+      text-decoration: none;
+    }
+
+    .auth-logo-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .auth-logo-text {
+      font-size: var(--font-md);
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.06em;
+    }
+
+    .auth-card-title {
+      font-size: var(--font-xl);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: var(--space-xs);
+    }
+
+    .auth-card-sub {
+      font-size: var(--font-sm);
+      color: var(--text-dim);
+    }
+
+    /* ── Form ── */
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: var(--font-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-md);
+      font-size: var(--font-base);
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color var(--t-base), box-shadow var(--t-base);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-input:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 2px rgba(139, 21, 0, 0.2);
+    }
+
+    .form-input.error {
+      border-color: var(--red-bright);
+      box-shadow: 0 0 0 2px rgba(204, 34, 0, 0.2);
+    }
+
+    .form-hint {
+      font-size: var(--font-xs);
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .form-error {
+      font-size: var(--font-xs);
+      color: var(--red-bright);
+      margin-top: 2px;
+      display: none;
+    }
+
+    .form-error.visible {
+      display: block;
+    }
+
+    /* ── Password strength bar ── */
+    .strength-bar-wrap {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .strength-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .strength-label {
+      font-size: var(--font-xs);
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── Divider ── */
+    .form-divider {
+      height: 1px;
+      background: var(--border);
+      margin: var(--space-xs) 0;
+    }
+
+    /* ── Submit ── */
+    .btn-auth {
+      width: 100%;
+      padding: 10px;
+      background: var(--red);
+      border: 1px solid var(--red);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-size: var(--font-base);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background var(--t-base), box-shadow var(--t-base);
+      font-family: inherit;
+    }
+
+    .btn-auth:hover {
+      background: var(--red-bright);
+      box-shadow: 0 0 16px var(--red-glow);
+    }
+
+    .btn-auth:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* ── Global error banner ── */
+    .auth-banner {
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: var(--font-sm);
+      display: none;
+      margin-bottom: var(--space-md);
+    }
+
+    .auth-banner.error {
+      display: flex;
+      background: rgba(139,21,0,0.15);
+      border: 1px solid var(--red);
+      color: #ff6655;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    /* ── Footer link ── */
+    .auth-footer {
+      text-align: center;
+      margin-top: var(--space-md);
+      font-size: var(--font-sm);
+      color: var(--text-dim);
+    }
+
+    .auth-footer a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color var(--t-base);
+    }
+
+    .auth-footer a:hover {
+      color: #fff;
+    }
+
+    /* ── Page footer ── */
+    .page-footer {
+      padding: var(--space-md);
+      text-align: center;
+      font-size: var(--font-xs);
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-accent-bar"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-icon">⛩</span>
+      <span class="logo-text">Ronin Citadel</span>
+    </a>
+    <div class="nav-center">
+      <span class="nav-title">Ronin Empire</span>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-ghost">Sign In</a>
+    </div>
+  </nav>
+
+  <div class="auth-body">
+    <div class="auth-card">
+
+      <div class="auth-card-header">
+        <div class="auth-card-title">Create Account</div>
+        <div class="auth-card-sub">Join the Ronin Empire portal</div>
+      </div>
+
+      <!-- Global error banner -->
+      <div class="auth-banner" id="globalError">
+        <span>⚠</span>
+        <span id="globalErrorText"></span>
+      </div>
+
+      <form class="auth-form" id="registerForm" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <input
+            class="form-input"
+            type="text"
+            id="username"
+            name="username"
+            placeholder="your_handle"
+            autocomplete="username"
+            maxlength="32"
+            spellcheck="false"
+          >
+          <span class="form-error" id="usernameError"></span>
+          <span class="form-hint">3–32 characters. Letters, numbers, underscores, hyphens.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input
+            class="form-input"
+            type="email"
+            id="email"
+            name="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+          >
+          <span class="form-error" id="emailError"></span>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input
+            class="form-input"
+            type="password"
+            id="password"
+            name="password"
+            placeholder="••••••••••••"
+            autocomplete="new-password"
+          >
+          <div class="strength-bar-wrap">
+            <div class="strength-bar" id="strengthBar"></div>
+          </div>
+          <span class="strength-label" id="strengthLabel"></span>
+          <span class="form-error" id="passwordError"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">Confirm Password</label>
+          <input
+            class="form-input"
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="••••••••••••"
+            autocomplete="new-password"
+          >
+          <span class="form-error" id="confirmError"></span>
+        </div>
+
+        <button type="submit" class="btn-auth" id="submitBtn">Create Account</button>
+
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Sign in</a>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    Ronin Citadel · Ronin Empire &nbsp;·&nbsp; Self-hosted portal
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script>
+    // ── Password strength ───────────────────────────────────────────────────
+    const strengthBar   = document.getElementById('strengthBar');
+    const strengthLabel = document.getElementById('strengthLabel');
+
+    const STRENGTH_LEVELS = [
+      { label: '',        color: 'transparent', width: '0%'   },
+      { label: 'Weak',    color: '#cc3300',      width: '25%'  },
+      { label: 'Fair',    color: '#cc7700',      width: '50%'  },
+      { label: 'Good',    color: '#336699',      width: '75%'  },
+      { label: 'Strong',  color: '#00aa44',      width: '100%' },
+    ];
+
+    function scorePassword(pw) {
+      if (!pw) return 0;
+      let score = 0;
+      if (pw.length >= 8)  score++;
+      if (pw.length >= 12) score++;
+      if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+      if (/[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+      return Math.min(4, score);
+    }
+
+    document.getElementById('password').addEventListener('input', function () {
+      const level = STRENGTH_LEVELS[scorePassword(this.value)];
+      strengthBar.style.width      = level.width;
+      strengthBar.style.background = level.color;
+      strengthLabel.textContent    = level.label;
+      strengthLabel.style.color    = level.color;
+    });
+
+    // ── Field helpers ───────────────────────────────────────────────────────
+    function setError(inputId, errorId, msg) {
+      const input = document.getElementById(inputId);
+      const err   = document.getElementById(errorId);
+      if (msg) {
+        input.classList.add('error');
+        err.textContent = msg;
+        err.classList.add('visible');
+      } else {
+        input.classList.remove('error');
+        err.classList.remove('visible');
+      }
+    }
+
+    function clearErrors() {
+      ['username', 'email', 'password', 'confirm'].forEach(id => {
+        const errEl = document.getElementById(id + 'Error') ||
+                      document.getElementById('confirmError');
+        if (errEl) errEl.classList.remove('visible');
+      });
+      ['username', 'email', 'password', 'confirmPassword'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('error');
+      });
+      document.getElementById('globalError').classList.remove('error');
+    }
+
+    // ── Validation ──────────────────────────────────────────────────────────
+    function validate() {
+      clearErrors();
+      let ok = true;
+
+      const username = document.getElementById('username').value.trim();
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirmPassword').value;
+
+      if (!username) {
+        setError('username', 'usernameError', 'Username is required.');
+        ok = false;
+      } else if (!/^[A-Za-z0-9_-]{3,32}$/.test(username)) {
+        setError('username', 'usernameError', 'Must be 3–32 characters. Letters, numbers, underscores, hyphens only.');
+        ok = false;
+      }
+
+      if (!email) {
+        setError('email', 'emailError', 'Email is required.');
+        ok = false;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setError('email', 'emailError', 'Enter a valid email address.');
+        ok = false;
+      }
+
+      if (!password) {
+        setError('password', 'passwordError', 'Password is required.');
+        ok = false;
+      } else if (password.length < 8) {
+        setError('password', 'passwordError', 'Password must be at least 8 characters.');
+        ok = false;
+      }
+
+      if (password && confirm !== password) {
+        setError('confirmPassword', 'confirmError', 'Passwords do not match.');
+        ok = false;
+      }
+
+      return ok;
+    }
+
+    // ── Submit ──────────────────────────────────────────────────────────────
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!validate()) return;
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled     = true;
+      btn.textContent  = 'Creating account…';
+
+      fetch(`${RC.API_BASE}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      })
+        .then(async res => {
+          const data = await res.json();
+          if (!res.ok) {
+            document.getElementById('globalErrorText').textContent = data.error ?? 'Registration failed.';
+            document.getElementById('globalError').classList.add('error');
+            btn.disabled    = false;
+            btn.textContent = 'Create Account';
+            return;
+          }
+          window.location.href = 'login.html?registered=1';
+        })
+        .catch(() => {
+          document.getElementById('globalErrorText').textContent = 'Could not reach the server. Is it running?';
+          document.getElementById('globalError').classList.add('error');
+          btn.disabled    = false;
+          btn.textContent = 'Create Account';
+        });
+    });
+
+    // Clear field errors on input
+    ['username', 'email', 'password', 'confirmPassword'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        document.getElementById(id).classList.remove('error');
+        const errId = id === 'confirmPassword' ? 'confirmError' : id + 'Error';
+        const err = document.getElementById(errId);
+        if (err) err.classList.remove('visible');
+      });
+    });
+  </script>
+
+</body>
+</html>

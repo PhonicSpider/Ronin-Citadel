@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ronin Citadel — Sign In</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── Auth layout ── */
+    .auth-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl) var(--space-md);
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(139,21,0,0.07) 0%, transparent 70%),
+        var(--bg);
+    }
+
+    /* ── Card ── */
+    .auth-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--red-bright);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl) var(--space-xl);
+    }
+
+    .auth-card-header {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+    }
+
+    .auth-card-title {
+      font-size: var(--font-xl);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: var(--space-xs);
+    }
+
+    .auth-card-sub {
+      font-size: var(--font-sm);
+      color: var(--text-dim);
+    }
+
+    /* ── Step panels ── */
+    .auth-step {
+      display: none;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .auth-step.active {
+      display: flex;
+    }
+
+    /* ── Form ── */
+    .auth-form {
+      display: contents;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: var(--font-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+    }
+
+    .form-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-md);
+      font-size: var(--font-base);
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color var(--t-base), box-shadow var(--t-base);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-input:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 2px rgba(139, 21, 0, 0.2);
+    }
+
+    .form-input.error {
+      border-color: var(--red-bright);
+      box-shadow: 0 0 0 2px rgba(204, 34, 0, 0.2);
+    }
+
+    /* OTP code input */
+    .otp-input {
+      text-align: center;
+      font-size: 28px;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      letter-spacing: 0.35em;
+      padding: 12px 12px;
+    }
+
+    .form-error {
+      font-size: var(--font-xs);
+      color: var(--red-bright);
+      display: none;
+    }
+
+    .form-error.visible {
+      display: block;
+    }
+
+    /* ── Global error banner ── */
+    .auth-banner {
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: var(--font-sm);
+      display: none;
+    }
+
+    .auth-banner.error {
+      display: flex;
+      background: rgba(139,21,0,0.15);
+      border: 1px solid var(--red);
+      color: #ff6655;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .auth-banner.success {
+      display: flex;
+      background: rgba(0, 170, 68, 0.12);
+      border: 1px solid #00aa44;
+      color: #44dd88;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    /* ── 2FA info block ── */
+    .tfa-info {
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      border-left: 3px solid var(--cyan);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+
+    .tfa-info-title {
+      font-size: var(--font-sm);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .tfa-info-body {
+      font-size: var(--font-xs);
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ── User pill (shown on step 2) ── */
+    .tfa-user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    .tfa-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--red-dim);
+      border: 1px solid var(--red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #cc8877;
+      flex-shrink: 0;
+    }
+
+    .tfa-username {
+      font-size: var(--font-sm);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ── Submit ── */
+    .btn-auth {
+      width: 100%;
+      padding: 10px;
+      background: var(--red);
+      border: 1px solid var(--red);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-size: var(--font-base);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background var(--t-base), box-shadow var(--t-base);
+      font-family: inherit;
+    }
+
+    .btn-auth:hover {
+      background: var(--red-bright);
+      box-shadow: 0 0 16px var(--red-glow);
+    }
+
+    .btn-auth:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Back link */
+    .btn-back {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: var(--font-sm);
+      cursor: pointer;
+      font-family: inherit;
+      text-align: center;
+      padding: 0;
+      transition: color var(--t-base);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: var(--border-2);
+    }
+
+    .btn-back:hover {
+      color: var(--text);
+    }
+
+    /* ── Footer link ── */
+    .auth-footer {
+      text-align: center;
+      margin-top: var(--space-md);
+      font-size: var(--font-sm);
+      color: var(--text-dim);
+    }
+
+    .auth-footer a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color var(--t-base);
+    }
+
+    .auth-footer a:hover {
+      color: #fff;
+    }
+
+    /* ── Page footer ── */
+    .page-footer {
+      padding: var(--space-md);
+      text-align: center;
+      font-size: var(--font-xs);
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Step transition ── */
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0);   }
+    }
+
+    .auth-step.active {
+      animation: stepIn 0.22s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-accent-bar"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-icon">⛩</span>
+      <span class="logo-text">Ronin Citadel</span>
+    </a>
+    <div class="nav-center">
+      <span class="nav-title">Ronin Empire</span>
+    </div>
+    <div class="nav-actions">
+      <a href="register.html" class="btn btn-ghost">Create Account</a>
+    </div>
+  </nav>
+
+  <div class="auth-body">
+    <div class="auth-card">
+
+      <div class="auth-card-header">
+        <div class="auth-card-title" id="cardTitle">Welcome back</div>
+        <div class="auth-card-sub" id="cardSub">Sign in to your portal account</div>
+      </div>
+
+      <!-- ── Step 1: Credentials ── -->
+      <div class="auth-step active" id="step1">
+
+        <div class="auth-banner" id="registerSuccess">
+          <span>✓</span>
+          <span>Account created — sign in below.</span>
+        </div>
+
+        <div class="auth-banner error" id="loginError">
+          <span>⚠</span>
+          <span id="loginErrorText">Invalid username or password.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="identifier">Username or Email</label>
+          <input
+            class="form-input"
+            type="text"
+            id="identifier"
+            name="identifier"
+            placeholder="your_handle or you@example.com"
+            autocomplete="username"
+            spellcheck="false"
+          >
+          <span class="form-error" id="identifierError"></span>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label-row">
+            <label class="form-label" for="password">Password</label>
+            <a href="#" style="font-size:var(--font-xs);color:var(--text-muted);text-decoration:none;">Forgot password?</a>
+          </div>
+          <input
+            class="form-input"
+            type="password"
+            id="password"
+            name="password"
+            placeholder="••••••••••••"
+            autocomplete="current-password"
+          >
+          <span class="form-error" id="passwordError"></span>
+        </div>
+
+        <button class="btn-auth" id="signInBtn" type="button">Sign In</button>
+
+      </div>
+
+      <!-- ── Step 2: 2FA ── -->
+      <div class="auth-step" id="step2">
+
+        <div class="auth-banner error" id="tfaError">
+          <span>⚠</span>
+          <span id="tfaErrorText">Invalid code. Check your authenticator app.</span>
+        </div>
+
+        <div class="tfa-user-pill">
+          <div class="tfa-avatar" id="tfaAvatar"></div>
+          <span class="tfa-username" id="tfaUsername"></span>
+        </div>
+
+        <div class="tfa-info">
+          <div class="tfa-info-title">Two-Factor Authentication</div>
+          <div class="tfa-info-body">Open your authenticator app and enter the 6-digit code for Ronin Citadel.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="otpCode">Verification Code</label>
+          <input
+            class="form-input otp-input"
+            type="text"
+            id="otpCode"
+            name="otpCode"
+            placeholder="000000"
+            autocomplete="one-time-code"
+            inputmode="numeric"
+            maxlength="6"
+            spellcheck="false"
+          >
+          <span class="form-error" id="otpError"></span>
+        </div>
+
+        <button class="btn-auth" id="verifyBtn" type="button">Verify &amp; Enter Portal</button>
+        <button class="btn-back" id="backBtn" type="button">← Use a different account</button>
+
+      </div>
+
+      <div class="auth-footer" id="authFooter">
+        Don't have an account? <a href="register.html">Create one</a>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    Ronin Citadel · Ronin Empire &nbsp;·&nbsp; Self-hosted portal
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script>
+    // ── Query param: show success banner if coming from register ────────────
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('registered') === '1') {
+      document.getElementById('registerSuccess').classList.add('success');
+    }
+
+    // ── Step switching ──────────────────────────────────────────────────────
+    let resolvedUsername  = '';
+    let pendingTotpToken  = '';
+
+    function goToStep2(username) {
+      resolvedUsername = username;
+      document.getElementById('tfaAvatar').textContent   = username.charAt(0).toUpperCase();
+      document.getElementById('tfaUsername').textContent = username;
+
+      document.getElementById('cardTitle').textContent = 'Two-Step Verification';
+      document.getElementById('cardSub').textContent   = 'Enter your authenticator code';
+      document.getElementById('authFooter').style.display = 'none';
+
+      document.getElementById('step1').classList.remove('active');
+      document.getElementById('step2').classList.add('active');
+
+      setTimeout(() => document.getElementById('otpCode').focus(), 50);
+    }
+
+    function goToStep1() {
+      document.getElementById('cardTitle').textContent = 'Welcome back';
+      document.getElementById('cardSub').textContent   = 'Sign in to your portal account';
+      document.getElementById('authFooter').style.display = '';
+
+      document.getElementById('tfaError').classList.remove('error');
+      document.getElementById('otpCode').value = '';
+
+      document.getElementById('step2').classList.remove('active');
+      document.getElementById('step1').classList.add('active');
+
+      setTimeout(() => document.getElementById('identifier').focus(), 50);
+    }
+
+    // ── Field error helpers ─────────────────────────────────────────────────
+    function setFieldError(inputId, errorId, msg) {
+      const input = document.getElementById(inputId);
+      const err   = document.getElementById(errorId);
+      if (msg) {
+        input.classList.add('error');
+        err.textContent = msg;
+        err.classList.add('visible');
+      } else {
+        input.classList.remove('error');
+        err.classList.remove('visible');
+      }
+    }
+
+    function clearStep1() {
+      setFieldError('identifier', 'identifierError', '');
+      setFieldError('password',   'passwordError',   '');
+      document.getElementById('loginError').classList.remove('error');
+    }
+
+    // ── Step 1 submit ───────────────────────────────────────────────────────
+    document.getElementById('signInBtn').addEventListener('click', function () {
+      clearStep1();
+      const id  = document.getElementById('identifier').value.trim();
+      const pw  = document.getElementById('password').value;
+      let ok = true;
+
+      if (!id) {
+        setFieldError('identifier', 'identifierError', 'Enter your username or email.');
+        ok = false;
+      }
+      if (!pw) {
+        setFieldError('password', 'passwordError', 'Enter your password.');
+        ok = false;
+      }
+      if (!ok) return;
+
+      const btn = this;
+      btn.disabled    = true;
+      btn.textContent = 'Signing in…';
+
+      fetch(`${RC.API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ identifier: id, password: pw }),
+      })
+        .then(async res => {
+          const data = await res.json();
+          if (!res.ok) {
+            document.getElementById('loginErrorText').textContent = data.error ?? 'Sign in failed.';
+            document.getElementById('loginError').classList.add('error');
+            btn.disabled    = false;
+            btn.textContent = 'Sign In';
+            return;
+          }
+          if (data.requireTotp) {
+            pendingTotpToken = data.totpPendingToken;
+            goToStep2(data.username);
+            btn.disabled    = false;
+            btn.textContent = 'Sign In';
+          } else {
+            RC.setSession(data.accessToken, data.user);
+            window.location.href = 'dashboard.html';
+          }
+        })
+        .catch(() => {
+          document.getElementById('loginErrorText').textContent = 'Could not reach the server. Is it running?';
+          document.getElementById('loginError').classList.add('error');
+          btn.disabled    = false;
+          btn.textContent = 'Sign In';
+        });
+    });
+
+    // Allow Enter key on step 1 fields
+    ['identifier', 'password'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('signInBtn').click();
+      });
+      document.getElementById(id).addEventListener('input', () => {
+        document.getElementById(id).classList.remove('error');
+        const errId = id + 'Error';
+        document.getElementById(errId).classList.remove('visible');
+      });
+    });
+
+    // ── Step 2 submit ───────────────────────────────────────────────────────
+    document.getElementById('verifyBtn').addEventListener('click', function () {
+      const code = document.getElementById('otpCode').value.trim();
+      document.getElementById('tfaError').classList.remove('error');
+      setFieldError('otpCode', 'otpError', '');
+
+      if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
+        setFieldError('otpCode', 'otpError', 'Enter the 6-digit code from your authenticator app.');
+        return;
+      }
+
+      const btn = this;
+      btn.disabled    = true;
+      btn.textContent = 'Verifying…';
+
+      fetch(`${RC.API_BASE}/api/auth/verify-totp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ totpPendingToken: pendingTotpToken, code }),
+      })
+        .then(async res => {
+          const data = await res.json();
+          if (!res.ok) {
+            document.getElementById('tfaErrorText').textContent = data.error ?? 'Verification failed.';
+            document.getElementById('tfaError').classList.add('error');
+            document.getElementById('otpCode').value = '';
+            btn.disabled    = false;
+            btn.textContent = 'Verify & Enter Portal';
+            return;
+          }
+          RC.setSession(data.accessToken, data.user);
+          window.location.href = 'dashboard.html';
+        })
+        .catch(() => {
+          document.getElementById('tfaErrorText').textContent = 'Could not reach the server. Is it running?';
+          document.getElementById('tfaError').classList.add('error');
+          btn.disabled    = false;
+          btn.textContent = 'Verify & Enter Portal';
+        });
+    });
+
+    // OTP: digits only, auto-submit at 6 chars
+    document.getElementById('otpCode').addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 6);
+      this.classList.remove('error');
+      document.getElementById('otpError').classList.remove('visible');
+      if (this.value.length === 6) document.getElementById('verifyBtn').click();
+    });
+
+    document.getElementById('otpCode').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('verifyBtn').click();
+    });
+
+    document.getElementById('backBtn').addEventListener('click', goToStep1);
+  </script>
+
+</body>
+</html>
