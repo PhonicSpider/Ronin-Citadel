@@ -1,6 +1,6 @@
 // ── Ronin Citadel — shared API & auth utilities ───────────────────────────────
 // Change API_BASE to '' when frontend and backend are on the same origin (prod).
-const API_BASE = 'http://localhost:3000';
+const API_BASE = '';
 
 const RC = (() => {
   const TOKEN_KEY = 'rc_access_token';
