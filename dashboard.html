@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080808">
   <title>Ronin Citadel — Portal</title>
   <link rel="stylesheet" href="css/main.css">
   <style>
@@ -554,13 +556,18 @@
 
     /* ── Mobile sidebar overlay ── */
     .sidebar-overlay {
-      display: none;
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.6);
       z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
     }
-    .sidebar-overlay.active { display: block; }
+    .sidebar-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
     /* ── Hamburger toggle ── */
     .sb-toggle {
@@ -568,14 +575,18 @@
       background: none;
       border: none;
       color: var(--text-dim);
-      font-size: 18px;
+      font-size: 20px;
       cursor: pointer;
-      padding: 4px 8px;
+      padding: 0;
+      width: 44px;
+      height: 44px;
       border-radius: var(--radius-sm);
       line-height: 1;
-      margin-right: 10px;
+      margin-right: 4px;
       transition: color var(--t-fast), background var(--t-fast);
       flex-shrink: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
     .sb-toggle:hover { background: var(--bg-3); color: var(--text); }
 
@@ -593,6 +604,7 @@
         z-index: 100;
         transform: translateX(-100%);
         transition: transform 0.25s ease;
+        overscroll-behavior: contain;
       }
 
       .dash-sidebar.open {
@@ -603,6 +615,8 @@
       .dash-main { overflow: auto; }
 
       .sb-toggle { display: flex; align-items: center; justify-content: center; }
+
+      .side-nav-item { min-height: 44px; padding: 10px; }
 
       .web-area { min-height: calc(100vh - var(--dash-topbar-height)); }
 

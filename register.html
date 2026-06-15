@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080808">
   <title>Ronin Citadel — Create Account</title>
   <link rel="stylesheet" href="css/main.css">
   <style>
@@ -356,7 +358,7 @@
 
   <script src="js/api.js"></script>
   <script>
-    // ── Password strength ───────────────────────────────────────────────────
+    // ── Password strength ──────────────────────────────────────────────────────
     const strengthBar   = document.getElementById('strengthBar');
     const strengthLabel = document.getElementById('strengthLabel');
 
@@ -387,7 +389,7 @@
       strengthLabel.style.color    = level.color;
     });
 
-    // ── Field helpers ───────────────────────────────────────────────────────
+    // ── Field helpers ──────────────────────────────────────────────────────
     function setError(inputId, errorId, msg) {
       const input = document.getElementById(inputId);
       const err   = document.getElementById(errorId);
@@ -414,7 +416,7 @@
       document.getElementById('globalError').classList.remove('error');
     }
 
-    // ── Validation ──────────────────────────────────────────────────────────
+    // ── Validation ────────────────────────────────────────────────────────
     function validate() {
       clearErrors();
       let ok = true;
@@ -456,7 +458,7 @@
       return ok;
     }
 
-    // ── Submit ──────────────────────────────────────────────────────────────
+    // ── Submit ────────────────────────────────────────────────────────
     document.getElementById('registerForm').addEventListener('submit', function (e) {
       e.preventDefault();
       if (!validate()) return;
@@ -468,7 +470,11 @@
       fetch(`${RC.API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({
+          username: document.getElementById('username').value.trim(),
+          email:    document.getElementById('email').value.trim(),
+          password: document.getElementById('password').value,
+        }),
       })
         .then(async res => {
           const data = await res.json();
