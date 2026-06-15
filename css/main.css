@@ -212,8 +212,9 @@ body {
   .nav-actions { gap: 6px; }
 
   .nav-actions .btn {
-    padding: 5px 12px;
+    padding: 10px 12px;
     font-size: var(--font-xs);
+    min-height: 44px;
   }
 }
 
