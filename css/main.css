@@ -198,3 +198,25 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — navbar and shared base elements
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  :root {
+    --navbar-pad-h: var(--space-md);
+  }
+
+  .nav-center { display: none; }
+
+  .nav-actions { gap: 6px; }
+
+  .nav-actions .btn {
+    padding: 5px 12px;
+    font-size: var(--font-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-text { display: none; }
+}

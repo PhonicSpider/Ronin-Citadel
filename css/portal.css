@@ -441,3 +441,92 @@ html, body { height: 100%; overflow: hidden; }
   letter-spacing: 0.03em;
   line-height: 1.6;
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — portal shell (mobile sidebar + layout)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Sidebar overlay backdrop */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 90;
+}
+.sidebar-overlay.active { display: block; }
+
+/* Hamburger toggle — hidden on desktop */
+.sb-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  margin-right: 10px;
+  transition: color var(--t-fast), background var(--t-fast);
+  flex-shrink: 0;
+}
+.sb-toggle:hover { background: var(--bg-3); color: var(--text); }
+
+@media (max-width: 768px) {
+  html, body { overflow: auto; }
+
+  .dash-layout {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .dash-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+
+  .dash-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
+  }
+
+  .dash-main {
+    overflow: auto;
+    height: auto;
+  }
+
+  .sb-toggle { display: flex; align-items: center; justify-content: center; }
+
+  .two-col { flex-direction: column; }
+
+  .list-panel {
+    width: 100%;
+    min-width: 0;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .page-content { padding: var(--space-md); }
+
+  .dash-topbar { padding: 0 12px; }
+
+  .user-name { display: none; }
+}
+
+@media (max-width: 480px) {
+  .page-content { padding: 12px; }
+  .section-card { padding: 14px; }
+  .modal-actions { flex-direction: column; }
+  .modal-actions .btn { width: 100%; justify-content: center; text-align: center; }
+}

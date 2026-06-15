@@ -169,9 +169,6 @@
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.07);
 }
 
-/* The image/gradient layer.
-   To use a real photo: add style="background-image:url('images/photo.jpg')"
-   directly on the .card-img element. */
 .card-img {
   position: absolute;
   inset: 0;
@@ -182,7 +179,6 @@
 
 .feature-card:hover .card-img { transform: scale(1.05); }
 
-/* Dark gradient overlay — transparent top, near-black bottom */
 .card-img::after {
   content: '';
   position: absolute;
@@ -196,7 +192,7 @@
   );
 }
 
-/* ── Atmospheric gradient per card (unique colour palette) ────────────────── */
+/* ── Atmospheric gradient per card ────────────────────────────────────────── */
 #card-rsm .card-img {
   background:
     repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
@@ -287,7 +283,6 @@
     linear-gradient(155deg, #030610 0%, #020408 100%);
 }
 
-/* Large icon floating in the upper visual area */
 .card-icon-wrap {
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -311,7 +306,6 @@
   transform: scale(1.1) translateY(-5px);
 }
 
-/* Text body sits above the gradient overlay */
 .card-body {
   position: absolute;
   bottom: 0; left: 0; right: 0;
@@ -443,4 +437,64 @@
   letter-spacing: 0.1em;
   color: var(--text-muted);
   margin-bottom: 14px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — landing page
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .page-layout {
+    grid-template-columns: 180px 1fr;
+  }
+  .sidebar-right { display: none; }
+}
+
+@media (max-width: 768px) {
+  .page-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-left  { display: none; }
+  .sidebar-right { display: none; }
+
+  :root {
+    --hero-title-size: 34px;
+    --hero-sub-size:   15px;
+    --hero-top-pad:    24px;
+    --main-pad-h:      16px;
+    --main-pad-v:      20px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-actions .btn {
+    text-align: center;
+    justify-content: center;
+  }
+
+  .search-container { flex-direction: column; }
+
+  .search-btn { width: 100%; }
+
+  .feature-card {
+    height: auto;
+    min-height: 300px;
+  }
+
+  .card-icon-wrap { height: 38%; }
+
+  .card-title { font-size: 22px; }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --hero-title-size: 28px;
+    --hero-sub-size:   14px;
+  }
 }
