@@ -342,14 +342,23 @@ html, body { height: 100%; overflow: hidden; }
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.78);
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   z-index: 500;
   padding: var(--space-md);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
 }
 
-.modal-overlay.open { display: flex; }
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.2s ease, visibility 0s linear 0s;
+}
 
 .modal-card {
   background: var(--bg-2);

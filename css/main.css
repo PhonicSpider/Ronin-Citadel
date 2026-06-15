@@ -53,6 +53,7 @@
   /* ── Layout ── */
   --navbar-height:      56px;
   --accent-bar-height:  4px;
+  --page-offset-top: calc(var(--navbar-height) + var(--accent-bar-height));
   --navbar-pad-h:       var(--space-lg);
   --btn-pad:            7px 18px;
   --btn-font:           var(--font-base);
@@ -198,6 +199,19 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
 }
+
+/* Firefox scrollbar */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--bg);
+}
+
+/* Focus ring for keyboard navigation — suppressed for mouse/touch */
+:focus-visible {
+  outline: 2px solid var(--red-bright);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) { outline: none; }
 
 /* ════════════════════════════════════════════════════════════════════════════
    RESPONSIVE — navbar and shared base elements
