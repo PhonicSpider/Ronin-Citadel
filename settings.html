@@ -418,7 +418,9 @@
 
     if (!res.ok) {
       if (res.status === 409) { await loadProfile(); return; }
-      alert(data.error ?? 'Failed to start 2FA setup. Please try again.');
+      const el = document.getElementById('tfaSetupAlert');
+      el.innerHTML = `<span>&#x26A0;</span><span>${data.error ?? 'Failed to start 2FA setup. Please try again.'}</span>`;
+      el.style.display = 'flex';
       return;
     }
 

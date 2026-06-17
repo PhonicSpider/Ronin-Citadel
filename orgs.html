@@ -256,6 +256,37 @@
   </div>
 </div>
 
+<!-- ── Generic Confirm Modal ── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-card">
+    <div class="modal-title" id="confirmModalTitle"></div>
+    <div class="modal-sub" id="confirmModalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="confirmModalBtn" onclick="confirmAction()"
+              style="background:var(--red-bright); border-color:var(--red-bright);"></button>
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Delete Org Modal ── -->
+<div class="modal-overlay" id="deleteOrgModal">
+  <div class="modal-card">
+    <div class="modal-title">Delete Organization</div>
+    <div class="modal-sub">This will permanently delete the organization and remove all members. Type the organization name to confirm.</div>
+    <div class="field">
+      <label class="field-label" for="deleteOrgInput">Organization Name</label>
+      <input class="field-input" type="text" id="deleteOrgInput" placeholder="" autocomplete="off" spellcheck="false">
+      <span class="field-error" id="deleteOrgError"></span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="deleteOrgBtn" onclick="confirmDeleteOrg()"
+              style="background:var(--red-bright); border-color:var(--red-bright);">Delete Organization</button>
+      <button class="btn btn-ghost" onclick="closeModal('deleteOrgModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Invite Member Modal ── -->
 <div class="modal-overlay" id="inviteMemberModal">
   <div class="modal-card">
@@ -389,7 +420,7 @@
            <div class="danger-zone-title">Danger Zone</div>
            <div class="danger-row">
              <div class="danger-desc">Permanently delete this organization and all its servers.</div>
-             <button class="btn-danger" onclick="deleteOrg('${id}','${escHtml(name)}')">Delete Organization</button>
+             <button class="btn-danger" onclick="openDeleteOrgModal('${id}','${escHtml(name)}')">Delete Organization</button>
            </div>
          </div>`
       : `<div class="danger-zone">
@@ -623,18 +654,58 @@
     ).join('');
   }
 
-  async function cancelInvitation(orgId, invId, email) {
-    if (!confirm(`Cancel invitation to ${email}?`)) return;
+  let _pendingConfirm = null;
 
-    const res  = await RC.apiFetch(`/api/orgs/${orgId}/invitations/${invId}`, { method: 'DELETE' });
-    const data = await res.json();
+  function openConfirmModal(title, body, confirmText, callback) {
+    document.getElementById('confirmModalTitle').textContent = title;
+    document.getElementById('confirmModalBody').textContent  = body;
+    document.getElementById('confirmModalBtn').textContent   = confirmText;
+    _pendingConfirm = callback;
+    document.getElementById('confirmModal').classList.add('open');
+  }
 
-    if (!res.ok) {
-      showPageAlert('error', data.error ?? 'Failed to cancel invitation.');
+  function confirmAction() {
+    closeModal('confirmModal');
+    if (_pendingConfirm) { _pendingConfirm(); _pendingConfirm = null; }
+  }
+
+  let _deleteOrgPending = null;
+
+  function openDeleteOrgModal(orgId, name) {
+    document.getElementById('deleteOrgInput').value = '';
+    document.getElementById('deleteOrgInput').placeholder = name;
+    document.getElementById('deleteOrgError').textContent = '';
+    document.getElementById('deleteOrgError').classList.remove('visible');
+    _deleteOrgPending = { orgId, name };
+    document.getElementById('deleteOrgModal').classList.add('open');
+    setTimeout(() => document.getElementById('deleteOrgInput').focus(), 60);
+  }
+
+  async function confirmDeleteOrg() {
+    const input = document.getElementById('deleteOrgInput').value;
+    const errEl = document.getElementById('deleteOrgError');
+    if (input !== _deleteOrgPending.name) {
+      errEl.textContent = 'Name does not match.';
+      errEl.classList.add('visible');
       return;
     }
+    closeModal('deleteOrgModal');
+    await deleteOrg(_deleteOrgPending.orgId, _deleteOrgPending.name);
+    _deleteOrgPending = null;
+  }
 
-    loadInvitations(orgId);
+  async function cancelInvitation(orgId, invId, email) {
+    openConfirmModal(
+      'Cancel Invitation',
+      `Cancel the invitation sent to ${email}? They will no longer be able to join.`,
+      'Cancel Invitation',
+      async () => {
+        const res  = await RC.apiFetch(`/api/orgs/${orgId}/invitations/${invId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) { showPageAlert('error', data.error ?? 'Failed to cancel invitation.'); return; }
+        loadInvitations(orgId);
+      }
+    );
   }
 
   function fmtDate(iso) {
@@ -643,62 +714,56 @@
   }
 
   async function removeMember(orgId, userId, username) {
-    if (!confirm(`Remove ${username} from this organization?`)) return;
-
-    const res  = await RC.apiFetch(`/api/orgs/${orgId}/members/${userId}`, { method: 'DELETE' });
-    const data = await res.json();
-
-    if (!res.ok) {
-      showPageAlert('error', data.error ?? 'Failed to remove member.');
-      return;
-    }
-
-    await selectOrg(orgId);
+    openConfirmModal(
+      'Remove Member',
+      `Remove ${username} from this organization? They will lose access to all its servers.`,
+      'Remove Member',
+      async () => {
+        const res  = await RC.apiFetch(`/api/orgs/${orgId}/members/${userId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) { showPageAlert('error', data.error ?? 'Failed to remove member.'); return; }
+        await selectOrg(orgId);
+      }
+    );
   }
 
   // ── Change member role ─────────────────────────────────────────────────────
   async function changeRole(orgId, userId, username, newRole) {
-    if (!confirm(`Change ${username}'s role to ${newRole}?`)) return;
-
-    const res  = await RC.apiFetch(`/api/orgs/${orgId}/members/${userId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ role: newRole }),
-    });
-    const data = await res.json();
-
-    if (!res.ok) {
-      showPageAlert('error', data.error ?? 'Failed to change role.');
-      return;
-    }
-
-    await selectOrg(orgId);
+    openConfirmModal(
+      'Change Role',
+      `Change ${username}'s role to ${newRole}?`,
+      'Confirm',
+      async () => {
+        const res  = await RC.apiFetch(`/api/orgs/${orgId}/members/${userId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ role: newRole }),
+        });
+        const data = await res.json();
+        if (!res.ok) { showPageAlert('error', data.error ?? 'Failed to change role.'); return; }
+        await selectOrg(orgId);
+      }
+    );
   }
 
   // ── Leave org ──────────────────────────────────────────────────────────────
   async function leaveOrg(orgId, name) {
-    if (!confirm(`Leave "${name}"? You will lose access to all its servers.`)) return;
-
-    const res  = await RC.apiFetch(`/api/orgs/${orgId}/members/${_currentUser.id}`, { method: 'DELETE' });
-    const data = await res.json();
-
-    if (!res.ok) {
-      showPageAlert('error', data.error ?? 'Failed to leave organization.');
-      return;
-    }
-
-    clearBreadcrumb();
-    clearDetail();
-    await loadOrgs();
+    openConfirmModal(
+      `Leave "${escHtml(name)}"?`,
+      'You will lose access to all servers in this organization.',
+      'Leave Organization',
+      async () => {
+        const res  = await RC.apiFetch(`/api/orgs/${orgId}/members/${_currentUser.id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) { showPageAlert('error', data.error ?? 'Failed to leave organization.'); return; }
+        clearBreadcrumb();
+        clearDetail();
+        await loadOrgs();
+      }
+    );
   }
 
   // ── Delete org ─────────────────────────────────────────────────────────────
   async function deleteOrg(orgId, name) {
-    const confirmed = prompt(`Type the organization name to confirm deletion: "${name}"`);
-    if (confirmed !== name) {
-      if (confirmed !== null) alert('Name did not match. Deletion cancelled.');
-      return;
-    }
-
     const res  = await RC.apiFetch(`/api/orgs/${orgId}`, { method: 'DELETE' });
     const data = await res.json();
 

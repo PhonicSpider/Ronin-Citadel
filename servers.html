@@ -365,6 +365,37 @@
   </div>
 </div>
 
+<!-- ── Generic Confirm Modal ── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-card">
+    <div class="modal-title" id="confirmModalTitle"></div>
+    <div class="modal-sub" id="confirmModalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="confirmModalBtn" onclick="confirmAction()"
+              style="background:var(--red-bright); border-color:var(--red-bright);"></button>
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Delete Server Modal ── -->
+<div class="modal-overlay" id="deleteServerModal">
+  <div class="modal-card">
+    <div class="modal-title">Delete Server</div>
+    <div class="modal-sub">This will permanently delete the server and all its tokens. Type the server name to confirm.</div>
+    <div class="field">
+      <label class="field-label" for="deleteServerInput">Server Name</label>
+      <input class="field-input" type="text" id="deleteServerInput" placeholder="" autocomplete="off" spellcheck="false">
+      <span class="field-error" id="deleteServerError"></span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="confirmDeleteServer()"
+              style="background:var(--red-bright); border-color:var(--red-bright);">Delete Server</button>
+      <button class="btn btn-ghost" onclick="closeModal('deleteServerModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/api.js"></script>
 <script src="js/shell.js"></script>
 <script>
@@ -545,7 +576,7 @@
           <div class="danger-zone-title">Danger Zone</div>
           <div class="danger-row">
             <div class="danger-desc">Permanently delete this server and revoke all its agent tokens.</div>
-            <button class="btn-danger" onclick="deleteServer('${id}','${escHtml(name)}')">Delete Server</button>
+            <button class="btn-danger" onclick="openDeleteServerModal('${id}','${escHtml(name)}')">Delete Server</button>
           </div>
         </div>` : ''}
       </div>`;
@@ -706,14 +737,49 @@
     });
   }
 
-  // ── Delete server ──────────────────────────────────────────────────────────
-  async function deleteServer(serverId, name) {
-    const confirmed = prompt(`Type the server name to confirm deletion: "${name}"`);
-    if (confirmed !== name) {
-      if (confirmed !== null) alert('Name did not match. Deletion cancelled.');
+  // ── Confirm modal helpers ──────────────────────────────────────────────────
+  let _pendingConfirm = null;
+
+  function openConfirmModal(title, body, confirmText, callback) {
+    document.getElementById('confirmModalTitle').textContent = title;
+    document.getElementById('confirmModalBody').textContent  = body;
+    document.getElementById('confirmModalBtn').textContent   = confirmText;
+    _pendingConfirm = callback;
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  function confirmAction() {
+    closeModal('confirmModal');
+    if (_pendingConfirm) { _pendingConfirm(); _pendingConfirm = null; }
+  }
+
+  let _deleteServerPending = null;
+
+  function openDeleteServerModal(serverId, name) {
+    document.getElementById('deleteServerInput').value       = '';
+    document.getElementById('deleteServerInput').placeholder = name;
+    document.getElementById('deleteServerError').textContent = '';
+    document.getElementById('deleteServerError').classList.remove('visible');
+    _deleteServerPending = { serverId, name };
+    document.getElementById('deleteServerModal').classList.add('open');
+    setTimeout(() => document.getElementById('deleteServerInput').focus(), 60);
+  }
+
+  async function confirmDeleteServer() {
+    const input = document.getElementById('deleteServerInput').value;
+    const errEl = document.getElementById('deleteServerError');
+    if (input !== _deleteServerPending.name) {
+      errEl.textContent = 'Name does not match.';
+      errEl.classList.add('visible');
       return;
     }
+    closeModal('deleteServerModal');
+    await deleteServer(_deleteServerPending.serverId, _deleteServerPending.name);
+    _deleteServerPending = null;
+  }
 
+  // ── Delete server ──────────────────────────────────────────────────────────
+  async function deleteServer(serverId, name) {
     const res  = await RC.apiFetch(`/api/servers/${serverId}`, { method: 'DELETE' });
     const data = await res.json();
 
@@ -729,17 +795,17 @@
 
   // ── Revoke token ───────────────────────────────────────────────────────────
   async function revokeToken(serverId, tokenId) {
-    if (!confirm('Revoke this token? RSM will lose access and you will need to generate a new one.')) return;
-
-    const res  = await RC.apiFetch(`/api/servers/${serverId}/tokens/${tokenId}`, { method: 'DELETE' });
-    const data = await res.json();
-
-    if (!res.ok) {
-      showPageAlert('error', data.error ?? 'Failed to revoke token.');
-      return;
-    }
-
-    await selectServer(serverId);
+    openConfirmModal(
+      'Revoke Token',
+      'Revoke this token? RSM will lose access immediately and you will need to generate a new one.',
+      'Revoke Token',
+      async () => {
+        const res  = await RC.apiFetch(`/api/servers/${serverId}/tokens/${tokenId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) { showPageAlert('error', data.error ?? 'Failed to revoke token.'); return; }
+        await selectServer(serverId);
+      }
+    );
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────────────

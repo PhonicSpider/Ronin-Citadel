@@ -200,10 +200,10 @@ const LEVELS = {
   storage: {
     label: 'Storage',
     nodes: [
-      { id: '_scan',   label: 'Scan Drive', angle: -108, desc: 'Run an MFT scan of a drive',      color: '#00e5ff', isAction: true, action: 'Start a full drive scan?' },
-      { id: '_browse', label: 'Browse',     angle:  -36, desc: 'Browse the disk tree',             color: '#00e5ff', isLeaf:  true },
-      { id: '_move',   label: 'Move Files', angle:   36, desc: 'Bulk move files with dry-run',     color: '#cc8800', isAction: true, action: 'Open bulk move operation?' },
-      { id: '_delete', label: 'Delete',     angle:  108, desc: 'Bulk delete with dry-run preview', color: '#cc3300', isAction: true, action: 'Open bulk delete operation?' },
+      { id: '_scan',   label: 'Scan Drive', angle: -108, desc: 'Storage integration coming soon', color: '#00e5ff', isLeaf: true },
+      { id: '_browse', label: 'Browse',     angle:  -36, desc: 'Storage integration coming soon', color: '#00e5ff', isLeaf: true },
+      { id: '_move',   label: 'Move Files', angle:   36, desc: 'Storage integration coming soon', color: '#cc8800', isLeaf: true },
+      { id: '_delete', label: 'Delete',     angle:  108, desc: 'Storage integration coming soon', color: '#cc3300', isLeaf: true },
       { id: '_back',   label: '↩ Back',     angle:  180, desc: 'Return to main web',               color: '#886644', isBack: true },
     ],
   },
@@ -214,7 +214,7 @@ const LEVELS = {
     nodes: [
       { id: '_rsm-status',  label: 'RSM Status',  angle: -90, desc: 'View RSM process status',            color: '#00e5ff', isLeaf:  true },
       { id: '_rsm-restart', label: 'RSM Restart', angle:   0, desc: 'Restart the RSM process',            color: '#cc8800', isAction: true, action: 'Restart Ronin Server Manager?' },
-      { id: '_rsm-stop',    label: 'RSM Stop',    angle:  90, desc: 'Stop the RSM process on the server', color: '#cc3300', isAction: true, action: 'Stop Ronin Server Manager?' },
+      { id: '_rsm-stop',    label: 'RSM Stop',    angle:  90, desc: 'Stop RSM — coming in a future release', color: '#cc3300', isLeaf: true },
       { id: '_back',        label: '↩ Back',      angle: 180, desc: 'Return to main web',                 color: '#886644', isBack: true },
     ],
   },
