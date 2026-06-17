@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080808">
   <title>Ronin Citadel — Servers</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/portal.css">
@@ -212,6 +214,7 @@
 </head>
 <body>
 <div class="dash-layout">
+  <div class="sidebar-overlay"></div>
 
   <!-- ── Sidebar ── -->
   <aside class="dash-sidebar">
@@ -238,6 +241,7 @@
   <!-- ── Main ── -->
   <main class="dash-main">
     <div class="dash-topbar">
+      <button class="sb-toggle" aria-label="Toggle menu">☰</button>
       <div class="breadcrumb">
         <span class="crumb active" id="crumbPage">Servers</span>
         <span class="crumb-sep" id="crumbSep" style="display:none">›</span>
@@ -364,20 +368,20 @@
 <script src="js/api.js"></script>
 <script src="js/shell.js"></script>
 <script>
-  // ── State ──────────────────────────────────────────────────────────────────
+  // ── State ──────────────────────────────────────────────────────────────────────────
   let _orgs           = [];
   let _selectedOrgId  = null;
   let _servers        = [];
-  let _selectedServer = null;   // full server object + tokens
+  let _selectedServer = null;
   let _orgRole        = 'member';
   let _revealToken    = '';
 
-  // ── Init ───────────────────────────────────────────────────────────────────
+  // ── Init ──────────────────────────────────────────────────────────────────────────
   initShell('servers', async function () {
     await loadOrgs();
   });
 
-  // ── Orgs ───────────────────────────────────────────────────────────────────
+  // ── Orgs ─────────────────────────────────────────────────────────────────────────
   async function loadOrgs() {
     const res  = await RC.apiFetch('/api/orgs');
     const data = await res.json();
@@ -426,7 +430,7 @@
     await loadServers(orgId);
   }
 
-  // ── Servers ────────────────────────────────────────────────────────────────
+  // ── Servers ───────────────────────────────────────────────────────────────────────
   async function loadServers(orgId) {
     const list = document.getElementById('serverList');
     list.innerHTML = '<div class="loading-text">Loading…</div>';
@@ -565,7 +569,7 @@
         <span class="token-status ${statusClass}">${statusLabel}</span>
         ${canManage && !isRevoked
           ? `<button class="btn-icon" title="Revoke token"
-                     onclick="revokeToken('${serverId}','${t.id}')">✕</button>`
+                     onclick="revokeToken('${serverId}','${t.id}')">&#x2715;</button>`
           : '<span style="width:24px;"></span>'}
       </div>`;
   }
@@ -582,7 +586,7 @@
       </div>`;
   }
 
-  // ── Create server ──────────────────────────────────────────────────────────
+  // ── Create server ───────────────────────────────────────────────────────────────────
   function openNewServerModal() {
     ['newServerName','newServerGame','newServerDesc'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('newServerNameError').classList.remove('visible');
@@ -635,7 +639,7 @@
     selectServer(data.server.id);
   }
 
-  // ── Generate token ─────────────────────────────────────────────────────────
+  // ── Generate token ───────────────────────────────────────────────────────────────────
   function openGenTokenModal() {
     document.getElementById('tokenLabel').value = '';
     document.getElementById('tokenLabelError').classList.remove('visible');
@@ -682,13 +686,9 @@
     }
 
     closeModal('genTokenModal');
-
-    // Show one-time reveal modal
     _revealToken = data.rawToken;
     document.getElementById('revealTokenValue').textContent = _revealToken;
     document.getElementById('tokenRevealModal').classList.add('open');
-
-    // Refresh token list in background
     selectServer(_selectedServer.id);
   }
 
@@ -742,7 +742,7 @@
     await selectServer(serverId);
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // ── Helpers ─────────────────────────────────────────────────────────────────────────
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
   function showPageAlert(type, msg) {

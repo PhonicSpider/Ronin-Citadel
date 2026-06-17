@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080808">
   <title>Ronin Citadel — Account Settings</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/portal.css">
@@ -148,13 +150,30 @@
       padding: 10px;
     }
 
-    /* ── Section views — only one shown at a time ── */
+    /* ── Section views ── */
     .tfa-view { display: none; }
     .tfa-view.active { display: block; }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .manual-code-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .otp-input { font-size: 20px; letter-spacing: 0.2em; }
+    }
   </style>
 </head>
 <body>
 <div class="dash-layout">
+  <div class="sidebar-overlay"></div>
 
   <!-- ── Sidebar ── -->
   <aside class="dash-sidebar">
@@ -181,6 +200,7 @@
   <!-- ── Main ── -->
   <main class="dash-main">
     <div class="dash-topbar">
+      <button class="sb-toggle" aria-label="Toggle menu">☰</button>
       <div class="breadcrumb">
         <span class="crumb active">Account Settings</span>
       </div>
@@ -245,7 +265,7 @@
             Protect your account with a time-based one-time code from an authenticator app.
           </div>
 
-          <!-- View A: disabled → prompt to enable -->
+          <!-- View A: disabled -->
           <div class="tfa-view" id="tfaDisabledView">
             <div class="tfa-status-row">
               <span class="tfa-status-badge disabled">● Not enabled</span>
@@ -257,7 +277,7 @@
             </div>
           </div>
 
-          <!-- View B: setup in progress — QR + code entry -->
+          <!-- View B: setup in progress -->
           <div class="tfa-view" id="tfaSetupView">
             <div class="alert alert-warn" style="margin-bottom:var(--space-md);">
               <span>⚠</span>
@@ -292,7 +312,7 @@
             </div>
           </div>
 
-          <!-- View C: enabled → show status + disable option -->
+          <!-- View C: enabled -->
           <div class="tfa-view" id="tfaEnabledView">
             <div class="tfa-status-row">
               <span class="tfa-status-badge enabled">● Active</span>
@@ -336,19 +356,16 @@
   </div>
 </div>
 
-<!-- qrious — renders QR codes onto a canvas element, no external requests -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"
         integrity="sha512-FRWs7TDxmsT5qAeTm0SWaRFSBEaKC1P5qvOkEDMWRa8O7vBqBjTMkC8WBfQRZSG4qHAKEBQlAGJnRaJrIxnA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="js/api.js"></script>
 <script src="js/shell.js"></script>
 <script>
-  // ── State ──────────────────────────────────────────────────────────────────
   let _fullUser    = null;
   let _otpauthUrl  = '';
   let _manualCode  = '';
 
-  // ── Init ───────────────────────────────────────────────────────────────────
   initShell('settings', async function (sessionUser) {
     await loadProfile();
   });
@@ -364,7 +381,6 @@
 
     _fullUser = data.user;
 
-    // Profile card
     const initial = _fullUser.username.charAt(0).toUpperCase();
     document.getElementById('profileAvatar').textContent = initial;
     document.getElementById('profileName').textContent   = _fullUser.username;
@@ -385,11 +401,9 @@
         <span class="info-value" style="font-size:10px;color:var(--text-muted);">${escHtml(_fullUser.id)}</span>
       </div>`;
 
-    // 2FA section
     setTfaView(_fullUser.totpEnabled ? 'enabled' : 'disabled');
   }
 
-  // ── 2FA views ──────────────────────────────────────────────────────────────
   function setTfaView(view) {
     ['disabled', 'setup', 'enabled'].forEach(v => {
       document.getElementById(`tfa${cap(v)}View`).classList.toggle('active', v === view);
@@ -398,17 +412,12 @@
 
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-  // ── Setup flow ─────────────────────────────────────────────────────────────
   async function startTfaSetup() {
     const res  = await RC.apiFetch('/api/auth/totp/setup', { method: 'POST' });
     const data = await res.json();
 
     if (!res.ok) {
-      if (res.status === 409) {
-        // Already enabled — refresh profile to sync state
-        await loadProfile();
-        return;
-      }
+      if (res.status === 409) { await loadProfile(); return; }
       alert(data.error ?? 'Failed to start 2FA setup. Please try again.');
       return;
     }
@@ -416,14 +425,10 @@
     _otpauthUrl = data.otpauthUrl;
     _manualCode = data.manualCode;
 
-    // Render QR
     const canvas = document.getElementById('tfaQrCanvas');
     new QRious({ element: canvas, value: _otpauthUrl, size: 180, background: '#ffffff', foreground: '#000000' });
 
-    // Show manual code
     document.getElementById('tfaManualCode').textContent = formatSecret(_manualCode);
-
-    // Clear any previous state
     document.getElementById('tfaVerifyCode').value = '';
     document.getElementById('tfaVerifyError').classList.remove('visible');
     document.getElementById('tfaSetupAlert').style.display = 'none';
@@ -432,11 +437,8 @@
     setTimeout(() => document.getElementById('tfaVerifyCode').focus(), 60);
   }
 
-  function cancelTfaSetup() {
-    setTfaView('disabled');
-  }
+  function cancelTfaSetup() { setTfaView('disabled'); }
 
-  // Auto-submit when 6 digits entered
   document.getElementById('tfaVerifyCode').addEventListener('input', function () {
     this.value = this.value.replace(/\D/g, '').slice(0, 6);
     document.getElementById('tfaVerifyError').classList.remove('visible');
@@ -489,7 +491,6 @@
     navigator.clipboard.writeText(_manualCode).catch(() => {});
   }
 
-  // ── Disable flow ───────────────────────────────────────────────────────────
   function openDisableTfaModal() {
     document.getElementById('disableTfaCode').value = '';
     document.getElementById('disableTfaError').classList.remove('visible');
@@ -612,13 +613,9 @@
     alertEl.style.display = 'flex';
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-  // Insert spaces every 4 chars for readability
-  function formatSecret(s) {
-    return s.replace(/(.{4})/g, '$1 ').trim();
-  }
+  function formatSecret(s) { return s.replace(/(.{4})/g, '$1 ').trim(); }
 
   function fmtDate(iso) {
     if (!iso) return '—';

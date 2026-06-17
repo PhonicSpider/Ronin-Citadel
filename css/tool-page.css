@@ -43,7 +43,6 @@
   overflow: hidden;
 }
 
-/* Gradient overlay — darkens both CSS gradients and real photos */
 .tool-hero::before {
   content: '';
   position: absolute;
@@ -395,7 +394,6 @@
   margin-bottom: 48px;
 }
 
-/* Single screenshot — full width with caption below */
 .screenshot-block {
   background: var(--bg-2);
   border: 1px solid var(--border);
@@ -418,7 +416,6 @@
   line-height: 1.5;
 }
 
-/* Two-column screenshot grid */
 .screenshots-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -426,7 +423,6 @@
   margin-bottom: 16px;
 }
 
-/* Feature tile with an inline screenshot */
 .feature-tile--has-img {
   padding: 0;
   overflow: hidden;
@@ -442,4 +438,44 @@
 
 .feature-tile--has-img .tile-text {
   padding: var(--tile-pad);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — tool detail pages
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  :root {
+    --tile-cols: 2;
+    --meta-col-count: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --tool-hero-min-height: 340px;
+    --tool-hero-name-size:  28px;
+    --tool-hero-tagline-size: 15px;
+    --tile-cols: 1;
+    --tool-body-pad: 24px 16px;
+  }
+
+  .tool-hero-inner { padding: 48px 20px 72px; }
+
+  .tool-cta { flex-direction: column; align-items: stretch; }
+  .tool-cta .btn { text-align: center; justify-content: center; }
+
+  .screenshots-grid { grid-template-columns: 1fr; }
+
+  .tool-info-meta {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .tool-info-panel { padding: 24px 16px; }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --tool-hero-name-size: 24px;
+  }
 }

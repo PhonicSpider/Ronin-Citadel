@@ -1,4 +1,4 @@
-// ── Ronin Citadel — portal shell ──────────────────────────────────────────────
+// ── Ronin Citadel — portal shell ──────────────────────────────────────────────────────
 // Requires api.js (RC global) to be loaded first.
 // Call initShell(activeNavId, callback) at the bottom of each portal page.
 
@@ -38,6 +38,42 @@ function initShell(activeNavId, onUser) {
         document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
       }
     });
+
+    // ── Mobile sidebar toggle ──────────────────────────────────────────────
+    const sidebar = document.querySelector('.dash-sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    const toggle  = document.querySelector('.sb-toggle');
+
+    if (sidebar && toggle) {
+      toggle.setAttribute('aria-expanded', 'false');
+
+      toggle.addEventListener('click', function () {
+        const open = sidebar.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(open));
+        sidebar.setAttribute('aria-hidden', String(!open));
+        if (overlay) overlay.classList.toggle('active', open);
+      });
+
+      if (overlay) {
+        overlay.addEventListener('click', function () {
+          sidebar.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+          sidebar.setAttribute('aria-hidden', 'true');
+          overlay.classList.remove('active');
+        });
+      }
+
+      sidebar.querySelectorAll('a, .side-nav-item').forEach(function (el) {
+        el.addEventListener('click', function () {
+          if (window.matchMedia('(max-width: 768px)').matches) {
+            sidebar.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+            sidebar.setAttribute('aria-hidden', 'true');
+            if (overlay) overlay.classList.remove('active');
+          }
+        });
+      });
+    }
 
     if (onUser) onUser(user);
   });
