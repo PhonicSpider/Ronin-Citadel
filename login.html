@@ -529,7 +529,8 @@
             btn.textContent = 'Sign In';
           } else {
             RC.setSession(data.accessToken, data.user);
-            window.location.href = 'dashboard.html';
+            const redir = new URLSearchParams(window.location.search).get('redirect');
+            window.location.href = (redir && redir.startsWith('/')) ? redir : 'dashboard.html';
           }
         })
         .catch(() => {
@@ -584,7 +585,8 @@
             return;
           }
           RC.setSession(data.accessToken, data.user);
-          window.location.href = 'dashboard.html';
+          const redir2 = new URLSearchParams(window.location.search).get('redirect');
+          window.location.href = (redir2 && redir2.startsWith('/')) ? redir2 : 'dashboard.html';
         })
         .catch(() => {
           document.getElementById('tfaErrorText').textContent = 'Could not reach the server. Is it running?';

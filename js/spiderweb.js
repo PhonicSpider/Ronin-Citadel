@@ -84,8 +84,8 @@ const CFG = {
   entranceNodeEase:       'back.out(1.8)',
   entranceNodeDelay:      0.2,
 
-  zoomScale:          10,
-  zoomInDuration:     0.65,
+  zoomScale:          5,
+  zoomInDuration:     0.5,
   zoomInEase:         'power2.in',
   zoomFadeDuration:   0.15,
   zoomFadeInDuration: 0.3,
@@ -141,12 +141,12 @@ const LEVELS = {
   root: {
     label: 'Home',
     nodes: [
-      { id: 'orgs',     label: 'Organizations', angle: -90,  desc: 'Manage server groups and team members',    color: '#00e5ff' },
+      { id: 'orgs',     label: 'Organizations', angle: -90,  desc: 'Manage server groups and team members',   color: '#00e5ff' },
       { id: 'servers',  label: 'Servers',        angle: -30,  desc: 'Manage and monitor your game servers' },
       { id: 'firewall', label: 'Firewall',       angle:  30,  desc: 'Windows Firewall port management via Portier' },
       { id: 'storage',  label: 'Storage',        angle:  90,  desc: 'Disk usage analysis and bulk file operations' },
       { id: 'system',   label: 'System',         angle: 150,  desc: 'RSM process control and system settings' },
-      { id: 'account',  label: 'Account',        angle: -150, desc: 'Profile, security, and team management',   color: '#cc8877' },
+      { id: 'account',  label: 'Account',        angle: -150, desc: 'Profile, security, and team management',  color: '#cc8877' },
     ],
   },
 
@@ -154,19 +154,11 @@ const LEVELS = {
   orgs: {
     label: 'Organizations',
     nodes: [
-      { id: 'orgs-list',   label: 'My Orgs',     angle: -108, desc: 'View and manage your organizations',       color: '#00e5ff' },
-      { id: 'orgs-new',    label: 'New Org',      angle:  -36, desc: 'Create a new organization',              color: '#00cc44', isNav: true,  href: 'orgs.html' },
-      { id: 'orgs-invite', label: 'Add Member',   angle:   36, desc: 'Invite a user to your organization',     color: '#00e5ff', isNav: true,  href: 'orgs.html' },
-      { id: 'orgs-roles',  label: 'Roles',        angle:  108, desc: 'Assign and manage member roles',         color: '#00e5ff', isNav: true,  href: 'orgs.html' },
-      { id: '_back',       label: '↩ Back',       angle:  180, desc: 'Return to main web',                     color: '#886644', isBack: true },
-    ],
-  },
-
-  'orgs-list': {
-    label: 'My Orgs',
-    nodes: [
-      { id: '_orgs-open', label: 'Open Portal', angle: -90, desc: 'Open the Organizations management page', color: '#00e5ff', isNav: true, href: 'orgs.html' },
-      { id: '_back',      label: '↩ Back',      angle: 180, desc: 'Return to Organizations',               color: '#886644', isBack: true },
+      { id: '_orgs-list',  label: 'My Orgs',    angle: -108, desc: 'View and manage your organizations',  color: '#00e5ff', isNav: true, href: 'orgs.html' },
+      { id: '_orgs-new',   label: 'New Org',    angle:  -36, desc: 'Create a new organization',          color: '#00cc44', isNav: true, href: 'orgs.html' },
+      { id: '_orgs-inv',   label: 'Add Member', angle:   36, desc: 'Invite a user to your organization', color: '#00e5ff', isNav: true, href: 'orgs.html' },
+      { id: '_orgs-roles', label: 'Roles',      angle:  108, desc: 'Assign and manage member roles',     color: '#00e5ff', isNav: true, href: 'orgs.html' },
+      { id: '_back',       label: '↩ Back',     angle:  180, desc: 'Return to main web',                 color: '#886644', isBack: true },
     ],
   },
 
@@ -174,103 +166,21 @@ const LEVELS = {
   servers: {
     label: 'Servers',
     nodes: [
-      { id: 'srv-portal', label: 'Portal Servers', angle: -120, desc: 'Register servers and manage agent tokens', color: '#00e5ff' },
-      { id: 'mc1',        label: 'Minecraft #1',   angle:  -60, desc: 'Online · 4 players',                      color: '#00cc44' },
-      { id: 'ark1',       label: 'Ark Server',     angle:    0, desc: 'Online · 2 players',                      color: '#00cc44' },
-      { id: 'se1',        label: 'Space Eng.',     angle:   60, desc: 'Offline',                                  color: '#444444' },
-      { id: 'add-server', label: 'Add Server',     angle:  120, desc: 'Provision a new game server via Forge',   color: '#44aa55' },
-      { id: '_back',      label: '↩ Back',         angle:  180, desc: 'Return to main web',                      color: '#886644', isBack: true },
+      { id: 'srv-portal', label: 'Portal',       angle: -108, desc: 'Register servers and manage agent tokens',    color: '#00e5ff' },
+      { id: '_srv-live',  label: 'Live Servers', angle:  -36, desc: 'RSM-connected servers (API integration TBD)', color: '#444444', isLeaf: true },
+      { id: '_srv-forge', label: 'Forge',        angle:   36, desc: 'Provision game servers via Ronin Forge',      color: '#888888', isLeaf: true },
+      { id: '_srv-add',   label: 'Add Server',   angle:  108, desc: 'Register an existing RSM machine',            color: '#44aa55', isNav: true, href: 'servers.html' },
+      { id: '_back',      label: '↩ Back',       angle:  180, desc: 'Return to main web',                          color: '#886644', isBack: true },
     ],
   },
 
   'srv-portal': {
-    label: 'Portal Servers',
+    label: 'Portal',
     nodes: [
-      { id: '_srv-list',     label: 'Server List',  angle: -108, desc: 'View all registered RSM servers',    color: '#00e5ff', isNav: true, href: 'servers.html' },
-      { id: '_srv-tokens',   label: 'Agent Tokens', angle:  -36, desc: 'Generate and manage agent tokens',  color: '#00e5ff', isNav: true, href: 'servers.html' },
-      { id: '_srv-register', label: 'Register New', angle:   36, desc: 'Register a new RSM machine',        color: '#00cc44', isNav: true, href: 'servers.html' },
-      { id: '_back',         label: '↩ Back',       angle:  108, desc: 'Return to Servers',                 color: '#886644', isBack: true },
-    ],
-  },
-
-  mc1: {
-    label: 'Minecraft #1',
-    nodes: [
-      { id: '_console', label: 'Console', angle: -120, desc: 'Live console and command input', color: '#00e5ff', isLeaf:  true },
-      { id: '_stats',   label: 'Stats',   angle:  -60, desc: 'CPU, RAM, player count',          color: '#00e5ff', isLeaf:  true },
-      { id: '_restart', label: 'Restart', angle:    0, desc: 'Restart the server process',      color: '#cc8800', isAction: true, action: 'Restart Minecraft #1?' },
-      { id: '_stop',    label: 'Stop',    angle:   60, desc: 'Stop the server process',         color: '#cc3300', isAction: true, action: 'Stop Minecraft #1?' },
-      { id: '_start',   label: 'Start',   angle:  120, desc: 'Start the server process',        color: '#00cc44', isAction: true, action: 'Start Minecraft #1?' },
-      { id: '_back',    label: '↩ Back',  angle:  180, desc: 'Return to server list',           color: '#886644', isBack: true },
-    ],
-  },
-
-  ark1: {
-    label: 'Ark Server',
-    nodes: [
-      { id: '_console', label: 'Console', angle: -120, desc: 'Live console and command input', color: '#00e5ff', isLeaf:  true },
-      { id: '_stats',   label: 'Stats',   angle:  -60, desc: 'CPU, RAM, player count',          color: '#00e5ff', isLeaf:  true },
-      { id: '_restart', label: 'Restart', angle:    0, desc: 'Restart the server process',      color: '#cc8800', isAction: true, action: 'Restart Ark Server?' },
-      { id: '_stop',    label: 'Stop',    angle:   60, desc: 'Stop the server process',         color: '#cc3300', isAction: true, action: 'Stop Ark Server?' },
-      { id: '_start',   label: 'Start',   angle:  120, desc: 'Start the server process',        color: '#00cc44', isAction: true, action: 'Start Ark Server?' },
-      { id: '_back',    label: '↩ Back',  angle:  180, desc: 'Return to server list',           color: '#886644', isBack: true },
-    ],
-  },
-
-  se1: {
-    label: 'Space Eng.',
-    nodes: [
-      { id: '_console', label: 'Console', angle: -90,  desc: 'Live console (server offline)', color: '#444444', isLeaf: true },
-      { id: '_start',   label: 'Start',   angle:   0,  desc: 'Start the server process',      color: '#00cc44', isAction: true, action: 'Start Space Engineers server?' },
-      { id: '_back',    label: '↩ Back',  angle: 180,  desc: 'Return to server list',          color: '#886644', isBack: true },
-    ],
-  },
-
-  // ── Add Server / game install flow ─────────────────────────────────────────
-  'add-server': {
-    label: 'Add Server',
-    nodes: [
-      { id: 'install-game',  label: 'Install Game',  angle: -108, desc: 'Install and configure a new game server',   color: '#00e5ff' },
-      { id: '_srv-register', label: 'Register RSM',  angle:  -36, desc: 'Register an existing RSM machine',          color: '#00cc44', isNav: true, href: 'servers.html' },
-      { id: '_forge',        label: 'Ronin Forge',   angle:   36, desc: 'Advanced server provisioning via Forge',    color: '#888888', isLeaf: true },
-      { id: '_back',         label: '↩ Back',        angle:  108, desc: 'Return to Servers',                         color: '#886644', isBack: true },
-    ],
-  },
-
-  'install-game': {
-    label: 'Install Game Server',
-    nodes: [
-      { id: 'install-mc',     label: 'Minecraft',  angle: -120, desc: 'Java or Bedrock edition',              color: '#00e5ff' },
-      { id: 'install-ark',    label: 'Ark',        angle:  -60, desc: 'Survival Evolved or Ascended',          color: '#00e5ff' },
-      { id: 'install-se',     label: 'Space Eng.', angle:    0, desc: 'Space Engineers dedicated server',      color: '#00e5ff' },
-      { id: '_install-other', label: 'Browse All', angle:   60, desc: 'Browse all supported game types',       color: '#888888', isLeaf: true },
-      { id: '_back',          label: '↩ Back',     angle:  120, desc: 'Return to Add Server',                  color: '#886644', isBack: true },
-    ],
-  },
-
-  'install-mc': {
-    label: 'Minecraft',
-    nodes: [
-      { id: '_mc-java',    label: 'Java Edition', angle: -90, desc: 'Minecraft Java Edition server',     color: '#00e5ff', isAction: true, action: 'Install Minecraft Java Edition?' },
-      { id: '_mc-bedrock', label: 'Bedrock',      angle:   0, desc: 'Minecraft Bedrock Edition server',  color: '#00e5ff', isAction: true, action: 'Install Minecraft Bedrock Edition?' },
-      { id: '_back',       label: '↩ Back',       angle:  90, desc: 'Return to game selection',           color: '#886644', isBack: true },
-    ],
-  },
-
-  'install-ark': {
-    label: 'Ark',
-    nodes: [
-      { id: '_ark-ase', label: 'ASE (Classic)',  angle: -90, desc: 'Ark Survival Evolved (original)', color: '#00e5ff', isAction: true, action: 'Install Ark Survival Evolved?' },
-      { id: '_ark-asa', label: 'ASA (Ascended)', angle:   0, desc: 'Ark Survival Ascended (new)',     color: '#00e5ff', isAction: true, action: 'Install Ark Survival Ascended?' },
-      { id: '_back',    label: '↩ Back',         angle:  90, desc: 'Return to game selection',         color: '#886644', isBack: true },
-    ],
-  },
-
-  'install-se': {
-    label: 'Space Engineers',
-    nodes: [
-      { id: '_se-install', label: 'Install', angle: -90, desc: 'Install Space Engineers dedicated server', color: '#00e5ff', isAction: true, action: 'Install Space Engineers server?' },
-      { id: '_back',       label: '↩ Back',  angle: 180, desc: 'Return to game selection',                 color: '#886644', isBack: true },
+      { id: '_srv-list',     label: 'Server List',  angle: -90, desc: 'View all registered RSM servers',  color: '#00e5ff', isNav: true, href: 'servers.html' },
+      { id: '_srv-tokens',   label: 'Agent Tokens', angle:   0, desc: 'Generate and manage agent tokens', color: '#00e5ff', isNav: true, href: 'servers.html' },
+      { id: '_srv-register', label: 'Register New', angle:  90, desc: 'Register a new RSM machine',       color: '#00cc44', isNav: true, href: 'servers.html' },
+      { id: '_back',         label: '↩ Back',       angle: 180, desc: 'Return to Servers',                color: '#886644', isBack: true },
     ],
   },
 
@@ -278,11 +188,11 @@ const LEVELS = {
   firewall: {
     label: 'Firewall',
     nodes: [
-      { id: '_fw-view',    label: 'View Rules',  angle: -108, desc: 'See all active firewall rules',  color: '#00e5ff', isLeaf:  true },
-      { id: '_fw-add',     label: 'Add Port',    angle:  -36, desc: 'Open a new firewall port',       color: '#00cc44', isAction: true, action: 'Open a new firewall port?' },
-      { id: '_fw-remove',  label: 'Remove Port', angle:   36, desc: 'Close a firewall port rule',     color: '#cc3300', isAction: true, action: 'Remove a firewall port rule?' },
-      { id: '_fw-refresh', label: 'Refresh',     angle:  108, desc: 'Refresh the port rules list',    color: '#00e5ff', isAction: true, action: 'Refresh firewall rules?' },
-      { id: '_back',       label: '↩ Back',      angle:  180, desc: 'Return to main web',             color: '#886644', isBack: true },
+      { id: '_fw-view',    label: 'View Rules',  angle: -108, desc: 'See all active firewall rules', color: '#00e5ff', isLeaf:  true },
+      { id: '_fw-add',     label: 'Add Port',    angle:  -36, desc: 'Open a new firewall port',      color: '#00cc44', isAction: true, action: 'Open a new firewall port?' },
+      { id: '_fw-remove',  label: 'Remove Port', angle:   36, desc: 'Close a firewall port rule',    color: '#cc3300', isAction: true, action: 'Remove a firewall port rule?' },
+      { id: '_fw-refresh', label: 'Refresh',     angle:  108, desc: 'Refresh the port rules list',   color: '#00e5ff', isAction: true, action: 'Refresh firewall rules?' },
+      { id: '_back',       label: '↩ Back',      angle:  180, desc: 'Return to main web',            color: '#886644', isBack: true },
     ],
   },
 
@@ -313,51 +223,11 @@ const LEVELS = {
   account: {
     label: 'Account',
     nodes: [
-      { id: 'acct-profile',   label: 'Profile',   angle: -120, desc: 'View and edit your profile',          color: '#00e5ff' },
-      { id: 'acct-passwords', label: 'Passwords', angle:  -60, desc: 'Manage your account password',        color: '#00e5ff' },
-      { id: 'acct-2fa',       label: '2FA',       angle:    0, desc: 'Manage two-factor authentication',    color: '#00e5ff' },
-      { id: 'acct-team',      label: 'Team',      angle:   60, desc: 'Invite and manage team members',      color: '#00e5ff' },
-      { id: '_back',          label: '↩ Back',    angle:  120, desc: 'Return to main web',                  color: '#886644', isBack: true },
-    ],
-  },
-
-  'acct-profile': {
-    label: 'Profile',
-    nodes: [
-      { id: '_profile-open', label: 'Account Settings', angle: -90, desc: 'Open account settings page', color: '#00e5ff', isNav: true, href: 'settings.html' },
-      { id: '_back',         label: '↩ Back',           angle: 180, desc: 'Return to Account',           color: '#886644', isBack: true },
-    ],
-  },
-
-  'acct-passwords': {
-    label: 'Passwords',
-    nodes: [
-      { id: 'pass-account', label: 'Account Password', angle: -90, desc: 'Change your Citadel login password', color: '#00e5ff' },
-      { id: '_back',        label: '↩ Back',           angle: 180, desc: 'Return to Account',                  color: '#886644', isBack: true },
-    ],
-  },
-
-  'pass-account': {
-    label: 'Account Password',
-    nodes: [
-      { id: '_pass-change', label: 'Change', angle: -90, desc: 'Set a new password for your account', color: '#cc8800', isModal: true, modalId: 'changePasswordModal' },
-      { id: '_back',        label: '↩ Back', angle: 180, desc: 'Return to Passwords',                  color: '#886644', isBack: true },
-    ],
-  },
-
-  'acct-2fa': {
-    label: '2FA',
-    nodes: [
-      { id: '_2fa-open', label: 'Manage 2FA', angle: -90, desc: 'Enable or disable two-factor authentication', color: '#00e5ff', isNav: true, href: 'settings.html' },
-      { id: '_back',     label: '↩ Back',     angle: 180, desc: 'Return to Account',                            color: '#886644', isBack: true },
-    ],
-  },
-
-  'acct-team': {
-    label: 'Team',
-    nodes: [
-      { id: '_team-open', label: 'Manage Team', angle: -90, desc: 'Manage team members via Organizations page', color: '#00e5ff', isNav: true, href: 'orgs.html' },
-      { id: '_back',      label: '↩ Back',      angle: 180, desc: 'Return to Account',                          color: '#886644', isBack: true },
+      { id: '_acct-profile', label: 'Profile',  angle: -120, desc: 'View and edit your profile',       color: '#00e5ff', isNav: true,   href: 'settings.html' },
+      { id: '_acct-pass',    label: 'Password', angle:  -60, desc: 'Change your account password',     color: '#00e5ff', isModal: true, modalId: 'changePasswordModal' },
+      { id: '_acct-2fa',     label: '2FA',      angle:    0, desc: 'Manage two-factor authentication', color: '#00e5ff', isNav: true,   href: 'settings.html' },
+      { id: '_acct-team',    label: 'Team',     angle:   60, desc: 'Invite and manage team members',   color: '#00e5ff', isNav: true,   href: 'orgs.html' },
+      { id: '_back',         label: '↩ Back',   angle:  120, desc: 'Return to main web',               color: '#886644', isBack: true },
     ],
   },
 };
@@ -650,10 +520,10 @@ function navigateTo(node, nx, ny) {
   const originX  = ((screenNx - cRect.left) / cRect.width  * 100).toFixed(1) + '%';
   const originY  = ((screenNy - cRect.top)  / cRect.height * 100).toFixed(1) + '%';
 
+  gsap.set(webContainer, { transformOrigin: `${originX} ${originY}` });
   const tl = gsap.timeline();
   tl.to(webContainer, {
     scale: CFG.zoomScale,
-    transformOrigin: `${originX} ${originY}`,
     duration: CFG.zoomInDuration,
     ease: CFG.zoomInEase,
   })

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ronin Citadel — Accept Invitation</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    html, body { height: 100%; }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .auth-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl) var(--space-md);
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(139,21,0,0.07) 0%, transparent 70%),
+        var(--bg);
+    }
+
+    .invite-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--red-bright);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+    }
+
+    .invite-logo {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+    }
+
+    .invite-logo-text {
+      font-size: var(--font-md);
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.06em;
+    }
+
+    .invite-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .invite-title {
+      font-size: var(--font-xl);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .invite-sub {
+      font-size: var(--font-sm);
+      color: var(--text-dim);
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: var(--space-xl);
+    }
+
+    .invite-detail {
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: var(--space-lg);
+    }
+
+    .invite-detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .invite-detail-row:last-child { margin-bottom: 0; }
+
+    .invite-detail-label {
+      font-size: var(--font-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .invite-detail-value {
+      font-size: var(--font-sm);
+      color: var(--text);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .btn-accept {
+      width: 100%;
+      padding: 11px;
+      background: var(--red);
+      border: 1px solid var(--red);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-size: var(--font-base);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background var(--t-base), box-shadow var(--t-base);
+      font-family: inherit;
+      margin-bottom: 10px;
+    }
+
+    .btn-accept:hover {
+      background: var(--red-bright);
+      box-shadow: 0 0 16px var(--red-glow);
+    }
+
+    .btn-accept:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .auth-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .auth-link-btn {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-md);
+      color: var(--text-dim);
+      font-size: var(--font-sm);
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      transition: border-color var(--t-base), color var(--t-base);
+      font-family: inherit;
+    }
+
+    .auth-link-btn:hover {
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .user-pill-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--red-dim);
+      border: 1px solid var(--red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #cc8877;
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+
+    .user-pill-name {
+      font-size: var(--font-sm);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .user-pill-sub {
+      font-size: var(--font-xs);
+      color: var(--text-muted);
+    }
+
+    .state-panel { display: none; }
+    .state-panel.active { display: block; }
+
+    .page-footer {
+      padding: var(--space-md);
+      text-align: center;
+      font-size: var(--font-xs);
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-accent-bar"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-icon">⛩</span>
+      <span class="logo-text">Ronin Citadel</span>
+    </a>
+    <div class="nav-center">
+      <span class="nav-title">Ronin Empire</span>
+    </div>
+    <div class="nav-actions"></div>
+  </nav>
+
+  <div class="auth-body">
+    <div class="invite-card">
+
+      <div class="invite-logo">
+        <div class="invite-logo-text">⛩ Ronin Citadel</div>
+      </div>
+
+      <!-- Loading -->
+      <div class="state-panel active" id="stateLoading">
+        <div style="text-align:center;color:var(--text-muted);padding:24px 0;">Loading invitation…</div>
+      </div>
+
+      <!-- Error -->
+      <div class="state-panel" id="stateError">
+        <div class="invite-icon" style="text-align:center;">⚠</div>
+        <div class="invite-title" id="errorTitle">Invalid Invitation</div>
+        <div class="invite-sub" id="errorSub">This invitation link is invalid, expired, or has already been used.</div>
+        <a href="login.html" class="auth-link-btn" style="margin-top:8px;">Go to Sign In</a>
+      </div>
+
+      <!-- Invite details — not logged in -->
+      <div class="state-panel" id="stateGuest">
+        <div class="invite-icon" style="text-align:center;">✉</div>
+        <div class="invite-title">You're Invited</div>
+        <div class="invite-sub" id="guestSub"></div>
+
+        <div class="invite-detail" id="guestDetail"></div>
+
+        <p style="font-size:var(--font-sm);color:var(--text-dim);text-align:center;margin-bottom:var(--space-md);">
+          Sign in or create an account to accept this invitation.
+        </p>
+
+        <div class="auth-links">
+          <a id="signInLink" href="login.html" class="btn-accept" style="text-align:center;text-decoration:none;display:block;line-height:1.6;">
+            Sign In to Accept
+          </a>
+          <a id="registerLink" href="register.html" class="auth-link-btn">
+            Create Account
+          </a>
+        </div>
+      </div>
+
+      <!-- Invite details — logged in -->
+      <div class="state-panel" id="stateLoggedIn">
+        <div class="invite-icon" style="text-align:center;">✉</div>
+        <div class="invite-title">You're Invited</div>
+        <div class="invite-sub" id="loggedInSub"></div>
+
+        <div class="user-pill" id="userPill">
+          <div class="user-pill-avatar" id="pillAvatar"></div>
+          <div>
+            <div class="user-pill-name" id="pillName"></div>
+            <div class="user-pill-sub">Accepting as this account</div>
+          </div>
+        </div>
+
+        <div class="invite-detail" id="loggedInDetail"></div>
+
+        <div id="acceptAlert" class="alert alert-error" style="display:none;margin:14px 0 0;"></div>
+
+        <button class="btn-accept" id="acceptBtn" onclick="acceptInvite()" style="margin-top:16px;">
+          Accept Invitation
+        </button>
+      </div>
+
+      <!-- Success -->
+      <div class="state-panel" id="stateSuccess">
+        <div class="invite-icon" style="text-align:center;">✓</div>
+        <div class="invite-title">Welcome aboard!</div>
+        <div class="invite-sub" id="successSub"></div>
+        <a href="orgs.html" class="btn-accept" style="text-align:center;text-decoration:none;display:block;line-height:1.6;">
+          Go to Organizations
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    Ronin Citadel · Ronin Empire &nbsp;·&nbsp; Self-hosted portal
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script>
+    const params    = new URLSearchParams(window.location.search);
+    const rawToken  = params.get('token');
+    const pageUrl   = window.location.pathname + window.location.search;
+
+    let _invitation = null;
+    let _user       = null;
+
+    function show(stateId) {
+      document.querySelectorAll('.state-panel').forEach(el => el.classList.remove('active'));
+      document.getElementById(stateId).classList.add('active');
+    }
+
+    function detailHtml(inv) {
+      return `
+        <div class="invite-detail-row">
+          <span class="invite-detail-label">Organization</span>
+          <span class="invite-detail-value">${escHtml(inv.orgName)}</span>
+        </div>
+        <div class="invite-detail-row">
+          <span class="invite-detail-label">Role</span>
+          <span class="invite-detail-value">${escHtml(inv.role)}</span>
+        </div>
+        <div class="invite-detail-row">
+          <span class="invite-detail-label">Invited by</span>
+          <span class="invite-detail-value">${escHtml(inv.invitedBy)}</span>
+        </div>`;
+    }
+
+    async function init() {
+      if (!rawToken) {
+        document.getElementById('errorTitle').textContent = 'Missing Token';
+        document.getElementById('errorSub').textContent   = 'No invitation token found in this link.';
+        show('stateError');
+        return;
+      }
+
+      // Fetch invite details
+      const res  = await RC.apiFetch(`/api/invitations/${encodeURIComponent(rawToken)}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        document.getElementById('errorTitle').textContent = res.status === 409 ? 'Already Accepted' : 'Invitation Unavailable';
+        document.getElementById('errorSub').textContent   = data.error ?? 'This invitation is no longer valid.';
+        show('stateError');
+        return;
+      }
+
+      _invitation = data.invitation;
+
+      // Check if user is logged in
+      _user = await RC.tryAuth();
+
+      if (_user) {
+        // Logged in — show accept panel
+        document.getElementById('pillAvatar').textContent = _user.username.charAt(0).toUpperCase();
+        document.getElementById('pillName').textContent   = _user.username;
+        document.getElementById('loggedInSub').textContent =
+          `${_invitation.invitedBy} has invited you to join ${_invitation.orgName} as a ${_invitation.role}.`;
+        document.getElementById('loggedInDetail').innerHTML = detailHtml(_invitation);
+        show('stateLoggedIn');
+      } else {
+        // Not logged in — show auth options
+        const redirectParam = encodeURIComponent(pageUrl);
+        document.getElementById('signInLink').href   = `login.html?redirect=${redirectParam}`;
+        document.getElementById('registerLink').href = `register.html`;
+        document.getElementById('guestSub').textContent =
+          `${_invitation.invitedBy} has invited you to join ${_invitation.orgName} as a ${_invitation.role}.`;
+        document.getElementById('guestDetail').innerHTML = detailHtml(_invitation);
+        show('stateGuest');
+      }
+    }
+
+    async function acceptInvite() {
+      const btn     = document.getElementById('acceptBtn');
+      const alertEl = document.getElementById('acceptAlert');
+
+      alertEl.style.display = 'none';
+      btn.disabled    = true;
+      btn.textContent = 'Accepting…';
+
+      const res  = await RC.apiFetch(`/api/invitations/${encodeURIComponent(rawToken)}/accept`, { method: 'POST' });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alertEl.textContent   = data.error ?? 'Failed to accept invitation.';
+        alertEl.style.display = 'flex';
+        btn.disabled    = false;
+        btn.textContent = 'Accept Invitation';
+        return;
+      }
+
+      document.getElementById('successSub').textContent =
+        `You have joined ${data.orgName}. You can now access its servers and resources.`;
+      show('stateSuccess');
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    init();
+  </script>
+
+</body>
+</html>

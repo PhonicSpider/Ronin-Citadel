@@ -577,6 +577,24 @@
     }
     .modal-error.visible { display: block; }
     .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+    /* ── Dev mode banner ── */
+    .dev-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      margin-right: 12px;
+      background: rgba(255, 140, 0, 0.12);
+      border: 1px solid rgba(255, 140, 0, 0.35);
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #ff8c00;
+      cursor: default;
+    }
   </style>
 </head>
 <body>
@@ -588,6 +606,15 @@
         <span class="logo-icon">⛩</span>
         <span class="logo-text">Ronin Citadel</span>
       </a>
+
+      <div class="sb-section">
+        <div class="sb-label">Portal</div>
+        <nav class="side-nav">
+          <a href="orgs.html"    class="side-nav-item" data-nav="orgs">⊞ Organizations</a>
+          <a href="servers.html" class="side-nav-item" data-nav="servers">⚙ Servers</a>
+          <a href="settings.html" class="side-nav-item" data-nav="settings">◎ Account</a>
+        </nav>
+      </div>
 
       <div class="sb-section servers" id="sidebarServers">
         <div class="sb-label">Servers</div>
@@ -606,6 +633,7 @@
         <div class="breadcrumb" id="breadcrumb">
           <span class="crumb active">Home</span>
         </div>
+        <div class="dev-badge" id="devBadge">DEV MODE</div>
         <div class="topbar-user">
           <span class="user-name"></span>
           <div class="user-avatar"></div>
@@ -667,6 +695,13 @@
   <script src="js/shell.js"></script>
   <script>
     initShell('dashboard', async function () {
+      if (RC.DEV_MODE) {
+        document.getElementById('devBadge').style.display = 'flex';
+        const section = document.getElementById('sidebarServers');
+        section.innerHTML = '<div class="sb-label">Servers</div>'
+          + '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">Dev mode — no API calls.</div>';
+        return;
+      }
       await loadSidebarServers();
     });
 

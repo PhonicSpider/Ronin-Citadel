@@ -158,10 +158,20 @@
 
   <!-- ── Sidebar ── -->
   <aside class="dash-sidebar">
-    <a href="index.html" class="sidebar-logo">
+    <a href="dashboard.html" class="sidebar-logo" style="text-decoration:none; color:inherit;">
       <span class="logo-icon">⛩</span>
       <span class="logo-text">Ronin Citadel</span>
     </a>
+
+    <div class="sb-section">
+      <div class="sb-label">Portal</div>
+      <nav class="side-nav">
+        <a href="dashboard.html" class="side-nav-item" data-nav="dashboard">⛩ Dashboard</a>
+        <a href="orgs.html"      class="side-nav-item" data-nav="orgs">⊞ Organizations</a>
+        <a href="servers.html"   class="side-nav-item" data-nav="servers">⚙ Servers</a>
+        <a href="settings.html"  class="side-nav-item" data-nav="settings">◎ Account</a>
+      </nav>
+    </div>
 
     <div class="sb-footer">
       <a href="#" class="logout-btn">↩ Logout</a>
@@ -195,6 +205,36 @@
 
           <div id="profileInfo">
             <!-- info rows rendered by JS -->
+          </div>
+        </div>
+
+        <!-- ── Password ── -->
+        <div class="section-card" style="margin-top:16px;">
+          <div class="section-title" style="margin-bottom:4px;">Password</div>
+          <div class="section-sub" style="margin-bottom:var(--space-md);">
+            Change the password for your Citadel account. You will remain signed in on this device.
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="pwdCurrent">Current Password</label>
+            <input class="field-input" type="password" id="pwdCurrent" autocomplete="current-password">
+            <span class="field-error" id="pwdCurrentError"></span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="pwdNew">New Password</label>
+            <input class="field-input" type="password" id="pwdNew" autocomplete="new-password">
+            <span class="field-error" id="pwdNewError"></span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="pwdConfirm">Confirm New Password</label>
+            <input class="field-input" type="password" id="pwdConfirm" autocomplete="new-password">
+            <span class="field-error" id="pwdConfirmError"></span>
+          </div>
+
+          <div id="pwdAlert" class="alert" style="display:none; margin:14px 0 0;"></div>
+
+          <div class="modal-actions" style="margin-top:var(--space-md);">
+            <button class="btn btn-primary" id="pwdSaveBtn" onclick="changePassword()">Save Password</button>
           </div>
         </div>
 
@@ -505,6 +545,71 @@
     _fullUser.totpEnabled = false;
     closeModal('disableTfaModal');
     setTfaView('disabled');
+  }
+
+  // ── Password change ────────────────────────────────────────────────────────
+  function setFieldError(id, msg) {
+    const input = document.getElementById(id);
+    const err   = document.getElementById(id + 'Error');
+    input.classList.add('error');
+    err.textContent = msg;
+    err.classList.add('visible');
+  }
+
+  function clearPwdFields() {
+    ['pwdCurrent', 'pwdNew', 'pwdConfirm'].forEach(id => {
+      document.getElementById(id).value = '';
+      document.getElementById(id).classList.remove('error');
+      document.getElementById(id + 'Error').classList.remove('visible');
+    });
+    document.getElementById('pwdAlert').style.display = 'none';
+  }
+
+  async function changePassword() {
+    const current = document.getElementById('pwdCurrent').value;
+    const newPwd  = document.getElementById('pwdNew').value;
+    const confirm = document.getElementById('pwdConfirm').value;
+    const alertEl = document.getElementById('pwdAlert');
+    const btn     = document.getElementById('pwdSaveBtn');
+
+    clearPwdFields();
+    // restore values we're about to validate
+    document.getElementById('pwdCurrent').value = current;
+    document.getElementById('pwdNew').value      = newPwd;
+    document.getElementById('pwdConfirm').value  = confirm;
+
+    let ok = true;
+    if (!current) { setFieldError('pwdCurrent', 'Current password is required.');   ok = false; }
+    if (!newPwd)  { setFieldError('pwdNew',      'New password is required.');       ok = false; }
+    else if (newPwd.length < 8) { setFieldError('pwdNew', 'Must be at least 8 characters.'); ok = false; }
+    if (newPwd && confirm !== newPwd) { setFieldError('pwdConfirm', 'Passwords do not match.'); ok = false; }
+    if (!ok) return;
+
+    btn.disabled    = true;
+    btn.textContent = 'Saving…';
+
+    const res  = await RC.apiFetch('/api/users/password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword: current, newPassword: newPwd }),
+    });
+    const data = await res.json();
+
+    btn.disabled    = false;
+    btn.textContent = 'Save Password';
+
+    if (!res.ok) {
+      alertEl.className    = 'alert alert-error';
+      alertEl.innerHTML    = `<span>⚠</span><span>${escHtml(data.error ?? 'Failed to update password.')}</span>`;
+      alertEl.style.display = 'flex';
+      return;
+    }
+
+    ['pwdCurrent', 'pwdNew', 'pwdConfirm'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    alertEl.className    = 'alert alert-success';
+    alertEl.innerHTML    = '<span>✓</span><span>Password updated successfully.</span>';
+    alertEl.style.display = 'flex';
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────

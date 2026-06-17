@@ -104,6 +104,48 @@
       white-space: nowrap;
     }
 
+    /* ── Danger zone ── */
+    .danger-zone {
+      margin-top: 24px;
+      border: 1px solid rgba(204, 34, 0, 0.2);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+
+    .danger-zone-title {
+      font-size: var(--font-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--red-bright);
+      margin-bottom: 12px;
+    }
+
+    .danger-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .danger-desc { font-size: var(--font-sm); color: var(--text-dim); }
+
+    .btn-danger {
+      padding: 6px 14px;
+      background: transparent;
+      border: 1px solid var(--red);
+      border-radius: var(--radius-md);
+      color: var(--red-bright);
+      font-size: var(--font-sm);
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background var(--t-base), color var(--t-base);
+      font-family: inherit;
+    }
+
+    .btn-danger:hover { background: rgba(204, 34, 0, 0.12); }
+
     /* ── Token list ── */
     .token-row {
       display: flex;
@@ -173,10 +215,20 @@
 
   <!-- ── Sidebar ── -->
   <aside class="dash-sidebar">
-    <a href="index.html" class="sidebar-logo">
+    <a href="dashboard.html" class="sidebar-logo" style="text-decoration:none; color:inherit;">
       <span class="logo-icon">⛩</span>
       <span class="logo-text">Ronin Citadel</span>
     </a>
+
+    <div class="sb-section">
+      <div class="sb-label">Portal</div>
+      <nav class="side-nav">
+        <a href="dashboard.html" class="side-nav-item" data-nav="dashboard">⛩ Dashboard</a>
+        <a href="orgs.html"      class="side-nav-item" data-nav="orgs">⊞ Organizations</a>
+        <a href="servers.html"   class="side-nav-item" data-nav="servers">⚙ Servers</a>
+        <a href="settings.html"  class="side-nav-item" data-nav="settings">◎ Account</a>
+      </nav>
+    </div>
 
     <div class="sb-footer">
       <a href="#" class="logout-btn">↩ Logout</a>
@@ -483,6 +535,15 @@
               <span>No tokens yet. Generate one and paste it into RSM → Settings → Ronin Citadel.</span>
             </div>` : tokens.map(t => tokenRowHtml(t, canManage, id)).join('')}
         </div>
+
+        ${canManage ? `
+        <div class="danger-zone">
+          <div class="danger-zone-title">Danger Zone</div>
+          <div class="danger-row">
+            <div class="danger-desc">Permanently delete this server and revoke all its agent tokens.</div>
+            <button class="btn-danger" onclick="deleteServer('${id}','${escHtml(name)}')">Delete Server</button>
+          </div>
+        </div>` : ''}
       </div>`;
   }
 
@@ -643,6 +704,27 @@
       window.getSelection().removeAllRanges();
       window.getSelection().addRange(range);
     });
+  }
+
+  // ── Delete server ──────────────────────────────────────────────────────────
+  async function deleteServer(serverId, name) {
+    const confirmed = prompt(`Type the server name to confirm deletion: "${name}"`);
+    if (confirmed !== name) {
+      if (confirmed !== null) alert('Name did not match. Deletion cancelled.');
+      return;
+    }
+
+    const res  = await RC.apiFetch(`/api/servers/${serverId}`, { method: 'DELETE' });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showPageAlert('error', data.error ?? 'Failed to delete server.');
+      return;
+    }
+
+    clearServerDetail();
+    await loadServers(_selectedOrgId);
+    showPageAlert('success', `"${name}" has been deleted.`);
   }
 
   // ── Revoke token ───────────────────────────────────────────────────────────
