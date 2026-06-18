@@ -483,11 +483,7 @@
       fetch(`${RC.API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: document.getElementById('username').value.trim(),
-          email:    document.getElementById('email').value.trim(),
-          password: document.getElementById('password').value,
-        }),
+        body: JSON.stringify({ username, email, password }),
       })
         .then(async res => {
           const data = await res.json();

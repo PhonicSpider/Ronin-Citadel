@@ -187,7 +187,7 @@
       <nav class="side-nav">
         <a href="dashboard.html" class="side-nav-item" data-nav="dashboard">⛩ Dashboard</a>
         <a href="orgs.html"      class="side-nav-item" data-nav="orgs">⊞ Organizations</a>
-        <a href="servers.html"   class="side-nav-item" data-nav="servers">⚙ Servers</a>
+        <a href="servers.html"   class="side-nav-item" data-nav="servers">⚙ Machines</a>
         <a href="settings.html"  class="side-nav-item" data-nav="settings">◎ Account</a>
       </nav>
     </div>
@@ -254,7 +254,7 @@
           <div id="pwdAlert" class="alert" style="display:none; margin:14px 0 0;"></div>
 
           <div class="modal-actions" style="margin-top:var(--space-md);">
-            <button class="btn btn-primary" id="pwdSaveBtn" onclick="changePassword()">Save Password</button>
+            <button class="btn btn-primary" id="pwdSaveBtn">Save Password</button>
           </div>
         </div>
 
@@ -269,7 +269,7 @@
           <div class="tfa-view" id="tfaDisabledView">
             <div class="tfa-status-row">
               <span class="tfa-status-badge disabled">● Not enabled</span>
-              <button class="btn btn-ghost" onclick="startTfaSetup()">Enable 2FA</button>
+              <button class="btn btn-ghost" id="tfaStartBtn">Enable 2FA</button>
             </div>
             <div class="alert alert-info">
               <span>ℹ</span>
@@ -294,7 +294,7 @@
             <div class="sb-label" style="margin-bottom:6px;">Can't scan? Enter manually:</div>
             <div class="manual-code-row" style="margin-bottom:var(--space-md);">
               <div class="manual-code" id="tfaManualCode"></div>
-              <button class="btn btn-ghost btn-sm" onclick="copyManualCode()">Copy</button>
+              <button class="btn btn-ghost btn-sm" id="tfaCopyBtn">Copy</button>
             </div>
 
             <div class="field">
@@ -307,8 +307,8 @@
             <div id="tfaSetupAlert" class="alert alert-error" style="display:none; margin-bottom:14px;"></div>
 
             <div style="display:flex; gap:10px;">
-              <button class="btn btn-primary" id="tfaEnableBtn" onclick="enableTfa()">Verify &amp; Enable 2FA</button>
-              <button class="btn btn-ghost" onclick="cancelTfaSetup()">Cancel</button>
+              <button class="btn btn-primary" id="tfaEnableBtn">Verify &amp; Enable 2FA</button>
+              <button class="btn btn-ghost" id="tfaCancelSetupBtn">Cancel</button>
             </div>
           </div>
 
@@ -316,7 +316,7 @@
           <div class="tfa-view" id="tfaEnabledView">
             <div class="tfa-status-row">
               <span class="tfa-status-badge enabled">● Active</span>
-              <button class="btn btn-ghost" onclick="openDisableTfaModal()">Disable 2FA</button>
+              <button class="btn btn-ghost" id="tfaOpenDisableBtn">Disable 2FA</button>
             </div>
             <div class="alert alert-success">
               <span>✓</span>
@@ -349,9 +349,9 @@
     <div id="disableTfaAlert" class="alert alert-error" style="display:none;"></div>
 
     <div class="modal-actions">
-      <button class="btn btn-primary" id="disableTfaBtn" onclick="disableTfa()"
+      <button class="btn btn-primary" id="disableTfaBtn"
               style="background:var(--red-bright); border-color:var(--red-bright);">Disable 2FA</button>
-      <button class="btn btn-ghost" onclick="closeModal('disableTfaModal')">Cancel</button>
+      <button class="btn btn-ghost" id="disableTfaModalCancelBtn">Cancel</button>
     </div>
   </div>
 </div>
@@ -629,6 +629,15 @@
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
+
+  document.getElementById('pwdSaveBtn').addEventListener('click', changePassword);
+  document.getElementById('tfaStartBtn').addEventListener('click', startTfaSetup);
+  document.getElementById('tfaCopyBtn').addEventListener('click', copyManualCode);
+  document.getElementById('tfaEnableBtn').addEventListener('click', enableTfa);
+  document.getElementById('tfaCancelSetupBtn').addEventListener('click', cancelTfaSetup);
+  document.getElementById('tfaOpenDisableBtn').addEventListener('click', openDisableTfaModal);
+  document.getElementById('disableTfaBtn').addEventListener('click', disableTfa);
+  document.getElementById('disableTfaModalCancelBtn').addEventListener('click', () => closeModal('disableTfaModal'));
 </script>
 </body>
 </html>

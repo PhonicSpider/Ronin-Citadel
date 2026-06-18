@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#080808">
-  <title>Ronin Citadel — Servers</title>
+  <title>Ronin Citadel — Machines</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/portal.css">
   <style>
@@ -54,8 +54,8 @@
 
     .org-selector select:focus { border-color: var(--red); }
 
-    /* ── Server card ── */
-    .server-card {
+    /* ── Machine card ── */
+    .machine-card {
       background: var(--bg-2);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
@@ -64,21 +64,21 @@
       transition: border-color var(--t-base), background var(--t-base);
     }
 
-    .server-card:hover { border-color: var(--border-2); background: var(--bg-3); }
+    .machine-card:hover { border-color: var(--border-2); background: var(--bg-3); }
 
-    .server-card.selected {
+    .machine-card.selected {
       border-color: var(--red);
       background: rgba(139,21,0,0.06);
     }
 
-    .server-card-top {
+    .machine-card-top {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 6px;
     }
 
-    .server-card-name {
+    .machine-card-name {
       font-size: var(--font-base);
       font-weight: 600;
       color: var(--text);
@@ -88,9 +88,38 @@
       text-overflow: ellipsis;
     }
 
-    .server-card-meta {
+    .machine-card-meta {
       font-size: var(--font-xs);
       color: var(--text-muted);
+    }
+
+    /* ── Game server list ── */
+    .game-server-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius-md);
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      margin-bottom: 6px;
+    }
+
+    .game-server-info { flex: 1; min-width: 0; }
+
+    .game-server-name {
+      font-size: var(--font-base);
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .game-server-meta {
+      font-size: var(--font-xs);
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
     .game-badge {
@@ -189,9 +218,9 @@
       white-space: nowrap;
     }
 
-    .token-status.active   { background: rgba(0,200,68,0.10); border: 1px solid rgba(0,200,68,0.25); color: #00cc44; }
-    .token-status.revoked  { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-muted); }
-    .token-status.never    { background: rgba(200,140,0,0.10); border: 1px solid rgba(200,140,0,0.25); color: #e6a817; }
+    .token-status.active  { background: rgba(0,200,68,0.10); border: 1px solid rgba(0,200,68,0.25); color: #00cc44; }
+    .token-status.revoked { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-muted); }
+    .token-status.never   { background: rgba(200,140,0,0.10); border: 1px solid rgba(200,140,0,0.25); color: #e6a817; }
 
     /* ── One-time token display ── */
     .token-reveal {
@@ -228,7 +257,7 @@
       <nav class="side-nav">
         <a href="dashboard.html" class="side-nav-item" data-nav="dashboard">⛩ Dashboard</a>
         <a href="orgs.html"      class="side-nav-item" data-nav="orgs">⊞ Organizations</a>
-        <a href="servers.html"   class="side-nav-item" data-nav="servers">⚙ Servers</a>
+        <a href="servers.html"   class="side-nav-item" data-nav="servers">⚙ Machines</a>
         <a href="settings.html"  class="side-nav-item" data-nav="settings">◎ Account</a>
       </nav>
     </div>
@@ -243,9 +272,9 @@
     <div class="dash-topbar">
       <button class="sb-toggle" aria-label="Toggle menu">☰</button>
       <div class="breadcrumb">
-        <span class="crumb active" id="crumbPage">Servers</span>
+        <span class="crumb active" id="crumbPage">Machines</span>
         <span class="crumb-sep" id="crumbSep" style="display:none">›</span>
-        <span class="crumb active" id="crumbServer" style="display:none"></span>
+        <span class="crumb active" id="crumbMachine" style="display:none"></span>
       </div>
       <div class="topbar-user">
         <span class="user-name"></span>
@@ -256,34 +285,34 @@
     <div class="page-content">
       <div class="page-header">
         <div>
-          <div class="page-title">Servers</div>
-          <div class="page-sub">Register RSM machines and generate agent tokens.</div>
+          <div class="page-title">Machines</div>
+          <div class="page-sub">Register RSM installations and manage agent tokens.</div>
         </div>
-        <button class="btn btn-primary" id="addServerBtn" onclick="openNewServerModal()" disabled>+ Add Server</button>
+        <button class="btn btn-primary" id="addMachineBtn" disabled>+ Add Machine</button>
       </div>
 
       <div id="pageAlert" class="alert" style="display:none; margin-bottom:16px;"></div>
 
       <div class="two-col">
-        <!-- Left: org selector + server list -->
+        <!-- Left: org selector + machine list -->
         <div class="list-panel">
           <div class="org-selector">
             <div class="sb-label">Organization</div>
-            <select id="orgSelect" onchange="onOrgChange()">
+            <select id="orgSelect">
               <option value="">Loading…</option>
             </select>
           </div>
-          <div id="serverList">
+          <div id="machineList">
             <div class="loading-text">Select an organization above.</div>
           </div>
         </div>
 
-        <!-- Right: server detail -->
-        <div class="detail-panel" id="serverDetail">
+        <!-- Right: machine detail -->
+        <div class="detail-panel" id="machineDetail">
           <div class="empty-state">
             <div class="empty-icon">⚙</div>
-            <div class="empty-title">Select a server</div>
-            <div class="empty-sub">Choose a server from the list to view its details and manage agent tokens.</div>
+            <div class="empty-title">Select a machine</div>
+            <div class="empty-sub">Choose a machine from the list to view its game servers and manage agent tokens.</div>
           </div>
         </div>
       </div>
@@ -291,33 +320,28 @@
   </main>
 </div>
 
-<!-- ── New Server Modal ── -->
-<div class="modal-overlay" id="newServerModal">
+<!-- ── Add Machine Modal ── -->
+<div class="modal-overlay" id="newMachineModal">
   <div class="modal-card">
-    <div class="modal-title">Add Server</div>
-    <div class="modal-sub">Register a new RSM machine with this organization.</div>
+    <div class="modal-title">Add Machine</div>
+    <div class="modal-sub">Register a new RSM installation with this organization.</div>
 
     <div class="field">
-      <label class="field-label" for="newServerName">Name</label>
-      <input class="field-input" type="text" id="newServerName" placeholder="My Game Server" maxlength="80" autocomplete="off">
-      <span class="field-error" id="newServerNameError"></span>
+      <label class="field-label" for="newMachineName">Name</label>
+      <input class="field-input" type="text" id="newMachineName" placeholder="Home Server" maxlength="64" autocomplete="off">
+      <span class="field-error" id="newMachineNameError"></span>
     </div>
 
     <div class="field">
-      <label class="field-label" for="newServerGame">Game / Type <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
-      <input class="field-input" type="text" id="newServerGame" placeholder="e.g. Minecraft, Valheim, Custom" maxlength="40" autocomplete="off">
+      <label class="field-label" for="newMachineDesc">Description <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <input class="field-input" type="text" id="newMachineDesc" placeholder="Short description" maxlength="256" autocomplete="off">
     </div>
 
-    <div class="field">
-      <label class="field-label" for="newServerDesc">Description <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
-      <input class="field-input" type="text" id="newServerDesc" placeholder="Short description" maxlength="120" autocomplete="off">
-    </div>
-
-    <div id="newServerAlert" class="alert alert-error" style="display:none;"></div>
+    <div id="newMachineAlert" class="alert alert-error" style="display:none;"></div>
 
     <div class="modal-actions">
-      <button class="btn btn-primary" id="newServerSubmitBtn" onclick="createServer()">Add Server</button>
-      <button class="btn btn-ghost" onclick="closeModal('newServerModal')">Cancel</button>
+      <button class="btn btn-primary" id="newMachineSubmitBtn">Add Machine</button>
+      <button class="btn btn-ghost" id="newMachineCancelBtn">Cancel</button>
     </div>
   </div>
 </div>
@@ -330,15 +354,15 @@
 
     <div class="field">
       <label class="field-label" for="tokenLabel">Label</label>
-      <input class="field-input" type="text" id="tokenLabel" placeholder="Home RSM" maxlength="60" autocomplete="off">
+      <input class="field-input" type="text" id="tokenLabel" placeholder="Home RSM" maxlength="80" autocomplete="off">
       <span class="field-error" id="tokenLabelError"></span>
     </div>
 
     <div id="genTokenAlert" class="alert alert-error" style="display:none;"></div>
 
     <div class="modal-actions">
-      <button class="btn btn-primary" id="genTokenSubmitBtn" onclick="generateToken()">Generate</button>
-      <button class="btn btn-ghost" onclick="closeModal('genTokenModal')">Cancel</button>
+      <button class="btn btn-primary" id="genTokenSubmitBtn">Generate</button>
+      <button class="btn btn-ghost" id="genTokenCancelBtn">Cancel</button>
     </div>
   </div>
 </div>
@@ -359,8 +383,8 @@
     </div>
 
     <div style="display:flex; gap:10px; margin-top:14px;">
-      <button class="btn btn-primary" onclick="copyRevealToken()" id="copyRevealBtn">Copy Token</button>
-      <button class="btn btn-ghost" onclick="closeModal('tokenRevealModal')">Close</button>
+      <button class="btn btn-primary" id="copyRevealBtn">Copy Token</button>
+      <button class="btn btn-ghost" id="closeRevealBtn">Close</button>
     </div>
   </div>
 </div>
@@ -371,27 +395,27 @@
     <div class="modal-title" id="confirmModalTitle"></div>
     <div class="modal-sub" id="confirmModalBody"></div>
     <div class="modal-actions">
-      <button class="btn btn-primary" id="confirmModalBtn" onclick="confirmAction()"
+      <button class="btn btn-primary" id="confirmModalBtn"
               style="background:var(--red-bright); border-color:var(--red-bright);"></button>
-      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-ghost" id="confirmModalCancelBtn">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- ── Delete Server Modal ── -->
-<div class="modal-overlay" id="deleteServerModal">
+<!-- ── Delete Machine Modal ── -->
+<div class="modal-overlay" id="deleteMachineModal">
   <div class="modal-card">
-    <div class="modal-title">Delete Server</div>
-    <div class="modal-sub">This will permanently delete the server and all its tokens. Type the server name to confirm.</div>
+    <div class="modal-title">Delete Machine</div>
+    <div class="modal-sub">This will permanently delete the machine and all its agent tokens. Type the machine name to confirm.</div>
     <div class="field">
-      <label class="field-label" for="deleteServerInput">Server Name</label>
-      <input class="field-input" type="text" id="deleteServerInput" placeholder="" autocomplete="off" spellcheck="false">
-      <span class="field-error" id="deleteServerError"></span>
+      <label class="field-label" for="deleteMachineInput">Machine Name</label>
+      <input class="field-input" type="text" id="deleteMachineInput" placeholder="" autocomplete="off" spellcheck="false">
+      <span class="field-error" id="deleteMachineError"></span>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-primary" onclick="confirmDeleteServer()"
-              style="background:var(--red-bright); border-color:var(--red-bright);">Delete Server</button>
-      <button class="btn btn-ghost" onclick="closeModal('deleteServerModal')">Cancel</button>
+      <button class="btn btn-primary" id="deleteMachineConfirmBtn"
+              style="background:var(--red-bright); border-color:var(--red-bright);">Delete Machine</button>
+      <button class="btn btn-ghost" id="deleteMachineCancelBtn">Cancel</button>
     </div>
   </div>
 </div>
@@ -399,20 +423,50 @@
 <script src="js/api.js"></script>
 <script src="js/shell.js"></script>
 <script>
-  // ── State ──────────────────────────────────────────────────────────────────────────
-  let _orgs           = [];
-  let _selectedOrgId  = null;
-  let _servers        = [];
-  let _selectedServer = null;
-  let _orgRole        = 'member';
-  let _revealToken    = '';
+  // ── State ─────────────────────────────────────────────────────────────────
+  let _orgs            = [];
+  let _selectedOrgId   = null;
+  let _machines        = [];
+  let _selectedMachine = null;
+  let _orgRole         = 'member';
+  let _revealToken     = '';
+  let _pendingConfirm  = null;
+  let _deletePending   = null;
 
-  // ── Init ──────────────────────────────────────────────────────────────────────────
+  // ── Init ──────────────────────────────────────────────────────────────────
   initShell('servers', async function () {
+    bindEvents();
     await loadOrgs();
   });
 
-  // ── Orgs ─────────────────────────────────────────────────────────────────────────
+  function bindEvents() {
+    document.getElementById('addMachineBtn').addEventListener('click', openNewMachineModal);
+    document.getElementById('orgSelect').addEventListener('change', onOrgChange);
+
+    // New machine modal
+    document.getElementById('newMachineSubmitBtn').addEventListener('click', createMachine);
+    document.getElementById('newMachineCancelBtn').addEventListener('click', () => closeModal('newMachineModal'));
+    document.getElementById('newMachineName').addEventListener('keydown', e => { if (e.key === 'Enter') createMachine(); });
+
+    // Gen token modal
+    document.getElementById('genTokenSubmitBtn').addEventListener('click', generateToken);
+    document.getElementById('genTokenCancelBtn').addEventListener('click', () => closeModal('genTokenModal'));
+    document.getElementById('tokenLabel').addEventListener('keydown', e => { if (e.key === 'Enter') generateToken(); });
+
+    // Reveal modal
+    document.getElementById('copyRevealBtn').addEventListener('click', copyRevealToken);
+    document.getElementById('closeRevealBtn').addEventListener('click', () => closeModal('tokenRevealModal'));
+
+    // Confirm modal
+    document.getElementById('confirmModalBtn').addEventListener('click', confirmAction);
+    document.getElementById('confirmModalCancelBtn').addEventListener('click', () => closeModal('confirmModal'));
+
+    // Delete machine modal
+    document.getElementById('deleteMachineConfirmBtn').addEventListener('click', confirmDeleteMachine);
+    document.getElementById('deleteMachineCancelBtn').addEventListener('click', () => closeModal('deleteMachineModal'));
+  }
+
+  // ── Orgs ──────────────────────────────────────────────────────────────────
   async function loadOrgs() {
     const res  = await RC.apiFetch('/api/orgs');
     const data = await res.json();
@@ -427,11 +481,11 @@
 
     if (_orgs.length === 0) {
       sel.innerHTML = '<option value="">No organizations — create one first</option>';
-      document.getElementById('serverList').innerHTML = `
+      document.getElementById('machineList').innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">⊞</div>
           <div class="empty-title">No organizations</div>
-          <div class="empty-sub"><a href="orgs.html" style="color:var(--cyan-dim);">Create an org</a> before adding servers.</div>
+          <div class="empty-sub"><a href="orgs.html" style="color:var(--cyan-dim);">Create an org</a> before adding machines.</div>
         </div>`;
       return;
     }
@@ -444,29 +498,28 @@
   }
 
   async function onOrgChange() {
-    const sel  = document.getElementById('orgSelect');
-    const orgId = sel.value;
+    const orgId = document.getElementById('orgSelect').value;
     if (!orgId) return;
 
-    _selectedOrgId = orgId;
-    _selectedServer = null;
+    _selectedOrgId  = orgId;
+    _selectedMachine = null;
 
     const org = _orgs.find(o => o.id === orgId);
     _orgRole  = org?.role ?? 'member';
 
     const canManage = _orgRole === 'admin' || _orgRole === 'owner';
-    document.getElementById('addServerBtn').disabled = !canManage;
+    document.getElementById('addMachineBtn').disabled = !canManage;
 
-    clearServerDetail();
-    await loadServers(orgId);
+    clearMachineDetail();
+    await loadMachines(orgId);
   }
 
-  // ── Servers ───────────────────────────────────────────────────────────────────────
-  async function loadServers(orgId) {
-    const list = document.getElementById('serverList');
+  // ── Machines ──────────────────────────────────────────────────────────────
+  async function loadMachines(orgId) {
+    const list = document.getElementById('machineList');
     list.innerHTML = '<div class="loading-text">Loading…</div>';
 
-    const res  = await RC.apiFetch(`/api/servers?orgId=${orgId}`);
+    const res  = await RC.apiFetch(`/api/machines?orgId=${orgId}`);
     const data = await res.json();
 
     if (!res.ok) {
@@ -474,80 +527,87 @@
       return;
     }
 
-    _servers = data.servers ?? [];
-    renderServerList();
+    _machines = data.machines ?? [];
+    renderMachineList();
   }
 
-  function renderServerList() {
-    const list = document.getElementById('serverList');
-    if (_servers.length === 0) {
+  function renderMachineList() {
+    const list = document.getElementById('machineList');
+    if (_machines.length === 0) {
       list.innerHTML = `
         <div class="empty-state" style="padding:24px 8px;">
           <div class="empty-icon">⚙</div>
-          <div class="empty-title">No servers</div>
-          <div class="empty-sub">Add your first server to generate an agent token for RSM.</div>
+          <div class="empty-title">No machines</div>
+          <div class="empty-sub">Add your first machine to generate an agent token for RSM.</div>
         </div>`;
       return;
     }
 
-    list.innerHTML = _servers.map(s => {
-      const online  = s.status === 'online';
-      const selected = _selectedServer?.id === s.id;
+    list.innerHTML = _machines.map(m => {
+      const online   = m.status?.toLowerCase() === 'online';
+      const selected = _selectedMachine?.id === m.id;
       return `
-        <div class="server-card ${selected ? 'selected' : ''}"
-             data-server-id="${s.id}" onclick="selectServer('${s.id}')">
-          <div class="server-card-top">
+        <div class="machine-card ${selected ? 'selected' : ''}"
+             data-machine-id="${m.id}" data-select-machine="${m.id}">
+          <div class="machine-card-top">
             <div class="status-dot ${online ? 'online' : 'offline'}"></div>
-            <div class="server-card-name">${escHtml(s.name)}</div>
-            ${s.game ? `<span class="game-badge">${escHtml(s.game)}</span>` : ''}
+            <div class="machine-card-name">${escHtml(m.name)}</div>
           </div>
-          <div class="server-card-meta">Added ${fmtDate(s.created_at)}</div>
+          <div class="machine-card-meta">${online ? 'Online' : 'Offline'} · Added ${fmtDate(m.created_at)}</div>
         </div>`;
     }).join('');
+
+    list.querySelectorAll('[data-select-machine]').forEach(el => {
+      el.addEventListener('click', () => selectMachine(el.dataset.selectMachine));
+    });
   }
 
-  async function selectServer(serverId) {
-    const detail = document.getElementById('serverDetail');
+  async function selectMachine(machineId) {
+    const detail = document.getElementById('machineDetail');
     detail.innerHTML = '<div class="loading-text">Loading…</div>';
 
-    const srv = _servers.find(s => s.id === serverId);
-    document.getElementById('crumbSep').style.display    = '';
-    document.getElementById('crumbServer').style.display  = '';
-    document.getElementById('crumbServer').textContent    = srv?.name ?? serverId;
+    const m = _machines.find(x => x.id === machineId);
+    document.getElementById('crumbSep').style.display     = '';
+    document.getElementById('crumbMachine').style.display  = '';
+    document.getElementById('crumbMachine').textContent    = m?.name ?? machineId;
 
-    const [srvRes, tokRes] = await Promise.all([
-      RC.apiFetch(`/api/servers/${serverId}`),
-      RC.apiFetch(`/api/servers/${serverId}/tokens`),
+    const [mRes, tokRes, srvRes] = await Promise.all([
+      RC.apiFetch(`/api/machines/${machineId}`),
+      RC.apiFetch(`/api/machines/${machineId}/tokens`),
+      RC.apiFetch(`/api/servers?machineId=${machineId}`),
     ]);
-    const srvData = await srvRes.json();
+    const mData   = await mRes.json();
     const tokData = await tokRes.json();
+    const srvData = await srvRes.json();
 
-    if (!srvRes.ok) {
-      detail.innerHTML = `<div class="alert alert-error"><span>⚠</span><span>${escHtml(srvData.error ?? 'Failed to load.')}</span></div>`;
+    if (!mRes.ok) {
+      detail.innerHTML = `<div class="alert alert-error"><span>⚠</span><span>${escHtml(mData.error ?? 'Failed to load.')}</span></div>`;
       return;
     }
 
-    _selectedServer = { ...srvData.server, tokens: tokData.tokens ?? [] };
-    _servers = _servers.map(s => s.id === serverId ? { ...s, status: srvData.server.status } : s);
-    renderServerList();
-    renderServerDetail();
+    _selectedMachine = {
+      ...mData.machine,
+      tokens:  tokData.tokens  ?? [],
+      servers: srvData.servers ?? [],
+    };
+    _machines = _machines.map(x => x.id === machineId ? { ...x, status: mData.machine.status } : x);
+    renderMachineList();
+    renderMachineDetail();
   }
 
-  function renderServerDetail() {
-    const { id, name, game, description, status, tokens } = _selectedServer;
-    const canManage = _orgRole === 'admin' || _orgRole === 'owner';
-    const online    = status === 'online';
-    const activeTokens  = tokens.filter(t => !t.revoked);
-    const revokedTokens = tokens.filter(t =>  t.revoked);
+  function renderMachineDetail() {
+    const { id, name, description, status, tokens, servers } = _selectedMachine;
+    const canManage    = _orgRole === 'admin' || _orgRole === 'owner';
+    const online       = status?.toLowerCase() === 'online';
+    const activeTokens = tokens.filter(t => !t.revoked);
 
-    document.getElementById('serverDetail').innerHTML = `
+    document.getElementById('machineDetail').innerHTML = `
       <div class="section-card">
         <div class="section-header">
           <div>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
               <div class="status-dot ${online ? 'online' : 'offline'}"></div>
               <div class="section-title">${escHtml(name)}</div>
-              ${game ? `<span class="game-badge">${escHtml(game)}</span>` : ''}
             </div>
             ${description ? `<div class="section-sub">${escHtml(description)}</div>` : ''}
           </div>
@@ -558,9 +618,29 @@
 
         <div class="divider"></div>
 
+        <!-- Game Servers -->
+        <div class="section-header" style="margin-bottom:12px;">
+          <span class="sb-label" style="margin-bottom:0;">Game Servers (${servers.length})</span>
+          <span style="font-size:var(--font-xs);color:var(--text-muted);">Auto-populated from RSM</span>
+        </div>
+
+        <div id="gameServerList">
+          ${servers.length === 0 ? `
+            <div class="alert alert-info" style="margin-bottom:16px;">
+              <span>ℹ</span>
+              <span>${online
+                ? 'No game servers reported yet. RSM will send them when servers start.'
+                : 'Machine is offline — game servers will appear when RSM connects.'
+              }</span>
+            </div>` : servers.map(s => gameServerRowHtml(s)).join('')}
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Agent Tokens -->
         <div class="section-header" style="margin-bottom:12px;">
           <span class="sb-label" style="margin-bottom:0;">Agent Tokens (${activeTokens.length} active)</span>
-          ${canManage ? `<button class="btn btn-ghost btn-sm" onclick="openGenTokenModal()">+ Generate</button>` : ''}
+          ${canManage ? `<button class="btn btn-ghost btn-sm" data-open-gen-token>+ Generate</button>` : ''}
         </div>
 
         <div id="tokenList">
@@ -575,16 +655,42 @@
         <div class="danger-zone">
           <div class="danger-zone-title">Danger Zone</div>
           <div class="danger-row">
-            <div class="danger-desc">Permanently delete this server and revoke all its agent tokens.</div>
-            <button class="btn-danger" onclick="openDeleteServerModal('${id}','${escHtml(name)}')">Delete Server</button>
+            <div class="danger-desc">Permanently delete this machine and revoke all its agent tokens.</div>
+            <button class="btn-danger" data-open-delete-machine="${id}" data-machine-name="${escHtml(name)}">Delete Machine</button>
           </div>
         </div>` : ''}
       </div>`;
+
+    // Bind dynamic buttons
+    document.querySelector('[data-open-gen-token]')
+      ?.addEventListener('click', openGenTokenModal);
+
+    document.querySelector('[data-open-delete-machine]')
+      ?.addEventListener('click', function () {
+        openDeleteMachineModal(this.dataset.openDeleteMachine, this.dataset.machineName);
+      });
+
+    document.querySelectorAll('[data-revoke-token]').forEach(btn => {
+      btn.addEventListener('click', () => revokeToken(id, btn.dataset.revokeToken));
+    });
   }
 
-  function tokenRowHtml(t, canManage, serverId) {
-    const isRevoked  = t.revoked;
-    const neverSeen  = !t.last_seen;
+  function gameServerRowHtml(s) {
+    const online = s.status?.toLowerCase() === 'online';
+    return `
+      <div class="game-server-row">
+        <div class="status-dot ${online ? 'online' : 'offline'}"></div>
+        <div class="game-server-info">
+          <div class="game-server-name">${escHtml(s.name ?? s.rsm_id ?? s.id)}</div>
+          <div class="game-server-meta">${online ? 'Running' : 'Stopped'}</div>
+        </div>
+        ${s.game ? `<span class="game-badge">${escHtml(s.game)}</span>` : ''}
+      </div>`;
+  }
+
+  function tokenRowHtml(t, canManage, machineId) {
+    const isRevoked   = t.revoked;
+    const neverSeen   = !t.last_seen;
     const statusLabel = isRevoked ? 'revoked' : neverSeen ? 'never used' : 'active';
     const statusClass = isRevoked ? 'revoked' : neverSeen ? 'never' : 'active';
 
@@ -599,44 +705,39 @@
         </div>
         <span class="token-status ${statusClass}">${statusLabel}</span>
         ${canManage && !isRevoked
-          ? `<button class="btn-icon" title="Revoke token"
-                     onclick="revokeToken('${serverId}','${t.id}')">&#x2715;</button>`
+          ? `<button class="btn-icon" title="Revoke token" data-revoke-token="${t.id}">&#x2715;</button>`
           : '<span style="width:24px;"></span>'}
       </div>`;
   }
 
-  function clearServerDetail() {
-    _selectedServer = null;
-    document.getElementById('crumbSep').style.display    = 'none';
-    document.getElementById('crumbServer').style.display = 'none';
-    document.getElementById('serverDetail').innerHTML = `
+  function clearMachineDetail() {
+    _selectedMachine = null;
+    document.getElementById('crumbSep').style.display     = 'none';
+    document.getElementById('crumbMachine').style.display = 'none';
+    document.getElementById('machineDetail').innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">⚙</div>
-        <div class="empty-title">Select a server</div>
-        <div class="empty-sub">Choose a server from the list to view tokens.</div>
+        <div class="empty-title">Select a machine</div>
+        <div class="empty-sub">Choose a machine from the list to view its game servers and manage tokens.</div>
       </div>`;
   }
 
-  // ── Create server ───────────────────────────────────────────────────────────────────
-  function openNewServerModal() {
-    ['newServerName','newServerGame','newServerDesc'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('newServerNameError').classList.remove('visible');
-    document.getElementById('newServerAlert').style.display = 'none';
-    document.getElementById('newServerModal').classList.add('open');
-    setTimeout(() => document.getElementById('newServerName').focus(), 60);
+  // ── Create machine ─────────────────────────────────────────────────────────
+  function openNewMachineModal() {
+    document.getElementById('newMachineName').value     = '';
+    document.getElementById('newMachineDesc').value     = '';
+    document.getElementById('newMachineNameError').classList.remove('visible');
+    document.getElementById('newMachineAlert').style.display = 'none';
+    document.getElementById('newMachineModal').classList.add('open');
+    setTimeout(() => document.getElementById('newMachineName').focus(), 60);
   }
 
-  document.getElementById('newServerName').addEventListener('keydown', e => {
-    if (e.key === 'Enter') createServer();
-  });
-
-  async function createServer() {
-    const name = document.getElementById('newServerName').value.trim();
-    const game = document.getElementById('newServerGame').value.trim();
-    const desc = document.getElementById('newServerDesc').value.trim();
-    const errEl   = document.getElementById('newServerNameError');
-    const alertEl = document.getElementById('newServerAlert');
-    const btn     = document.getElementById('newServerSubmitBtn');
+  async function createMachine() {
+    const name    = document.getElementById('newMachineName').value.trim();
+    const desc    = document.getElementById('newMachineDesc').value.trim();
+    const errEl   = document.getElementById('newMachineNameError');
+    const alertEl = document.getElementById('newMachineAlert');
+    const btn     = document.getElementById('newMachineSubmitBtn');
 
     errEl.classList.remove('visible');
     alertEl.style.display = 'none';
@@ -650,27 +751,27 @@
     btn.disabled    = true;
     btn.textContent = 'Adding…';
 
-    const res  = await RC.apiFetch('/api/servers', {
+    const res  = await RC.apiFetch('/api/machines', {
       method: 'POST',
-      body: JSON.stringify({ orgId: _selectedOrgId, name, game: game || undefined, description: desc || undefined }),
+      body: JSON.stringify({ orgId: _selectedOrgId, name, description: desc || undefined }),
     });
     const data = await res.json();
 
     btn.disabled    = false;
-    btn.textContent = 'Add Server';
+    btn.textContent = 'Add Machine';
 
     if (!res.ok) {
-      alertEl.textContent   = data.error ?? 'Failed to add server.';
+      alertEl.textContent   = data.error ?? 'Failed to add machine.';
       alertEl.style.display = 'flex';
       return;
     }
 
-    closeModal('newServerModal');
-    await loadServers(_selectedOrgId);
-    selectServer(data.server.id);
+    closeModal('newMachineModal');
+    await loadMachines(_selectedOrgId);
+    selectMachine(data.machine.id);
   }
 
-  // ── Generate token ───────────────────────────────────────────────────────────────────
+  // ── Generate token ─────────────────────────────────────────────────────────
   function openGenTokenModal() {
     document.getElementById('tokenLabel').value = '';
     document.getElementById('tokenLabelError').classList.remove('visible');
@@ -678,10 +779,6 @@
     document.getElementById('genTokenModal').classList.add('open');
     setTimeout(() => document.getElementById('tokenLabel').focus(), 60);
   }
-
-  document.getElementById('tokenLabel').addEventListener('keydown', e => {
-    if (e.key === 'Enter') generateToken();
-  });
 
   async function generateToken() {
     const label   = document.getElementById('tokenLabel').value.trim();
@@ -701,7 +798,7 @@
     btn.disabled    = true;
     btn.textContent = 'Generating…';
 
-    const res  = await RC.apiFetch(`/api/servers/${_selectedServer.id}/tokens`, {
+    const res  = await RC.apiFetch(`/api/machines/${_selectedMachine.id}/tokens`, {
       method: 'POST',
       body: JSON.stringify({ label }),
     });
@@ -717,10 +814,10 @@
     }
 
     closeModal('genTokenModal');
-    _revealToken = data.rawToken;
+    _revealToken = data.token.rawToken;
     document.getElementById('revealTokenValue').textContent = _revealToken;
     document.getElementById('tokenRevealModal').classList.add('open');
-    selectServer(_selectedServer.id);
+    selectMachine(_selectedMachine.id);
   }
 
   function copyRevealToken() {
@@ -737,9 +834,54 @@
     });
   }
 
-  // ── Confirm modal helpers ──────────────────────────────────────────────────
-  let _pendingConfirm = null;
+  // ── Revoke token ──────────────────────────────────────────────────────────
+  async function revokeToken(machineId, tokenId) {
+    openConfirmModal(
+      'Revoke Token',
+      'Revoke this token? RSM will lose access immediately and you will need to generate a new one.',
+      'Revoke Token',
+      async () => {
+        const res  = await RC.apiFetch(`/api/machines/${machineId}/tokens/${tokenId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) { showPageAlert('error', data.error ?? 'Failed to revoke token.'); return; }
+        await selectMachine(machineId);
+      }
+    );
+  }
 
+  // ── Delete machine ─────────────────────────────────────────────────────────
+  function openDeleteMachineModal(machineId, name) {
+    document.getElementById('deleteMachineInput').value       = '';
+    document.getElementById('deleteMachineInput').placeholder = name;
+    document.getElementById('deleteMachineError').textContent = '';
+    document.getElementById('deleteMachineError').classList.remove('visible');
+    _deletePending = { machineId, name };
+    document.getElementById('deleteMachineModal').classList.add('open');
+    setTimeout(() => document.getElementById('deleteMachineInput').focus(), 60);
+  }
+
+  async function confirmDeleteMachine() {
+    const input = document.getElementById('deleteMachineInput').value;
+    const errEl = document.getElementById('deleteMachineError');
+    if (input !== _deletePending.name) {
+      errEl.textContent = 'Name does not match.';
+      errEl.classList.add('visible');
+      return;
+    }
+    closeModal('deleteMachineModal');
+    const { machineId, name } = _deletePending;
+    _deletePending = null;
+
+    const res  = await RC.apiFetch(`/api/machines/${machineId}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) { showPageAlert('error', data.error ?? 'Failed to delete machine.'); return; }
+
+    clearMachineDetail();
+    await loadMachines(_selectedOrgId);
+    showPageAlert('success', `"${name}" has been deleted.`);
+  }
+
+  // ── Confirm modal helpers ─────────────────────────────────────────────────
   function openConfirmModal(title, body, confirmText, callback) {
     document.getElementById('confirmModalTitle').textContent = title;
     document.getElementById('confirmModalBody').textContent  = body;
@@ -753,63 +895,8 @@
     if (_pendingConfirm) { _pendingConfirm(); _pendingConfirm = null; }
   }
 
-  let _deleteServerPending = null;
-
-  function openDeleteServerModal(serverId, name) {
-    document.getElementById('deleteServerInput').value       = '';
-    document.getElementById('deleteServerInput').placeholder = name;
-    document.getElementById('deleteServerError').textContent = '';
-    document.getElementById('deleteServerError').classList.remove('visible');
-    _deleteServerPending = { serverId, name };
-    document.getElementById('deleteServerModal').classList.add('open');
-    setTimeout(() => document.getElementById('deleteServerInput').focus(), 60);
-  }
-
-  async function confirmDeleteServer() {
-    const input = document.getElementById('deleteServerInput').value;
-    const errEl = document.getElementById('deleteServerError');
-    if (input !== _deleteServerPending.name) {
-      errEl.textContent = 'Name does not match.';
-      errEl.classList.add('visible');
-      return;
-    }
-    closeModal('deleteServerModal');
-    await deleteServer(_deleteServerPending.serverId, _deleteServerPending.name);
-    _deleteServerPending = null;
-  }
-
-  // ── Delete server ──────────────────────────────────────────────────────────
-  async function deleteServer(serverId, name) {
-    const res  = await RC.apiFetch(`/api/servers/${serverId}`, { method: 'DELETE' });
-    const data = await res.json();
-
-    if (!res.ok) {
-      showPageAlert('error', data.error ?? 'Failed to delete server.');
-      return;
-    }
-
-    clearServerDetail();
-    await loadServers(_selectedOrgId);
-    showPageAlert('success', `"${name}" has been deleted.`);
-  }
-
-  // ── Revoke token ───────────────────────────────────────────────────────────
-  async function revokeToken(serverId, tokenId) {
-    openConfirmModal(
-      'Revoke Token',
-      'Revoke this token? RSM will lose access immediately and you will need to generate a new one.',
-      'Revoke Token',
-      async () => {
-        const res  = await RC.apiFetch(`/api/servers/${serverId}/tokens/${tokenId}`, { method: 'DELETE' });
-        const data = await res.json();
-        if (!res.ok) { showPageAlert('error', data.error ?? 'Failed to revoke token.'); return; }
-        await selectServer(serverId);
-      }
-    );
-  }
-
-  // ── Helpers ─────────────────────────────────────────────────────────────────────────
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
 
   function showPageAlert(type, msg) {
     const el = document.getElementById('pageAlert');
@@ -820,8 +907,7 @@
 
   function fmtDate(iso) {
     if (!iso) return '—';
-    const d = new Date(iso);
-    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   function escHtml(s) {

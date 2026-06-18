@@ -667,7 +667,7 @@
         <div class="sb-label">Portal</div>
         <nav class="side-nav">
           <a href="orgs.html"    class="side-nav-item" data-nav="orgs">⊞ Organizations</a>
-          <a href="servers.html" class="side-nav-item" data-nav="servers">⚙ Servers</a>
+          <a href="servers.html" class="side-nav-item" data-nav="servers">⚙ Machines</a>
           <a href="settings.html" class="side-nav-item" data-nav="settings">◎ Account</a>
         </nav>
       </div>
@@ -740,8 +740,8 @@
       </div>
 
       <div class="modal-actions">
-        <button class="btn btn-primary" id="pwdSaveBtn" onclick="changePassword()">Save Password</button>
-        <button class="btn btn-ghost"   onclick="closeModal('changePasswordModal')">Cancel</button>
+        <button class="btn btn-primary" id="pwdSaveBtn">Save Password</button>
+        <button class="btn btn-ghost"   id="pwdCancelBtn">Cancel</button>
       </div>
     </div>
   </div>
@@ -790,7 +790,7 @@
 
       servers.forEach(srv => {
         const div = document.createElement('div');
-        div.className = 'server-entry ' + (srv.status === 'online' ? 'online' : 'offline');
+        div.className = 'server-entry ' + (srv.status?.toLowerCase() === 'online' ? 'online' : 'offline');
         div.innerHTML = `<span class="status-dot"></span><span class="server-name">${escHtml(srv.name)}</span>`;
         section.appendChild(div);
       });
@@ -852,6 +852,9 @@
       closeModal('changePasswordModal');
       ['pwdCurrent','pwdNew','pwdConfirm'].forEach(id => { document.getElementById(id).value = ''; });
     }
+
+    document.getElementById('pwdSaveBtn').addEventListener('click', changePassword);
+    document.getElementById('pwdCancelBtn').addEventListener('click', () => closeModal('changePasswordModal'));
 
     ['pwdCurrent','pwdNew','pwdConfirm'].forEach(id => {
       document.getElementById(id).addEventListener('keydown', e => {
