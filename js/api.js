@@ -98,7 +98,7 @@ const RC = (() => {
       });
     } catch {}
     clearSession();
-    window.location.href = 'login.html';
+    window.location.href = '/login';
   }
 
   // Call on every protected page. Runs the callback with the user object if
@@ -116,7 +116,8 @@ const RC = (() => {
     if (refreshed) { onUser(refreshed.user); return; }
 
     clearSession();
-    window.location.href = 'login.html';
+    const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = '/login?redirect=' + redirect;
   }
 
   // Non-redirecting auth check — returns the user object if logged in, null otherwise.

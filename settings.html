@@ -177,7 +177,7 @@
 
   <!-- ── Sidebar ── -->
   <aside class="dash-sidebar">
-    <a href="dashboard.html" class="sidebar-logo" style="text-decoration:none; color:inherit;">
+    <a href="/" class="sidebar-logo" style="text-decoration:none; color:inherit;">
       <span class="logo-icon">⛩</span>
       <span class="logo-text">Ronin Citadel</span>
     </a>
@@ -185,10 +185,10 @@
     <div class="sb-section">
       <div class="sb-label">Portal</div>
       <nav class="side-nav">
-        <a href="dashboard.html" class="side-nav-item" data-nav="dashboard">⛩ Dashboard</a>
-        <a href="orgs.html"      class="side-nav-item" data-nav="orgs">⊞ Organizations</a>
-        <a href="servers.html"   class="side-nav-item" data-nav="servers">⚙ Machines</a>
-        <a href="settings.html"  class="side-nav-item" data-nav="settings">◎ Account</a>
+        <a href="" class="side-nav-item" data-nav="dashboard" id="navDashboard">⛩ Dashboard</a>
+        <a href="" class="side-nav-item" data-nav="orgs"      id="navOrgs">⊞ Organizations</a>
+        <a href="" class="side-nav-item" data-nav="servers"   id="navMachines">⚙ Machines</a>
+        <a href="" class="side-nav-item" data-nav="settings"  id="navSettings">◎ Account</a>
       </nav>
     </div>
 
@@ -359,6 +359,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"
         integrity="sha512-FRWs7TDxmsT5qAeTm0SWaRFSBEaKC1P5qvOkEDMWRa8O7vBqBjTMkC8WBfQRZSG4qHAKEBQlAGJnRaJrIxnA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="js/router.js"></script>
 <script src="js/api.js"></script>
 <script src="js/shell.js"></script>
 <script>
@@ -366,7 +367,13 @@
   let _otpauthUrl  = '';
   let _manualCode  = '';
 
-  initShell('settings', async function (sessionUser) {
+  initShell('settings', async function (sessionUser, orgSlug) {
+    if (orgSlug) {
+      document.getElementById('navDashboard').href = '/' + orgSlug;
+      document.getElementById('navOrgs').href      = '/' + orgSlug + '/orgs';
+      document.getElementById('navMachines').href  = '/' + orgSlug + '/machines';
+      document.getElementById('navSettings').href  = '/' + orgSlug + '/settings';
+    }
     await loadProfile();
   });
 

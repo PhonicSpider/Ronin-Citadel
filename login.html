@@ -488,6 +488,24 @@
       document.getElementById('loginError').classList.remove('error');
     }
 
+    // ── Determine post-login landing URL ────────────────────────────────────
+    // Redirects to /{orgSlug}/machines/{machSlug} if a default machine is set,
+    // otherwise to /{orgSlug} (the dashboard for the user's first org).
+    async function getLandingUrl() {
+      try {
+        const res  = await RC.apiFetch('/api/orgs');
+        const data = await res.json();
+        if (res.ok && data.orgs?.length) {
+          const org = data.orgs[0];
+          if (org.default_machine_slug) {
+            return '/' + org.slug + '/machines/' + org.default_machine_slug;
+          }
+          return '/' + org.slug;
+        }
+      } catch {}
+      return '/';
+    }
+
     // ── Step 1 submit ───────────────────────────────────────────────────────
     document.getElementById('signInBtn').addEventListener('click', function () {
       clearStep1();
@@ -532,7 +550,8 @@
           } else {
             RC.setSession(data.accessToken, data.user);
             const redir = new URLSearchParams(window.location.search).get('redirect');
-            window.location.href = (redir && redir.startsWith('/')) ? redir : 'dashboard.html';
+            if (redir && redir.startsWith('/')) { window.location.href = redir; return; }
+            window.location.href = await getLandingUrl();
           }
         })
         .catch(() => {
@@ -588,7 +607,8 @@
           }
           RC.setSession(data.accessToken, data.user);
           const redir2 = new URLSearchParams(window.location.search).get('redirect');
-          window.location.href = (redir2 && redir2.startsWith('/')) ? redir2 : 'dashboard.html';
+          if (redir2 && redir2.startsWith('/')) { window.location.href = redir2; return; }
+          window.location.href = await getLandingUrl();
         })
         .catch(() => {
           document.getElementById('tfaErrorText').textContent = 'Could not reach the server. Is it running?';

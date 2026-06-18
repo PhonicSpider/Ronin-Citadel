@@ -1,0 +1,13 @@
+# Server config — keep off version control
+Caddyfile
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*

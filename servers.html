@@ -247,7 +247,7 @@
 
   <!-- ── Sidebar ── -->
   <aside class="dash-sidebar">
-    <a href="dashboard.html" class="sidebar-logo" style="text-decoration:none; color:inherit;">
+    <a href="/" class="sidebar-logo" style="text-decoration:none; color:inherit;">
       <span class="logo-icon">⛩</span>
       <span class="logo-text">Ronin Citadel</span>
     </a>
@@ -255,10 +255,10 @@
     <div class="sb-section">
       <div class="sb-label">Portal</div>
       <nav class="side-nav">
-        <a href="dashboard.html" class="side-nav-item" data-nav="dashboard">⛩ Dashboard</a>
-        <a href="orgs.html"      class="side-nav-item" data-nav="orgs">⊞ Organizations</a>
-        <a href="servers.html"   class="side-nav-item" data-nav="servers">⚙ Machines</a>
-        <a href="settings.html"  class="side-nav-item" data-nav="settings">◎ Account</a>
+        <a href="" class="side-nav-item" data-nav="dashboard" id="navDashboard">⛩ Dashboard</a>
+        <a href="" class="side-nav-item" data-nav="orgs"      id="navOrgs">⊞ Organizations</a>
+        <a href="" class="side-nav-item" data-nav="servers"   id="navMachines">⚙ Machines</a>
+        <a href="" class="side-nav-item" data-nav="settings"  id="navSettings">◎ Account</a>
       </nav>
     </div>
 
@@ -420,23 +420,33 @@
   </div>
 </div>
 
+<script src="js/router.js"></script>
 <script src="js/api.js"></script>
 <script src="js/shell.js"></script>
 <script>
   // ── State ─────────────────────────────────────────────────────────────────
-  let _orgs            = [];
-  let _selectedOrgId   = null;
-  let _machines        = [];
-  let _selectedMachine = null;
-  let _orgRole         = 'member';
-  let _revealToken     = '';
-  let _pendingConfirm  = null;
-  let _deletePending   = null;
+  let _orgs             = [];
+  let _selectedOrgId    = null;
+  let _machines         = [];
+  let _selectedMachine  = null;
+  let _orgRole          = 'member';
+  let _revealToken      = '';
+  let _pendingConfirm   = null;
+  let _deletePending    = null;
+  let _initialMachSlug  = null;
 
   // ── Init ──────────────────────────────────────────────────────────────────
-  initShell('servers', async function () {
+  initShell('servers', async function (user, orgSlug) {
+    if (orgSlug) {
+      document.getElementById('navDashboard').href = '/' + orgSlug;
+      document.getElementById('navOrgs').href      = '/' + orgSlug + '/orgs';
+      document.getElementById('navMachines').href  = '/' + orgSlug + '/machines';
+      document.getElementById('navSettings').href  = '/' + orgSlug + '/settings';
+    }
     bindEvents();
-    await loadOrgs();
+    const { param: machSlug } = Router.parse();
+    _initialMachSlug = machSlug ?? null;
+    await loadOrgs(orgSlug);
   });
 
   function bindEvents() {
@@ -467,7 +477,7 @@
   }
 
   // ── Orgs ──────────────────────────────────────────────────────────────────
-  async function loadOrgs() {
+  async function loadOrgs(initOrgSlug) {
     const res  = await RC.apiFetch('/api/orgs');
     const data = await res.json();
 
@@ -485,7 +495,7 @@
         <div class="empty-state">
           <div class="empty-icon">⊞</div>
           <div class="empty-title">No organizations</div>
-          <div class="empty-sub"><a href="orgs.html" style="color:var(--cyan-dim);">Create an org</a> before adding machines.</div>
+          <div class="empty-sub"><a href="/orgs" style="color:var(--cyan-dim);">Create an org</a> before adding machines.</div>
         </div>`;
       return;
     }
@@ -493,6 +503,11 @@
     sel.innerHTML = _orgs.map(o =>
       `<option value="${o.id}">${escHtml(o.name)} (${o.role})</option>`
     ).join('');
+
+    if (initOrgSlug) {
+      const match = _orgs.find(o => o.slug === initOrgSlug);
+      if (match) sel.value = match.id;
+    }
 
     await onOrgChange();
   }
@@ -529,6 +544,12 @@
 
     _machines = data.machines ?? [];
     renderMachineList();
+
+    if (_initialMachSlug) {
+      const m = _machines.find(x => x.slug === _initialMachSlug);
+      _initialMachSlug = null;
+      if (m) await selectMachine(m.id, { updateUrl: false });
+    }
   }
 
   function renderMachineList() {
@@ -562,7 +583,7 @@
     });
   }
 
-  async function selectMachine(machineId) {
+  async function selectMachine(machineId, { updateUrl = true } = {}) {
     const detail = document.getElementById('machineDetail');
     detail.innerHTML = '<div class="loading-text">Loading…</div>';
 
@@ -570,6 +591,11 @@
     document.getElementById('crumbSep').style.display     = '';
     document.getElementById('crumbMachine').style.display  = '';
     document.getElementById('crumbMachine').textContent    = m?.name ?? machineId;
+
+    if (updateUrl && m?.slug) {
+      const org = _orgs.find(o => o.id === _selectedOrgId);
+      if (org) Router.push('/' + org.slug + '/machines/' + m.slug);
+    }
 
     const [mRes, tokRes, srvRes] = await Promise.all([
       RC.apiFetch(`/api/machines/${machineId}`),
@@ -611,9 +637,12 @@
             </div>
             ${description ? `<div class="section-sub">${escHtml(description)}</div>` : ''}
           </div>
-          <span style="font-size:var(--font-xs);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
-            ${online ? '● Online' : '○ Offline'}
-          </span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="btn btn-ghost btn-sm" data-set-default-machine="${id}" title="Land here after login">★ Set as Default</button>
+            <span style="font-size:var(--font-xs);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+              ${online ? '● Online' : '○ Offline'}
+            </span>
+          </div>
         </div>
 
         <div class="divider"></div>
@@ -662,6 +691,11 @@
       </div>`;
 
     // Bind dynamic buttons
+    document.querySelector('[data-set-default-machine]')
+      ?.addEventListener('click', function () {
+        setDefaultMachine(this.dataset.setDefaultMachine);
+      });
+
     document.querySelector('[data-open-gen-token]')
       ?.addEventListener('click', openGenTokenModal);
 
@@ -849,6 +883,14 @@
     );
   }
 
+  // ── Set default machine ───────────────────────────────────────────────────
+  async function setDefaultMachine(machineId) {
+    const res  = await RC.apiFetch(`/api/machines/${machineId}/set-default`, { method: 'PATCH' });
+    const data = await res.json();
+    if (!res.ok) { showPageAlert('error', data.error ?? 'Failed to set default machine.'); return; }
+    showPageAlert('success', 'Default machine set — you will land here after login.');
+  }
+
   // ── Delete machine ─────────────────────────────────────────────────────────
   function openDeleteMachineModal(machineId, name) {
     document.getElementById('deleteMachineInput').value       = '';
@@ -915,6 +957,17 @@
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
+
+  // ── Browser back/forward ──────────────────────────────────────────────────
+  window.addEventListener('popstate', async () => {
+    const { param: machSlug } = Router.parse();
+    if (machSlug) {
+      const m = _machines.find(x => x.slug === machSlug);
+      if (m) await selectMachine(m.id, { updateUrl: false });
+    } else {
+      clearMachineDetail();
+    }
+  });
 </script>
 </body>
 </html>

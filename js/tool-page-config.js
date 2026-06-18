@@ -8,8 +8,8 @@ const SITE = {
   logoText: 'Ronin Citadel',
   navTitle: 'Ronin Empire',
   navLinks: [
-    { label: 'Home',         href: 'index.html',     style: 'ghost'   },
-    { label: 'Open Portal',  href: 'dashboard.html', style: 'primary' },
+    { label: 'Home',         href: '/',       style: 'ghost'   },
+    { label: 'Open Portal',  href: '/login',  style: 'primary' },
   ],
 };
 

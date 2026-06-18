@@ -658,7 +658,7 @@
 
     <!-- ── Sidebar ── -->
     <aside class="dash-sidebar">
-      <a href="index.html" class="sidebar-logo" style="text-decoration:none; color:inherit;">
+      <a href="/" class="sidebar-logo" style="text-decoration:none; color:inherit;">
         <span class="logo-icon">⛩</span>
         <span class="logo-text">Ronin Citadel</span>
       </a>
@@ -666,9 +666,9 @@
       <div class="sb-section">
         <div class="sb-label">Portal</div>
         <nav class="side-nav">
-          <a href="orgs.html"    class="side-nav-item" data-nav="orgs">⊞ Organizations</a>
-          <a href="servers.html" class="side-nav-item" data-nav="servers">⚙ Machines</a>
-          <a href="settings.html" class="side-nav-item" data-nav="settings">◎ Account</a>
+          <a href="" class="side-nav-item" data-nav="orgs"     id="navOrgs">⊞ Organizations</a>
+          <a href="" class="side-nav-item" data-nav="servers"  id="navMachines">⚙ Machines</a>
+          <a href="" class="side-nav-item" data-nav="settings" id="navSettings">◎ Account</a>
         </nav>
       </div>
 
@@ -748,10 +748,17 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="js/router.js"></script>
   <script src="js/api.js"></script>
   <script src="js/shell.js"></script>
   <script>
-    initShell('dashboard', async function () {
+    initShell('dashboard', async function (user, orgSlug) {
+      // Wire org-scoped sidebar nav links
+      if (orgSlug) {
+        document.getElementById('navOrgs').href     = '/' + orgSlug + '/orgs';
+        document.getElementById('navMachines').href = '/' + orgSlug + '/machines';
+        document.getElementById('navSettings').href = '/' + orgSlug + '/settings';
+      }
       if (RC.DEV_MODE) {
         document.getElementById('devBadge').style.display = 'flex';
         const section = document.getElementById('sidebarServers');
@@ -770,7 +777,7 @@
 
       if (!orgsRes.ok || !orgsData.orgs?.length) {
         section.innerHTML = '<div class="sb-label">Servers</div>'
-          + '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">No orgs yet — <a href="orgs.html" style="color:var(--cyan-dim);">create one</a>.</div>';
+          + '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">No orgs yet — <a href="/register" style="color:var(--cyan-dim);">create one</a>.</div>';
         return;
       }
 
@@ -867,5 +874,6 @@
     });
   </script>
   <script src="js/spiderweb.js"></script>
+  <!-- spiderweb.js loads after router.js so Router is available for pushState -->
 </body>
 </html>

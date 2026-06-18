@@ -232,6 +232,44 @@ const LEVELS = {
   },
 };
 
+// ── URL ↔ level mapping ───────────────────────────────────────────────────────
+// Maps LEVELS keys to their URL segment (the part after /{orgSlug}/).
+// Only levels that appear in the URL path need an entry.
+const LEVEL_SEGMENT = {
+  root:         '',
+  orgs:         'orgs',
+  servers:      'servers',
+  firewall:     'firewall',
+  storage:      'storage',
+  system:       'system',
+  account:      'account',
+  'srv-portal': 'portal',
+};
+const SEGMENT_LEVEL = Object.fromEntries(
+  Object.entries(LEVEL_SEGMENT).map(([k, v]) => [v, k])
+);
+
+function urlForState(orgSlug, stack, level) {
+  const parts = [orgSlug];
+  const levels = [...stack.filter(l => l !== 'root'), ...(level !== 'root' ? [level] : [])];
+  levels.forEach(l => {
+    const seg = LEVEL_SEGMENT[l];
+    if (seg) parts.push(seg);
+  });
+  return '/' + parts.join('/');
+}
+
+function stateFromUrl(orgSlug) {
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  // parts[0] = orgSlug, parts[1] = section, parts[2] = sub-section
+  const section    = parts[1] ? SEGMENT_LEVEL[parts[1]] : null;
+  const subSection = parts[2] ? SEGMENT_LEVEL[parts[2]] : null;
+
+  if (!section || section === 'root') return { navStack: [], currentLevel: 'root' };
+  if (subSection) return { navStack: ['root', section], currentLevel: subSection };
+  return { navStack: ['root'], currentLevel: section };
+}
+
 // ── State ────────────────────────────────────────────────────────────────────
 const svg          = document.getElementById('webSvg');
 const webContainer = document.getElementById('webContainer');
@@ -508,6 +546,11 @@ function navigateTo(node, nx, ny) {
   navStack.push(currentLevel);
   currentLevel = node.id;
 
+  if (typeof Router !== 'undefined') {
+    const { orgSlug } = Router.parse();
+    if (orgSlug) Router.push(urlForState(orgSlug, navStack, currentLevel));
+  }
+
   const svgRect  = svg.getBoundingClientRect();
   const cRect    = webContainer.getBoundingClientRect();
   const vbParts  = svg.getAttribute('viewBox').split(' ');
@@ -539,6 +582,11 @@ function navigateTo(node, nx, ny) {
 function navigateBack() {
   if (navStack.length === 0) return;
   currentLevel = navStack.pop();
+
+  if (typeof Router !== 'undefined') {
+    const { orgSlug } = Router.parse();
+    if (orgSlug) Router.push(urlForState(orgSlug, navStack, currentLevel));
+  }
 
   const tl = gsap.timeline();
   tl.to(webContainer, { opacity: 0, scale: CFG.backOutScale, duration: CFG.backOutDuration, ease: CFG.backOutEase })
@@ -612,6 +660,10 @@ function updateBreadcrumb() {
           currentLevel = targetId;
         }
       }
+      if (typeof Router !== 'undefined') {
+        const { orgSlug } = Router.parse();
+        if (orgSlug) Router.push(urlForState(orgSlug, navStack, currentLevel));
+      }
       const tl = gsap.timeline();
       tl.to(webContainer, { opacity: 0, scale: CFG.crumbOutScale, duration: CFG.crumbOutDuration, ease: CFG.crumbOutEase })
       .call(() => {
@@ -624,7 +676,29 @@ function updateBreadcrumb() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-buildWeb('root');
+// Restore spider web state from the URL if a section is encoded in the path.
+if (typeof Router !== 'undefined') {
+  const { orgSlug } = Router.parse();
+  if (orgSlug) {
+    const restored = stateFromUrl(orgSlug);
+    navStack     = restored.navStack;
+    currentLevel = restored.currentLevel;
+  }
+}
+buildWeb(currentLevel);
+
+// Browser back/forward: re-derive state from the new URL.
+window.addEventListener('popstate', () => {
+  if (typeof Router !== 'undefined') {
+    const { orgSlug } = Router.parse();
+    if (orgSlug) {
+      const restored = stateFromUrl(orgSlug);
+      navStack     = restored.navStack;
+      currentLevel = restored.currentLevel;
+      buildWeb(currentLevel);
+    }
+  }
+});
 
 let resizeTimer;
 window.addEventListener('resize', () => {

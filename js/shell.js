@@ -1,6 +1,7 @@
 // ── Ronin Citadel — portal shell ──────────────────────────────────────────────────────
-// Requires api.js (RC global) to be loaded first.
+// Requires api.js (RC global) and router.js (Router global) to be loaded first.
 // Call initShell(activeNavId, callback) at the bottom of each portal page.
+// The callback receives (user, orgSlug) so pages can scope their API calls.
 
 function initShell(activeNavId, onUser) {
   RC.requireAuth(function (user) {
@@ -75,6 +76,11 @@ function initShell(activeNavId, onUser) {
       });
     }
 
-    if (onUser) onUser(user);
+    // Extract org slug from URL and pass it to the page callback.
+    const orgSlug = (typeof Router !== 'undefined')
+      ? Router.parse().orgSlug
+      : null;
+
+    if (onUser) onUser(user, orgSlug);
   });
 }
