@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080808">
+  <title>Get Started — Ronin Citadel</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    /* ── Guide hero ─────────────────────────────────────────────────────────── */
+    .guide-hero {
+      position: relative;
+      padding: 64px var(--space-xl) 56px;
+      background: linear-gradient(180deg, #0e0404 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .guide-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 50% 0%, rgba(139,21,0,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .guide-hero-inner {
+      max-width: 740px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .guide-back {
+      display: inline-block;
+      font-size: var(--font-sm);
+      color: var(--text-dim);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      margin-bottom: 24px;
+      transition: color var(--t-base);
+    }
+
+    .guide-back:hover { color: var(--text); }
+
+    .guide-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--font-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--red-bright);
+      background: rgba(139,21,0,0.18);
+      border: 1px solid rgba(204,34,0,0.25);
+      border-radius: var(--radius-md);
+      padding: 4px 10px;
+      margin-bottom: 18px;
+    }
+
+    .guide-title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .guide-sub {
+      font-size: var(--font-md);
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    /* ── Two-column guide layout ────────────────────────────────────────────── */
+    .guide-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 32px;
+      gap: 48px;
+      align-items: start;
+    }
+
+    /* ── ToC sidebar ─────────────────────────────────────────────────────────── */
+    .guide-toc {
+      position: sticky;
+      top: calc(var(--navbar-height) + var(--accent-bar-height) + 24px);
+    }
+
+    .toc-label {
+      font-size: var(--font-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toc-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 8px;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      font-size: var(--font-sm);
+      color: var(--text-dim);
+      border-left: 2px solid transparent;
+      transition: color var(--t-base), border-color var(--t-base), background var(--t-base);
+      margin-bottom: 1px;
+    }
+
+    .toc-item:hover {
+      color: var(--text);
+      background: var(--bg-2);
+    }
+
+    .toc-item.active {
+      color: var(--text);
+      border-left-color: var(--red-bright);
+      background: var(--bg-2);
+    }
+
+    .toc-item.toc-finish { color: var(--online); }
+    .toc-item.toc-finish.active { border-left-color: var(--online); }
+
+    .toc-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: background var(--t-base), color var(--t-base), border-color var(--t-base);
+    }
+
+    .toc-item.active .toc-num {
+      background: var(--red-dim);
+      border-color: var(--red);
+      color: var(--text);
+    }
+
+    .toc-item.toc-finish .toc-num { border-color: rgba(0,204,68,0.3); color: var(--online); }
+    .toc-item.toc-finish.active .toc-num { background: rgba(0,204,68,0.1); }
+
+    /* ── Step sections ────────────────────────────────────────────────────────── */
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      padding: 40px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .step-num-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      border-radius: 50%;
+      background: var(--red-dim);
+      border: 1px solid var(--red);
+      font-size: var(--font-md);
+      font-weight: 800;
+      color: var(--text);
+      margin-top: 2px;
+    }
+
+    .step.step-final .step-num-badge {
+      background: rgba(0,204,68,0.1);
+      border-color: rgba(0,204,68,0.4);
+      color: var(--online);
+    }
+
+    .step-eyebrow {
+      font-size: var(--font-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .step-title {
+      font-size: var(--font-2xl);
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .step-body {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .step-desc {
+      font-size: var(--font-md);
+      color: var(--text-dim);
+      line-height: 1.75;
+      max-width: 680px;
+    }
+
+    .step-note {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(200,140,0,0.08);
+      border: 1px solid rgba(200,140,0,0.2);
+      border-radius: var(--radius-md);
+      font-size: var(--font-sm);
+      color: #e6a817;
+      line-height: 1.6;
+    }
+
+    .step-note-success {
+      background: rgba(0,204,68,0.07);
+      border-color: rgba(0,204,68,0.2);
+      color: #00cc44;
+    }
+
+    /* ── Step images ─────────────────────────────────────────────────────────── */
+    .step-figure {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step-figure img {
+      width: 100%;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-2);
+      display: block;
+    }
+
+    .img-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      aspect-ratio: 16/9;
+      background: var(--bg-2);
+      border: 1px dashed var(--border-2);
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+    }
+
+    .img-placeholder-icon {
+      font-size: 28px;
+      opacity: 0.4;
+    }
+
+    .img-placeholder-label {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .img-placeholder-path {
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: var(--font-xs);
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    figcaption {
+      font-size: var(--font-sm);
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── Step action CTA ────────────────────────────────────────────────────── */
+    .step-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Checklist ──────────────────────────────────────────────────────────── */
+    .step-checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px 18px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+
+    .step-checklist li {
+      display: flex;
+      gap: 10px;
+      font-size: var(--font-sm);
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .step-checklist li::before {
+      content: '✓';
+      font-size: var(--font-xs);
+      font-weight: 700;
+      color: var(--red-bright);
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ── Path display ──────────────────────────────────────────────────────── */
+    .step-path {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-md);
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: var(--font-sm);
+      color: var(--cyan);
+      flex-wrap: wrap;
+    }
+
+    .step-path-sep {
+      color: var(--text-muted);
+      margin: 0 2px;
+    }
+
+    /* ── Final CTA ─────────────────────────────────────────────────────────── */
+    .guide-finish {
+      background: linear-gradient(180deg, var(--bg) 0%, #0a0303 100%);
+      border-top: 1px solid var(--border);
+      padding: 64px 32px;
+      text-align: center;
+    }
+
+    .guide-finish-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 0 24px rgba(0,204,68,0.3));
+    }
+
+    .guide-finish-title {
+      font-size: var(--font-2xl);
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .guide-finish-sub {
+      font-size: var(--font-md);
+      color: var(--text-dim);
+      max-width: 520px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+
+    .guide-finish-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-lg {
+      padding: 11px 26px;
+      font-size: var(--font-md);
+    }
+
+    /* ── Responsive ─────────────────────────────────────────────────────────── */
+    @media (max-width: 860px) {
+      .guide-layout {
+        grid-template-columns: 1fr;
+        padding: 32px 20px;
+        gap: 0;
+      }
+
+      .guide-toc {
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 32px;
+      }
+
+      .toc-label { width: 100%; }
+
+      .toc-item {
+        border-left: none;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        padding: 4px 10px;
+        font-size: var(--font-xs);
+      }
+
+      .toc-item.active {
+        border-color: var(--red);
+        background: var(--red-dim);
+      }
+    }
+
+    @media (max-width: 540px) {
+      .guide-hero { padding: 40px 20px 36px; }
+      .step-title { font-size: var(--font-xl); }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-accent-bar"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-icon">⛩</span>
+      <span class="logo-text">Ronin Citadel</span>
+    </a>
+    <div class="nav-center"><span class="nav-title">Ronin Empire</span></div>
+    <div class="nav-actions">
+      <a href="index.html" class="btn btn-ghost">Home</a>
+      <a href="login.html" class="btn btn-primary">Open Portal</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+  <header class="guide-hero">
+    <div class="guide-hero-inner">
+      <a href="index.html" class="guide-back">← Back to Ronin Citadel</a>
+      <div class="guide-badge">Setup Guide · ~10 minutes</div>
+      <h1 class="guide-title">Connect RSM to Citadel</h1>
+      <p class="guide-sub">
+        Install Ronin Server Manager on your dedicated Windows machine and link it to your Citadel portal.
+        Follow these 10 steps and you'll have live, remote server control from any browser.
+      </p>
+    </div>
+  </header>
+
+  <!-- ── Two-column layout ────────────────────────────────────────────────── -->
+  <div class="guide-layout">
+
+    <!-- ToC sidebar -->
+    <aside class="guide-toc">
+      <div class="toc-label">Steps</div>
+      <a href="#step-1"  class="toc-item"><span class="toc-num">1</span>Download RSM</a>
+      <a href="#step-2"  class="toc-item"><span class="toc-num">2</span>Install &amp; Launch</a>
+      <a href="#step-3"  class="toc-item"><span class="toc-num">3</span>Create Account</a>
+      <a href="#step-4"  class="toc-item"><span class="toc-num">4</span>Create Org</a>
+      <a href="#step-5"  class="toc-item"><span class="toc-num">5</span>Add Machine</a>
+      <a href="#step-6"  class="toc-item"><span class="toc-num">6</span>Generate Token</a>
+      <a href="#step-7"  class="toc-item"><span class="toc-num">7</span>Configure RSM</a>
+      <a href="#step-8"  class="toc-item"><span class="toc-num">8</span>Connect</a>
+      <a href="#step-9"  class="toc-item"><span class="toc-num">9</span>Servers Appear</a>
+      <a href="#step-10" class="toc-item toc-finish"><span class="toc-num">10</span>You're Live</a>
+    </aside>
+
+    <!-- Steps -->
+    <div class="guide-steps">
+
+      <!-- ── Step 1 ── -->
+      <section class="step" id="step-1">
+        <div class="step-header">
+          <div class="step-num-badge">1</div>
+          <div>
+            <div class="step-eyebrow">Install · On your dedicated machine</div>
+            <h2 class="step-title">Download Ronin Server Manager</h2>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">
+            RSM runs directly on the Windows machine that hosts your game servers — not in the cloud, not in Docker.
+            Head to the RSM GitHub releases page, download the latest installer (<code>.exe</code>), and transfer it to your dedicated machine if you aren't already on it.
+          </p>
+          <figure class="step-figure">
+            <img src="images/guide/step-1-download.png" alt="RSM GitHub releases page showing the latest installer download"
+                 loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="img-placeholder">
+              <span class="img-placeholder-icon">⬇</span>
+              <span class="img-placeholder-label">RSM GitHub releases page</span>
+              <span class="img-placeholder-path">images/guide/step-1-download.png</span>
+            </div>
+            <figcaption>The GitHub releases page lists every RSM version with a direct installer download.</figcaption>
+          </figure>
+          <div class="step-actions">
+            <a href="https://github.com/PhonicSpider/Ronin-Server-Manager/releases" class="btn btn-primary" target="_blank" rel="noopener">View Releases on GitHub →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Step 2 ── -->
+      <section class="step" id="step-2">
+        <div class="step-header">
+          <div class="step-num-badge">2</div>
+          <div>
+            <div class="step-eyebrow">Install · On your dedicated machine</div>
+            <h2 class="step-title">Install and Launch RSM</h2>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">
+            Run the installer. RSM will open automatically after installation.
+            The main window shows your server list — this is where you'll add and manage game server processes locally.
+            RSM also starts a local API on port <code>3002</code>; this is what the agent uses to control servers.
+          </p>
+          <figure class="step-figure">
+            <img src="images/guide/step-2-launch.png" alt="RSM main application window showing the server list"
+                 loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="img-placeholder">
+              <span class="img-placeholder-icon">⚡</span>
+              <span class="img-placeholder-label">RSM main window — server list</span>
+              <span class="img-placeholder-path">images/guide/step-2-launch.png</span>
+            </div>
+            <figcaption>The RSM window on your dedicated machine. Keep it running — minimizing to the tray keeps the agent alive.</figcaption>
+          </figure>
+          <ul class="step-checklist">
+            <li>RSM is installed and the main window is open</li>
+            <li>You can see the server list (even if it's empty)</li>
+            <li>The system tray icon is visible — RSM is running in the background</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── Step 3 ── -->
+      <section class="step" id="step-3">
+        <div class="step-header">
+          <div class="step-num-badge">3</div>
+          <div>
+            <div class="step-eyebrow">Portal · In your browser</div>
+            <h2 class="step-title">Create a Citadel Account</h2>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">
+            Open the Ronin Citadel portal in any browser. Click <strong>Sign Up</strong> and choose a username, email address, and password.
+            Once registered you'll land on the dashboard — your control center.
+          </p>
+          <figure class="step-figure">
+            <img src="images/guide/step-3-register.png" alt="Citadel register page"
+                 loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="img-placeholder">
+              <span class="img-placeholder-icon">👤</span>
+              <span class="img-placeholder-label">Citadel register page</span>
+              <span class="img-placeholder-path">images/guide/step-3-register.png</span>
+            </div>
+            <figcaption>Create your account from the portal's register page. Usernames are 3–32 characters: letters, numbers, underscores, and hyphens.</figcaption>
+          </figure>
+          <div class="step-actions">
+            <a href="register.html" class="btn btn-primary">Create Account →</a>
+            <a href="login.html"    class="btn btn-ghost">Sign In Instead</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Step 4 ── -->
+      <section class="step" id="step-4">
+        <div class="step-header">
+          <div class="step-num-badge">4</div>
+          <div>
+            <div class="step-eyebrow">Portal · Organizations</div>
+            <h2 class="step-title">Create an Organization</h2>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">
+            Organizations are the top-level container for your machines and team members.
+            In the portal sidebar, click <strong>Organizations</strong>, then <strong>+ Create Organization</strong>.
+            Give it a name that represents your setup — your community name, hosting brand, or just "My Servers" works fine.
+          </p>
+          <figure class="step-figure">
+            <img src="images/guide/step-4-org.png" alt="Organizations page with the create organization dialog open"
+                 loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="img-placeholder">
+              <span class="img-placeholder-icon">⊞</span>
+              <span class="img-placeholder-label">Organizations page — create org dialog</span>
+              <span class="img-placeholder-path">images/guide/step-4-org.png</span>
+            </div>
+            <figcaption>One organization can hold multiple machines and team members. You can create more organizations later.</figcaption>
+          </figure>
+          <div class="step-note">
+            <span>💡</span>
+            <span>
+              You're automatically the <strong>Owner</strong> of any organization you create.
+              Owners can invite team members, create machines, and manage all settings.
+            </span>
+          </div>
+          <div class="step-actions">
+            <a href="orgs.html" class="btn btn-primary">Go to Organizations →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Step 5 ── -->
+      <section class="step" id="step-5">
+        <div class="step-header">
+          <div class="step-num-badge">5</div>
+          <div>
+            <div class="step-eyebrow">Portal · Machines</div>
+            <h2 class="step-title">Add a Machine</h2>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">
+            A <strong>Machine</strong> in Citadel represents one RSM installation — the physical or virtual machine where RSM is running.
+            In the portal sidebar click <strong>Machines</strong>, select your organization from the dropdown, then click <strong>+ Add Machine</strong>.
+            Give it a recognizable name like <em>Home Server</em> or <em>Game Box 1</em>.
+          </p>
+          <figure class="step-figure">
+            <img src="images/guide/step-5-machine.png" alt="Machines page with the Add Machine dialog open"
+                 loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="img-placeholder">
+              <span class="img-placeholder-icon">⚙</span>
+              <span class="img-placeholder-label">Machines page — Add Machine dialog</span>
+              <span class="img-placeholder-path">images/guide/step-5-machine.png</span>
+            </div>
+            <figcaption>The machine starts as Offline. It will flip to Online once RSM connects using the agent token you generate in the next step.</figcaption>
+          </figure>
+          <div class="step-actions">
+            <a href="servers.html" class="btn btn-primary">Go to Machines →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Step 6 ── -->
+      <section class="step" id="step-6">
+        <div class="step-header">
+          <div class="step-num-badge">6</div>
+          <div>
+            <div class="step-eyebrow">Portal · Agent Tokens</div>
+            <h2 class="step-title">Generate an Agent Token</h2>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">
+            Click on the machine you just created. In the <strong>Agent Tokens</strong> section click <strong>+ Generate</strong>.
+            Give the token a label so you can identify it later — for example <em>Home RSM</em>.
+            A long, random token will be displayed. <strong>Copy it now.</strong>
+          </p>
+          <figure class="step-figure">
+            <img src="images/guide/step-6-token.png" alt="Token reveal dialog showing the generated agent token"
+                 loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="img-placeholder">
+              <span class="img-placeholder-icon">🔑</span>
+              <span class="img-placeholder-label">Token reveal — copy before closing</span>
+              <span class="img-placeholder-path">images/guide/step-6-token.png</span>
+            </div>
+            <figcaption>The raw token is shown exactly once. Copy it to your clipboard before closing this dialog.</figcaption>
+          </figure>
+          <div class="step-note">
+            <span>⚠</span>
+            <span>
+              This token is RSM's credential to your portal. It is shown only once.
+              If you close the dialog without copying it, generate a new one — the old one is gone.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Step 7 ── -->
+      <section class="step" id="step-7">
+        <div class="step-header">
+          <div class="step-num-badge">7</div>
+          <div>
+            <div class="step-eyebrow">RSM · On your dedicated machine</div>
+            <h2 class="step-title">Configure RSM to Connect</h2>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">
+            Back on your dedicated machine, open RSM and navigate to its Citadel settings panel.
+            You'll need to enter two things:
+          </p>
+          <div class="step-path">
+            <span>Portal URL</span>
+            <span class="step-path-sep">→</span>
+            <span>e.g. https://citadel.yourdomain.com</span>
+          </div>
+          <div class="step-path">
+            <span>Agent Token</span>
+            <span class="step-path-sep">→</span>
+            <span>the token you copied from Citadel</span>
+          </div>
+          <p class="step-desc">
+            Paste both values, then click <strong>Save</strong>.
+          </p>
+          <figure class="step-figure">
+            <img src="images/guide/step-7-config.png" alt="RSM settings showing the Ronin Citadel Portal configuration panel"
+                 loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="img-placeholder">
+              <span class="img-placeholder-icon">⚙</span>
+              <span class="img-placeholder-label">RSM — Citadel portal configuration</span>
+              <span class="img-placeholder-path">images/guide/step-7-config.png</span>
+            </div>
+            <figcaption>Enter your Citadel portal URL and the agent token, then save. RSM stores these for automatic reconnection on restart.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ── Step 8 ── -->
+      <section class="step" id="step-8">
+        <div class="step-header">
+          <div class="step-num-badge">8</div>
+          <div>
+            <div class="step-eyebrow">RSM · On your dedicated machine</div>
+            <h2 class="step-title">Connect RSM to Citadel</h2>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">
+            Click <strong>Connect</strong> in RSM's Citadel settings. RSM will establish a secure WebSocket connection to the portal backend.
+            Switch back to Citadel in your browser — within a few seconds the machine's status indicator should turn green.
+          </p>
+          <figure class="step-figure">
+            <img src="images/guide/step-8-online.png" alt="Machines page showing the machine status as Online"
+                 loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="img-placeholder">
+              <span class="img-placeholder-icon">🟢</span>
+              <span class="img-placeholder-label">Machines page — machine showing Online</span>
+              <span class="img-placeholder-path">images/guide/step-8-online.png</span>
+            </div>
+            <figcaption>The green Online dot means RSM's WebSocket connection is active. Commands you send from the portal reach RSM in real time.</figcaption>
+          </figure>
+          <div class="step-note step-note-success">
+            <span>✓</span>
+            <span>
+              Green dot in Citadel = RSM is connected. If it stays Offline, double-check the portal URL and token, then try connecting again.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Step 9 ── -->
+      <section class="step" id="step-9">
+        <div class="step-header">
+          <div class="step-num-badge">9</div>
+          <div>
+            <div class="step-eyebrow">Portal · Game Servers</div>
+            <h2 class="step-title">Your Servers Appear Automatically</h2>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">
+            When RSM connects, it sends an <em>announce</em> message listing every game server configured in RSM.
+            Citadel receives this and automatically creates records for each one — no manual entry required.
+            Open your machine in the Machines page to see them.
+          </p>
+          <figure class="step-figure">
+            <img src="images/guide/step-9-servers.png" alt="Machine detail page showing the auto-populated game server list from RSM"
+                 loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="img-placeholder">
+              <span class="img-placeholder-icon">⚡</span>
+              <span class="img-placeholder-label">Machine detail — game server list from RSM</span>
+              <span class="img-placeholder-path">images/guide/step-9-servers.png</span>
+            </div>
+            <figcaption>Game servers are listed under your machine, each with their current status from RSM. No manual configuration in Citadel needed.</figcaption>
+          </figure>
+          <div class="step-note">
+            <span>💡</span>
+            <span>
+              If you add more game servers in RSM later, they'll appear in Citadel automatically next time RSM connects or announces.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Step 10 ── -->
+      <section class="step step-final" id="step-10">
+        <div class="step-header">
+          <div class="step-num-badge">10</div>
+          <div>
+            <div class="step-eyebrow">All Done</div>
+            <h2 class="step-title">You're Live</h2>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">
+            Your setup is complete. From any browser, on any device, you can now:
+          </p>
+          <ul class="step-checklist">
+            <li>View real-time online/offline status for every machine and game server</li>
+            <li>Start, stop, and restart game server processes remotely</li>
+            <li>Monitor live CPU and RAM usage per server</li>
+            <li>Stream the live console output from any server</li>
+            <li>Invite team members and assign them roles</li>
+            <li>Manage Windows Firewall rules (if Ronin Portier is installed)</li>
+          </ul>
+          <figure class="step-figure">
+            <img src="images/guide/step-10-dashboard.png" alt="Citadel dashboard showing live machine and game server status"
+                 loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="img-placeholder">
+              <span class="img-placeholder-icon">⛩</span>
+              <span class="img-placeholder-label">Citadel dashboard — everything live</span>
+              <span class="img-placeholder-path">images/guide/step-10-dashboard.png</span>
+            </div>
+            <figcaption>The portal dashboard gives you a live view of all machines and servers across every organization you're a member of.</figcaption>
+          </figure>
+          <div class="step-actions">
+            <a href="dashboard.html" class="btn btn-primary btn-lg">Open the Portal →</a>
+            <a href="orgs.html"      class="btn btn-ghost">Invite Team Members</a>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /guide-steps -->
+  </div><!-- /guide-layout -->
+
+  <!-- ── Final CTA ─────────────────────────────────────────────────────────── -->
+  <div class="guide-finish">
+    <div class="guide-finish-icon">⛩</div>
+    <h2 class="guide-finish-title">Ready to go.</h2>
+    <p class="guide-finish-sub">
+      RSM is connected, your servers are visible, and your portal is live.
+      Manage everything from anywhere — no RDP, no VPN, no terminal.
+    </p>
+    <div class="guide-finish-actions">
+      <a href="dashboard.html" class="btn btn-primary btn-lg">Open Ronin Citadel Portal →</a>
+      <a href="index.html"     class="btn btn-ghost btn-lg">← Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+    // Highlight the active step in the ToC as the user scrolls.
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const link = document.querySelector(`.toc-item[href="#${entry.target.id}"]`);
+        if (link) link.classList.toggle('active', entry.isIntersecting);
+      });
+    }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+
+    document.querySelectorAll('.step').forEach(s => obs.observe(s));
+  </script>
+</body>
+</html>

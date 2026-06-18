@@ -31,8 +31,20 @@ const PAGE_CONFIG = {
     ],
   },
 
+  // ── Setup guide banner ─────────────────────────────────────────────────
+  guide: {
+    eyebrow: 'Getting Started',
+    title:   'Connect RSM to Citadel',
+    icon:    '🔗',
+    desc:    'New to Ronin? Follow the step-by-step guide to install Ronin Server Manager on your dedicated machine and link it to the portal. From zero to live remote control in about 10 minutes.',
+    steps:   ['Download &amp; install RSM', 'Create account &amp; org', 'Add a machine', 'Generate agent token', 'Connect &amp; go live'],
+    tags:    ['Step-by-Step', '~10 Minutes', 'No Config Files', 'Any Browser'],
+    href:    'get-started.html',
+  },
+
   // ── Feature sidebar list ────────────────────────────────────────────────
   featureList: [
+    { label: 'Setup Guide',         card: 'setup'   },
     { label: 'Server Management',   card: 'rsm'     },
     { label: 'Firewall Control',    card: 'portier' },
     { label: 'Disk Analysis',       card: 'disk'    },

@@ -31,6 +31,38 @@ document.getElementById('hero').innerHTML = `
   </div>
 `;
 
+// ── Render guide banner ──────────────────────────────────────────────────────
+const { guide } = PAGE_CONFIG;
+const guideBannerEl = document.getElementById('guideBanner');
+if (guideBannerEl && guide) {
+  const banner = document.createElement('div');
+  banner.className = 'guide-banner';
+  banner.id = 'card-setup';
+  banner.addEventListener('click', () => { window.location = guide.href; });
+  banner.innerHTML = `
+    <div class="guide-banner-left">
+      <div class="guide-banner-icon">${guide.icon}</div>
+      <div class="guide-banner-text">
+        <div class="guide-banner-eyebrow">${guide.eyebrow}</div>
+        <h2 class="guide-banner-title">${guide.title}</h2>
+        <p class="guide-banner-desc">${guide.desc}</p>
+        <div class="guide-banner-tags">
+          ${guide.tags.map(t => `<span class="guide-tag">${t}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="guide-banner-right">
+      <ol class="guide-steps-preview">
+        ${guide.steps.map(s => `<li>${s}</li>`).join('')}
+      </ol>
+      <a href="${guide.href}" class="btn btn-primary guide-banner-cta" onclick="event.stopPropagation()">
+        Begin Setup Guide →
+      </a>
+    </div>
+  `;
+  guideBannerEl.appendChild(banner);
+}
+
 // ── Render feature sidebar list ──────────────────────────────────────────────
 const listEl = document.getElementById('featureList');
 PAGE_CONFIG.featureList.forEach((item, i) => {

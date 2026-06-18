@@ -498,3 +498,157 @@
     --hero-sub-size:   14px;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   GUIDE BANNER — Getting Started card on the landing page
+   ════════════════════════════════════════════════════════════════════════════ */
+.guide-banner {
+  display: flex;
+  gap: 0;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(139,21,0,0.35);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color var(--t-base), box-shadow var(--t-base), transform 0.2s ease;
+  margin-bottom: var(--cards-gap);
+  background:
+    radial-gradient(ellipse 80% 120% at 0% 50%, rgba(139,21,0,0.12) 0%, transparent 60%),
+    var(--bg-2);
+}
+
+.guide-banner:hover {
+  border-color: rgba(204,34,0,0.6);
+  box-shadow: 0 8px 32px rgba(139,21,0,0.25), 0 0 0 1px rgba(204,34,0,0.15);
+  transform: translateY(-2px);
+}
+
+.guide-banner-left {
+  display: flex;
+  gap: 20px;
+  padding: 28px 28px 28px 28px;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.guide-banner-icon {
+  font-size: 38px;
+  line-height: 1;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.guide-banner-text { flex: 1; }
+
+.guide-banner-eyebrow {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--red-bright);
+  margin-bottom: 6px;
+}
+
+.guide-banner-title {
+  font-size: var(--font-2xl);
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+
+.guide-banner-desc {
+  font-size: var(--font-base);
+  color: var(--text-dim);
+  line-height: 1.65;
+  max-width: 480px;
+  margin-bottom: 14px;
+}
+
+.guide-banner-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.guide-tag {
+  padding: 2px 9px;
+  background: rgba(55,8,0,0.65);
+  color: rgba(205,120,95,0.9);
+  border: 1px solid rgba(90,14,0,0.5);
+  border-radius: 8px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.guide-banner-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px 28px 28px 0;
+  min-width: 220px;
+  max-width: 260px;
+  border-left: 1px solid rgba(139,21,0,0.2);
+  padding-left: 24px;
+  gap: 16px;
+}
+
+.guide-steps-preview {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  counter-reset: step-counter;
+}
+
+.guide-steps-preview li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--font-sm);
+  color: var(--text-dim);
+  counter-increment: step-counter;
+}
+
+.guide-steps-preview li::before {
+  content: counter(step-counter);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 50%;
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.guide-banner-cta {
+  align-self: flex-start;
+  white-space: nowrap;
+}
+
+/* ── Responsive guide banner ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .guide-banner {
+    flex-direction: column;
+  }
+
+  .guide-banner-right {
+    border-left: none;
+    border-top: 1px solid rgba(139,21,0,0.2);
+    padding: 20px 24px;
+    max-width: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .guide-steps-preview { display: none; }
+
+  .guide-banner-cta { align-self: center; }
+}
