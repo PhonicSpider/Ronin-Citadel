@@ -360,7 +360,7 @@
         <div class="form-group">
           <div class="form-label-row">
             <label class="form-label" for="password">Password</label>
-            <a href="#" style="font-size:var(--font-xs);color:var(--text-muted);text-decoration:none;">Forgot password?</a>
+            <a href="forgot-password.html" style="font-size:var(--font-xs);color:var(--text-muted);text-decoration:none;">Forgot password?</a>
           </div>
           <input
             class="form-input"
@@ -390,12 +390,18 @@
           <span class="tfa-username" id="tfaUsername"></span>
         </div>
 
-        <div class="tfa-info">
+        <div class="tfa-info" id="tfaInfoAuth">
           <div class="tfa-info-title">Two-Factor Authentication</div>
           <div class="tfa-info-body">Open your authenticator app and enter the 6-digit code for Ronin Citadel.</div>
         </div>
 
-        <div class="form-group">
+        <div class="tfa-info" id="tfaInfoBackup" style="display:none;">
+          <div class="tfa-info-title">Backup Code</div>
+          <div class="tfa-info-body">Enter one of the single-use backup codes you saved when enabling 2FA.</div>
+        </div>
+
+        <!-- Authenticator code input -->
+        <div class="form-group" id="otpGroup">
           <label class="form-label" for="otpCode">Verification Code</label>
           <input
             class="form-input otp-input"
@@ -411,7 +417,23 @@
           <span class="form-error" id="otpError"></span>
         </div>
 
+        <!-- Backup code input (hidden until toggled) -->
+        <div class="form-group" id="backupGroup" style="display:none;">
+          <label class="form-label" for="backupCode">Backup Code</label>
+          <input
+            class="form-input"
+            type="text"
+            id="backupCode"
+            name="backupCode"
+            placeholder="xxxxx-xxxxx"
+            autocomplete="one-time-code"
+            spellcheck="false"
+          >
+          <span class="form-error" id="backupError"></span>
+        </div>
+
         <button class="btn-auth" id="verifyBtn" type="button">Verify &amp; Enter Portal</button>
+        <button class="btn-back" id="toggleBackupBtn" type="button">Use a backup code instead</button>
         <button class="btn-back" id="backBtn" type="button">← Use a different account</button>
 
       </div>
@@ -574,22 +596,54 @@
       });
     });
 
-    // ── Step 2 submit ───────────────────────────────────────────────────────
-    document.getElementById('verifyBtn').addEventListener('click', function () {
-      const code = document.getElementById('otpCode').value.trim();
-      document.getElementById('tfaError').classList.remove('error');
-      setFieldError('otpCode', 'otpError', '');
+    // ── Backup-code mode toggle ───────────────────────────────────────────────
+    let useBackupCode = false;
 
-      if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
-        setFieldError('otpCode', 'otpError', 'Enter the 6-digit code from your authenticator app.');
-        return;
+    function setBackupMode(on) {
+      useBackupCode = on;
+      document.getElementById('otpGroup').style.display       = on ? 'none' : '';
+      document.getElementById('backupGroup').style.display    = on ? '' : 'none';
+      document.getElementById('tfaInfoAuth').style.display    = on ? 'none' : '';
+      document.getElementById('tfaInfoBackup').style.display  = on ? '' : 'none';
+      document.getElementById('toggleBackupBtn').textContent  =
+        on ? 'Use an authenticator code instead' : 'Use a backup code instead';
+      document.getElementById('tfaError').classList.remove('error');
+      document.getElementById('cardSub').textContent = on
+        ? 'Enter one of your backup codes'
+        : 'Enter your authenticator code';
+      setTimeout(() => document.getElementById(on ? 'backupCode' : 'otpCode').focus(), 50);
+    }
+
+    document.getElementById('toggleBackupBtn').addEventListener('click', () => setBackupMode(!useBackupCode));
+
+    // ── Step 2 submit ───────────────────────────────────────────────────────
+    function submitVerification() {
+      const btn = document.getElementById('verifyBtn');
+      document.getElementById('tfaError').classList.remove('error');
+
+      let endpoint, code;
+      if (useBackupCode) {
+        code = document.getElementById('backupCode').value.trim();
+        setFieldError('backupCode', 'backupError', '');
+        if (!code) {
+          setFieldError('backupCode', 'backupError', 'Enter one of your backup codes.');
+          return;
+        }
+        endpoint = '/api/auth/verify-backup-code';
+      } else {
+        code = document.getElementById('otpCode').value.trim();
+        setFieldError('otpCode', 'otpError', '');
+        if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
+          setFieldError('otpCode', 'otpError', 'Enter the 6-digit code from your authenticator app.');
+          return;
+        }
+        endpoint = '/api/auth/verify-totp';
       }
 
-      const btn = this;
       btn.disabled    = true;
       btn.textContent = 'Verifying…';
 
-      fetch(`${RC.API_BASE}/api/auth/verify-totp`, {
+      fetch(`${RC.API_BASE}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -600,7 +654,8 @@
           if (!res.ok) {
             document.getElementById('tfaErrorText').textContent = data.error ?? 'Verification failed.';
             document.getElementById('tfaError').classList.add('error');
-            document.getElementById('otpCode').value = '';
+            if (useBackupCode) document.getElementById('backupCode').value = '';
+            else               document.getElementById('otpCode').value = '';
             btn.disabled    = false;
             btn.textContent = 'Verify & Enter Portal';
             return;
@@ -616,21 +671,32 @@
           btn.disabled    = false;
           btn.textContent = 'Verify & Enter Portal';
         });
-    });
+    }
+
+    document.getElementById('verifyBtn').addEventListener('click', submitVerification);
 
     // OTP: digits only, auto-submit at 6 chars
     document.getElementById('otpCode').addEventListener('input', function () {
       this.value = this.value.replace(/\D/g, '').slice(0, 6);
       this.classList.remove('error');
       document.getElementById('otpError').classList.remove('visible');
-      if (this.value.length === 6) document.getElementById('verifyBtn').click();
+      if (this.value.length === 6) submitVerification();
     });
 
     document.getElementById('otpCode').addEventListener('keydown', e => {
-      if (e.key === 'Enter') document.getElementById('verifyBtn').click();
+      if (e.key === 'Enter') submitVerification();
     });
 
-    document.getElementById('backBtn').addEventListener('click', goToStep1);
+    // Backup code: trim/clear error on input, submit on Enter.
+    document.getElementById('backupCode').addEventListener('input', function () {
+      this.classList.remove('error');
+      document.getElementById('backupError').classList.remove('visible');
+    });
+    document.getElementById('backupCode').addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitVerification();
+    });
+
+    document.getElementById('backBtn').addEventListener('click', () => { setBackupMode(false); goToStep1(); });
   </script>
 
 </body>

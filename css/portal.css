@@ -254,9 +254,12 @@ html, body { height: 100%; overflow: hidden; }
   white-space: nowrap;
 }
 
-.role-badge.owner  { background: var(--red-dim); color: var(--red-bright); border: 1px solid var(--red); }
-.role-badge.admin  { background: rgba(0,229,255,0.07); color: var(--cyan-dim); border: 1px solid rgba(0,229,255,0.18); }
-.role-badge.member { background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid var(--border-2); }
+.role-badge.owner           { background: var(--red-dim); color: var(--red-bright); border: 1px solid var(--red); }
+.role-badge.admin           { background: rgba(0,229,255,0.07); color: var(--cyan-dim); border: 1px solid rgba(0,229,255,0.18); }
+.role-badge.community_admin { background: rgba(0,229,255,0.04); color: var(--cyan-dim); border: 1px solid rgba(0,229,255,0.12); }
+.role-badge.viewer          { background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid var(--border-2); }
+/* Legacy alias — kept so any pre-migration 'member' value still renders cleanly. */
+.role-badge.member          { background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid var(--border-2); }
 
 /* ── Status dots ───────────────────────────────────────────────────────────── */
 .status-dot {

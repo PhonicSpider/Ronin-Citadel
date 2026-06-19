@@ -154,6 +154,35 @@
     .tfa-view { display: none; }
     .tfa-view.active { display: block; }
 
+    /* ── Backup codes ── */
+    .backup-codes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: var(--space-md) 0;
+    }
+
+    .backup-code {
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      color: var(--cyan);
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .backup-code.used {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    @media (max-width: 480px) {
+      .backup-codes-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── Mobile ── */
     @media (max-width: 480px) {
       .info-row {
@@ -316,7 +345,10 @@
           <div class="tfa-view" id="tfaEnabledView">
             <div class="tfa-status-row">
               <span class="tfa-status-badge enabled">● Active</span>
-              <button class="btn btn-ghost" id="tfaOpenDisableBtn">Disable 2FA</button>
+              <div style="display:flex; gap:10px;">
+                <button class="btn btn-ghost" id="tfaRegenBackupBtn">Regenerate Backup Codes</button>
+                <button class="btn btn-ghost" id="tfaOpenDisableBtn">Disable 2FA</button>
+              </div>
             </div>
             <div class="alert alert-success">
               <span>✓</span>
@@ -352,6 +384,53 @@
       <button class="btn btn-primary" id="disableTfaBtn"
               style="background:var(--red-bright); border-color:var(--red-bright);">Disable 2FA</button>
       <button class="btn btn-ghost" id="disableTfaModalCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Backup Codes Modal (shown once after enable / regenerate) ── -->
+<div class="modal-overlay" id="backupCodesModal">
+  <div class="modal-card">
+    <div class="modal-title">Save Your Backup Codes</div>
+    <div class="modal-sub">
+      Store these somewhere safe. They won't be shown again. Each code works a single
+      time if you ever lose access to your authenticator app.
+    </div>
+
+    <div class="backup-codes-grid" id="backupCodesList"></div>
+
+    <div id="backupCopyMsg" class="alert alert-success" style="display:none;">
+      <span>✓</span><span>Copied to clipboard.</span>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="backupCopyBtn">Copy All</button>
+      <button class="btn btn-primary" id="backupDoneBtn">I've Saved Them</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Regenerate Backup Codes Modal (asks for current TOTP code) ── -->
+<div class="modal-overlay" id="regenBackupModal">
+  <div class="modal-card">
+    <div class="modal-title">Regenerate Backup Codes</div>
+    <div class="modal-sub">
+      Enter your current authenticator code to confirm. This invalidates all of your
+      existing backup codes and issues a fresh set.
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="regenBackupCode">Authenticator Code</label>
+      <input class="field-input otp-input" type="text" id="regenBackupCode"
+             placeholder="000000" inputmode="numeric" maxlength="6" autocomplete="one-time-code" spellcheck="false">
+      <span class="field-error" id="regenBackupError"></span>
+    </div>
+
+    <div id="regenBackupAlert" class="alert alert-error" style="display:none;"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="regenBackupBtn">Generate New Codes</button>
+      <button class="btn btn-ghost" id="regenBackupCancelBtn">Cancel</button>
     </div>
   </div>
 </div>
@@ -494,6 +573,70 @@
 
     _fullUser.totpEnabled = true;
     setTfaView('enabled');
+    if (Array.isArray(data.backupCodes)) showBackupCodes(data.backupCodes);
+  }
+
+  // ── Backup codes ─────────────────────────────────────────────────────────────
+  let _backupCodes = [];
+
+  function showBackupCodes(codes) {
+    _backupCodes = codes;
+    const list = document.getElementById('backupCodesList');
+    list.innerHTML = codes.map(c => `<div class="backup-code">${escHtml(c)}</div>`).join('');
+    document.getElementById('backupCopyMsg').style.display = 'none';
+    document.getElementById('backupCodesModal').classList.add('open');
+  }
+
+  function copyBackupCodes() {
+    navigator.clipboard.writeText(_backupCodes.join('\n'))
+      .then(() => { document.getElementById('backupCopyMsg').style.display = 'flex'; })
+      .catch(() => {});
+  }
+
+  function openRegenBackupModal() {
+    document.getElementById('regenBackupCode').value = '';
+    document.getElementById('regenBackupError').classList.remove('visible');
+    document.getElementById('regenBackupAlert').style.display = 'none';
+    document.getElementById('regenBackupModal').classList.add('open');
+    setTimeout(() => document.getElementById('regenBackupCode').focus(), 60);
+  }
+
+  async function regenerateBackupCodes() {
+    const code    = document.getElementById('regenBackupCode').value.trim();
+    const errEl   = document.getElementById('regenBackupError');
+    const alertEl = document.getElementById('regenBackupAlert');
+    const btn     = document.getElementById('regenBackupBtn');
+
+    errEl.classList.remove('visible');
+    alertEl.style.display = 'none';
+
+    if (!code || code.length !== 6) {
+      errEl.textContent = 'Enter the 6-digit code from your authenticator app.';
+      errEl.classList.add('visible');
+      return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = 'Generating…';
+
+    const res  = await RC.apiFetch('/api/auth/totp/regenerate-backup-codes', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+
+    btn.disabled    = false;
+    btn.textContent = 'Generate New Codes';
+
+    if (!res.ok) {
+      document.getElementById('regenBackupCode').value = '';
+      alertEl.textContent   = data.error ?? 'Failed to regenerate backup codes.';
+      alertEl.style.display = 'flex';
+      return;
+    }
+
+    closeModal('regenBackupModal');
+    if (Array.isArray(data.backupCodes)) showBackupCodes(data.backupCodes);
   }
 
   function copyManualCode() {
@@ -645,6 +788,21 @@
   document.getElementById('tfaOpenDisableBtn').addEventListener('click', openDisableTfaModal);
   document.getElementById('disableTfaBtn').addEventListener('click', disableTfa);
   document.getElementById('disableTfaModalCancelBtn').addEventListener('click', () => closeModal('disableTfaModal'));
+
+  document.getElementById('tfaRegenBackupBtn').addEventListener('click', openRegenBackupModal);
+  document.getElementById('regenBackupBtn').addEventListener('click', regenerateBackupCodes);
+  document.getElementById('regenBackupCancelBtn').addEventListener('click', () => closeModal('regenBackupModal'));
+  document.getElementById('regenBackupCode').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 6);
+    document.getElementById('regenBackupError').classList.remove('visible');
+    if (this.value.length === 6) regenerateBackupCodes();
+  });
+  document.getElementById('regenBackupCode').addEventListener('keydown', e => {
+    if (e.key === 'Enter') regenerateBackupCodes();
+  });
+
+  document.getElementById('backupCopyBtn').addEventListener('click', copyBackupCodes);
+  document.getElementById('backupDoneBtn').addEventListener('click', () => closeModal('backupCodesModal'));
 </script>
 </body>
 </html>

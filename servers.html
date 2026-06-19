@@ -429,7 +429,7 @@
   let _selectedOrgId    = null;
   let _machines         = [];
   let _selectedMachine  = null;
-  let _orgRole          = 'member';
+  let _orgRole          = 'viewer';
   let _revealToken      = '';
   let _pendingConfirm   = null;
   let _deletePending    = null;
@@ -520,7 +520,7 @@
     _selectedMachine = null;
 
     const org = _orgs.find(o => o.id === orgId);
-    _orgRole  = org?.role ?? 'member';
+    _orgRole  = org?.role ?? 'viewer';
 
     const canManage = _orgRole === 'admin' || _orgRole === 'owner';
     document.getElementById('addMachineBtn').disabled = !canManage;
