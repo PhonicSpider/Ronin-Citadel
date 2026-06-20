@@ -15,8 +15,8 @@ const PAGE_CONFIG = {
 
   // ── Navbar links ───────────────────────────────────────────────────────
   navLinks: [
-    { label: 'Sign Up',     href: '/register', style: 'ghost'   },
-    { label: 'Open Portal', href: '/login',    style: 'primary' },
+    { label: 'Sign Up',     href: 'register.html', style: 'ghost'   },
+    { label: 'Open Portal', href: 'login.html',    style: 'primary' },
   ],
 
   // ── Hero ───────────────────────────────────────────────────────────────
@@ -26,8 +26,8 @@ const PAGE_CONFIG = {
     titleHighlight: 'Every tool you need.',
     subtitle:       'Manage game servers, firewall rules, disk storage, and server provisioning from a single secure web interface. No need to RDP into your machine.',
     cta: [
-      { label: 'Open Portal',   href: '/login',    style: 'primary' },
-      { label: 'View Features', href: '#features', style: 'ghost'   },
+      { label: 'Open Portal',   href: 'login.html',    style: 'primary' },
+      { label: 'View Features', href: '#features',    style: 'ghost'   },
     ],
   },
 
@@ -39,7 +39,7 @@ const PAGE_CONFIG = {
     desc:    'New to Ronin? Follow the step-by-step guide to install Ronin Server Manager on your dedicated machine and link it to the portal. From zero to live remote control in about 10 minutes.',
     steps:   ['Download &amp; install RSM', 'Create account &amp; org', 'Add a machine', 'Generate agent token', 'Connect &amp; go live'],
     tags:    ['Step-by-Step', '~10 Minutes', 'No Config Files', 'Any Browser'],
-    href:    '/get-started',
+    href:    'register.html',
   },
 
   // ── Feature sidebar list ────────────────────────────────────────────────
@@ -74,7 +74,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/rsm.jpg',
       desc:    'Start, stop, and restart game server processes with real-time CPU & RAM monitoring, live console output, and direct command input. Fully remote.',
       tags:    ['Process Control', 'Live Console', 'CPU / RAM', 'Multi-Server'],
-      href:    '/tools/ronin-server-manager',
+      href:    'tool.html?id=rsm',
     },
     {
       id:      'portier',
@@ -84,7 +84,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/portier.jpg',
       desc:    'Open and close Windows Firewall ports remotely. Persistent port lists, grouped rules, and per-server profiles - all visible and manageable from the portal.',
       tags:    ['Firewall Rules', 'Port Profiles', 'Rule Grouping'],
-      href:    '/tools/ronin-portier',
+      href:    'tool.html?id=portier',
     },
     {
       id:      'disk',
@@ -94,7 +94,7 @@ const PAGE_CONFIG = {
       img:     'images/cards/tree-view.webp',
       desc:    'NTFS-native disk analysis using MFT scanning for near-instant results. Bulk move and delete operations with dry-run preview before anything changes.',
       tags:    ['MFT Scanning', 'Bulk Operations', 'Dry-Run Preview'],
-      href:    '/tools/ronin-disk-manager',
+      href:    'tool.html?id=disk',
     },
     {
       id:    'forge',
@@ -104,7 +104,7 @@ const PAGE_CONFIG = {
       // img: 'images/cards/forge.jpg',
       desc:  'Download and install game server files by game type. Supports Minecraft, Space Engineers, Ark, and more. Built-in config editor. Run standalone or import directly into RSM.',
       tags:  ['Auto-Download', 'Config Editor', 'RSM Integration'],
-      href:  '/tools/ronin-forge',
+      href:  'tool.html?id=forge',
     },
     {
       id:      'console',
@@ -114,7 +114,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/console.jpg',
       desc:    'Stream live console output from any managed server directly in your browser. Send commands, read responses, and monitor activity in real time.',
       tags:    ['Live Output', 'Command Input', 'Per-Server', 'No RDP Needed'],
-      href:    '/tools/live-console',
+      href:    'tool.html?id=console',
     },
     {
       id:      'monitor',
@@ -124,7 +124,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/monitor.jpg',
       desc:    "Track CPU and memory usage per server in real time. Catch runaway processes before they affect players, and check your machine's health without logging in.",
       tags:    ['Live Metrics', 'Per-Server Stats', 'Always Visible', 'Status Bar'],
-      href:    '/tools/cpu-ram-monitor',
+      href:    'tool.html?id=monitor',
     },
     {
       id:      'roles',
@@ -134,7 +134,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/roles.jpg',
       desc:    'Grant exactly the right level of access to each team member. Owners control everything, admins manage day-to-day operations, and community members get only what they need.',
       tags:    ['Custom Roles', 'Per-Node Permissions', 'Granular Control', 'Role Inheritance'],
-      href:    '/tools/role-based-access',
+      href:    'tool.html?id=roles',
     },
     {
       id:      '2fa',
@@ -144,7 +144,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/2fa.jpg',
       desc:    'Protect your portal with TOTP-based two-factor authentication. Every login requires a time-based code from an authenticator app. A stolen password on its own gets you nowhere.',
       tags:    ['TOTP Standard', 'QR Code Setup', 'Authenticator App', 'Brute Force Proof'],
-      href:    '/tools/two-factor-auth',
+      href:    'tool.html?id=2fa',
     },
     {
       id:      'team',
@@ -154,7 +154,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/team.jpg',
       desc:    'Invite community admins, assign roles, and manage your whole team from one place. Add or remove members without touching any config files. Access changes take effect immediately.',
       tags:    ['Invite System', 'Role Assignment', 'Instant Changes', 'Community Scale'],
-      href:    '/tools/team-management',
+      href:    'tool.html?id=team',
     },
     {
       id:      'remote',
@@ -164,7 +164,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/remote.jpg',
       desc:    'Manage your entire server setup from any device, any location. HTTPS with a proper TLS certificate keeps your connection encrypted. Just a browser and your credentials.',
       tags:    ['HTTPS Encrypted', 'Any Device', 'No VPN Required', 'Rate Limited Login'],
-      href:    '/tools/remote-access',
+      href:    'tool.html?id=remote',
     },
   ],
 };
