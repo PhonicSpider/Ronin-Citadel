@@ -13,7 +13,7 @@
   <div class="top-accent-bar"></div>
 
   <nav class="navbar">
-    <a href="index.html" class="nav-logo" id="navLogo"></a>
+    <a href="/" class="nav-logo" id="navLogo"></a>
     <div class="nav-center">
       <span class="nav-title" id="navTitle"></span>
     </div>
@@ -75,13 +75,13 @@
       // Replace navbar action buttons
       const navEl = document.getElementById('navActions');
       if (navEl) {
-        navEl.innerHTML = '<a href="dashboard.html" class="btn btn-primary">⬡ Dashboard</a>';
+        navEl.innerHTML = '<a href="/dashboard" class="btn btn-primary">⬡ Dashboard</a>';
       }
 
       // Replace hero CTAs
       const heroEl = document.querySelector('.hero-actions');
       if (heroEl) {
-        heroEl.innerHTML = '<a href="dashboard.html" class="btn btn-primary">⬡ Go to Dashboard</a>';
+        heroEl.innerHTML = '<a href="/dashboard" class="btn btn-primary">⬡ Go to Dashboard</a>';
       }
     })();
   </script>

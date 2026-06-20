@@ -2,13 +2,33 @@
    Depends on: js/tool-page-config.js (SITE + TOOLS must be loaded first)
    Reads ?id= from the URL and builds the full page from TOOLS config.        */
 
-// ── Resolve tool from ?id= query param ───────────────────────────────────────
-const toolId = new URLSearchParams(window.location.search).get('id') ?? '';
-const tool   = TOOLS[toolId];
+// ── Resolve tool from URL ─────────────────────────────────────────────────────
+// Supports both /tools/{slug} (production) and ?id={slug} (fallback)
+const SLUG_TO_ID = {
+  'ronin-server-manager': 'rsm',
+  'ronin-portier':        'portier',
+  'ronin-disk-manager':   'disk',
+  'ronin-forge':          'forge',
+  'live-console':         'console',
+  'cpu-ram-monitor':      'monitor',
+  'role-based-access':    'roles',
+  'two-factor-auth':      '2fa',
+  'team-management':      'team',
+  'remote-access':        'remote',
+  // short IDs also accepted directly
+  'rsm': 'rsm', 'portier': 'portier', 'disk': 'disk', 'forge': 'forge',
+  'console': 'console', 'monitor': 'monitor', 'roles': 'roles',
+  '2fa': '2fa', 'team': 'team', 'remote': 'remote',
+};
+
+const urlSegment = window.location.pathname.split('/').filter(Boolean).pop() ?? '';
+const queryId    = new URLSearchParams(window.location.search).get('id') ?? '';
+const toolId     = SLUG_TO_ID[urlSegment] ?? SLUG_TO_ID[queryId] ?? '';
+const tool       = TOOLS[toolId];
 
 if (!tool) {
-  window.location.replace('index.html');
-  throw new Error('Unknown tool id: ' + toolId);
+  window.location.replace('/');
+  throw new Error('Unknown tool: ' + (urlSegment || queryId));
 }
 
 document.title = tool.name + ' — Ronin Citadel';
@@ -37,7 +57,7 @@ if (tool.img) heroEl.style.backgroundImage = `url('${tool.img}')`;
 // CTA button(s)
 let ctaHtml;
 if (tool.type === 'feature') {
-  ctaHtml = `<a href="login.html" class="btn btn-primary btn-lg">Open Ronin Citadel Portal →</a>`;
+  ctaHtml = `<a href="/login" class="btn btn-primary btn-lg">Open Ronin Citadel Portal →</a>`;
 } else if (tool.badge) {
   ctaHtml = `
     <span class="tool-badge">${tool.badge}</span>
@@ -53,7 +73,7 @@ if (tool.type === 'feature') {
 }
 
 document.getElementById('toolHeroInner').innerHTML = `
-  <a href="index.html" class="tool-back">← Back to Ronin Citadel</a>
+  <a href="/" class="tool-back">← Back to Ronin Citadel</a>
   <div class="tool-hero-icon">${tool.icon}</div>
   <div class="tool-eyebrow">${tool.eyebrow}</div>
   <h1 class="tool-name">${tool.name}</h1>
@@ -132,8 +152,8 @@ function buildInfoPanel(t) {
           ${t.name} is built into the Ronin Citadel web portal.
           No separate download needed. Open the portal and navigate to it.
         </p>
-        <a href="login.html" class="btn btn-primary btn-lg">Open Ronin Citadel Portal →</a>
-        <a href="index.html" class="btn btn-ghost" style="margin-top:4px">← Back to Home</a>
+        <a href="/login" class="btn btn-primary btn-lg">Open Ronin Citadel Portal →</a>
+        <a href="/" class="btn btn-ghost" style="margin-top:4px">← Back to Home</a>
       </div>`;
   }
 
@@ -144,7 +164,7 @@ function buildInfoPanel(t) {
         <p class="info-panel-desc">
           ${t.name} is currently being built. Check back for release announcements.
         </p>
-        <a href="index.html" class="btn btn-ghost">← Back to Home</a>
+        <a href="/" class="btn btn-ghost">← Back to Home</a>
       </div>`;
   }
 

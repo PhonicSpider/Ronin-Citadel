@@ -252,7 +252,7 @@
   <div class="top-accent-bar"></div>
 
   <nav class="navbar">
-    <a href="index.html" class="nav-logo">
+    <a href="/" class="nav-logo">
       <span class="logo-icon">⛩</span>
       <span class="logo-text">Ronin Citadel</span>
     </a>
@@ -260,7 +260,7 @@
       <span class="nav-title">Ronin Empire</span>
     </div>
     <div class="nav-actions">
-      <a href="login.html" class="btn btn-ghost">Sign In</a>
+      <a href="/login" class="btn btn-ghost">Sign In</a>
     </div>
   </nav>
 
@@ -349,7 +349,7 @@
       </form>
 
       <div class="auth-footer">
-        Already have an account? <a href="login.html">Sign in</a>
+        Already have an account? <a href="/login">Sign in</a>
       </div>
 
     </div>
@@ -494,7 +494,7 @@
             btn.textContent = 'Create Account';
             return;
           }
-          window.location.href = 'login.html?registered=1';
+          window.location.href = '/login?registered=1';
         })
         .catch(() => {
           document.getElementById('globalErrorText').textContent = 'Could not reach the server. Is it running?';
