@@ -6,6 +6,14 @@
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#080808">
   <title>Ronin Citadel — Sign In</title>
+  <script>
+    (function(){
+      var h = location.hostname;
+      if (['localhost','127.0.0.1','::1'].includes(h) && localStorage.getItem('rc_dev_mode') !== 'false') {
+        location.replace(new URLSearchParams(location.search).get('redirect') || '/dashboard');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="css/main.css">
   <style>
     html, body {
@@ -451,12 +459,6 @@
 
   <script src="js/api.js"></script>
   <script>
-    // ── Dev mode: skip login entirely ───────────────────────────────────────
-    if (RC.DEV_MODE) {
-      const dest = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
-      window.location.replace(dest);
-    }
-
     // ── Query param: show success banner if coming from register ────────────
     const params = new URLSearchParams(window.location.search);
     if (params.get('registered') === '1') {
