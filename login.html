@@ -451,6 +451,12 @@
 
   <script src="js/api.js"></script>
   <script>
+    // ── Dev mode: skip login entirely ───────────────────────────────────────
+    if (RC.DEV_MODE) {
+      const dest = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
+      window.location.replace(dest);
+    }
+
     // ── Query param: show success banner if coming from register ────────────
     const params = new URLSearchParams(window.location.search);
     if (params.get('registered') === '1') {

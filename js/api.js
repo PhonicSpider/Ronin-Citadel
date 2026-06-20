@@ -2,17 +2,15 @@
 // Change API_BASE to '' when frontend and backend are on the same origin (prod).
 const API_BASE = '';
 
-// Dev mode — bypasses auth redirect with a mock user so you can work on the
-// portal UI without a running backend. Toggle from the browser console:
-//   localStorage.setItem('rc_dev_mode', 'true');  location.reload()
-//   localStorage.removeItem('rc_dev_mode');        location.reload()
+// Dev mode — bypasses auth redirect with a mock user so the portal UI can be
+// browsed without a running backend.
 //
-// DEV_MODE is only honoured when the backend indicates a non-production environment.
-// The server sets a <meta name="rc-env" content="development"> tag in non-prod builds.
-// In production, this meta tag is absent and DEV_MODE is always false — a console
-// flag alone can never enable it.
-const _envMeta = document.querySelector('meta[name="rc-env"]');
-const DEV_MODE = _envMeta?.content === 'development' && localStorage.getItem('rc_dev_mode') === 'true';
+// Automatically ON when served from localhost or 127.0.0.1 (http-server, etc.).
+// Never active on any other hostname, so production is safe without extra config.
+// Override: localStorage.setItem('rc_dev_mode', 'false') to force-disable locally.
+const _isLocal  = ['localhost', '127.0.0.1', '::1'].includes(location.hostname);
+const _override = localStorage.getItem('rc_dev_mode');
+const DEV_MODE  = _override !== null ? _override === 'true' : _isLocal;
 const _DEV_USER = { id: 'dev-0', username: 'dev', email: 'dev@ronin.local', role: 'admin' };
 
 const RC = (() => {
