@@ -124,9 +124,11 @@ function buildScreenshots(shots) {
 // Build feature tiles HTML
 function buildFeatureTile(f) {
   if (f.img) {
+    // If the screenshot is missing, drop the <img> so the tile degrades to a
+    // clean text tile instead of showing a broken-image icon.
     return `
       <div class="feature-tile feature-tile--has-img">
-        <img class="tile-screenshot" src="${f.img}" alt="${f.title}" loading="lazy">
+        <img class="tile-screenshot" src="${f.img}" alt="${f.title}" loading="lazy" onerror="this.remove()">
         <div class="tile-text">
           <div class="feature-tile-icon">${f.icon}</div>
           <h3 class="feature-tile-title">${f.title}</h3>
