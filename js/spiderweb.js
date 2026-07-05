@@ -119,6 +119,42 @@ const CFG = {
   resizeDebounceMs: 150,
 };
 
+// ── Reduced motion ─────────────────────────────────────────────────────────────
+// Honour the OS "reduce motion" setting by collapsing every GSAP duration/delay
+// to ~0. A live listener rebuilds the current level so it toggles both ways
+// without a full page reload (durations are restored from a baseline snapshot).
+const _cfgDefaults = { ...CFG };
+const _reducedMotionMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+let _reducedMotion = _reducedMotionMQ.matches;
+function _applyReducedMotion() {
+  Object.assign(CFG, _cfgDefaults); // restore baseline first so we can toggle off
+  if (!_reducedMotion) return;
+  Object.keys(CFG).forEach(k => { if (k.toLowerCase().includes('duration')) CFG[k] = 0.001; });
+  CFG.entranceRingDelay = CFG.entranceStrandDelay = CFG.entranceNodeDelay = 0;
+  CFG.entranceStrandStagger = CFG.entranceNodeStagger = 0;
+}
+_applyReducedMotion();
+_reducedMotionMQ.addEventListener('change', e => {
+  _reducedMotion = e.matches;
+  _applyReducedMotion();
+  buildWeb(currentLevel);
+});
+
+// ── Role gating ────────────────────────────────────────────────────────────────
+// Mirrors the backend hierarchy (backend/src/routes/*). Client-side filtering is
+// a UX convenience only — the backend independently enforces every gated action.
+const ROLE_HIERARCHY = ['viewer', 'community_admin', 'admin', 'owner'];
+let _userRole = 'viewer'; // set by webInit() from the selected org's membership role
+function _roleIndex(role) {
+  const i = ROLE_HIERARCHY.indexOf(role ?? 'viewer');
+  return i === -1 ? 0 : i;
+}
+
+// ── Selected machine context ────────────────────────────────────────────────────
+// Machine-level sections (firewall, system) act on a specific machine. The
+// dashboard resolves it lazily via window.RC_dashboard.ensureMachine().
+let _selectedMachine = null; // { id, slug, name } | null
+
 function computeDims() {
   const W = svg.clientWidth  || svg.parentElement.clientWidth  || 900;
   const H = svg.clientHeight || svg.parentElement.clientHeight || 680;
@@ -141,11 +177,11 @@ const LEVELS = {
   root: {
     label: 'Home',
     nodes: [
-      { id: 'orgs',     label: 'Organizations', angle: -90,  desc: 'Manage server groups and team members',   color: '#00e5ff' },
+      { id: 'orgs',     label: 'Organizations', angle: -90,  desc: 'Manage server groups and team members',   color: '#00e5ff', minRole: 'community_admin' },
       { id: 'servers',  label: 'Servers',        angle: -30,  desc: 'Manage and monitor your game servers' },
-      { id: 'firewall', label: 'Firewall',       angle:  30,  desc: 'Windows Firewall port management via Portier' },
-      { id: 'storage',  label: 'Storage',        angle:  90,  desc: 'Disk usage analysis and bulk file operations' },
-      { id: 'system',   label: 'System',         angle: 150,  desc: 'RSM process control and system settings' },
+      { id: 'firewall', label: 'Firewall',       angle:  30,  desc: 'Windows Firewall port management via Portier', minRole: 'admin' },
+      { id: 'storage',  label: 'Storage',        angle:  90,  desc: 'Disk usage analysis, duplicates, and safe file cleanup', minRole: 'admin' },
+      { id: 'system',   label: 'System',         angle: 150,  desc: 'RSM process control and system settings', minRole: 'admin' },
       { id: 'account',  label: 'Account',        angle: -150, desc: 'Profile, security, and team management',  color: '#cc8877' },
     ],
   },
@@ -168,7 +204,7 @@ const LEVELS = {
     nodes: [
       { id: 'srv-portal', label: 'Portal',       angle: -108, desc: 'Register servers and manage agent tokens',    color: '#00e5ff' },
       { id: '_srv-live',  label: 'Live Servers', angle:  -36, desc: 'RSM-connected servers (API integration TBD)', color: '#444444', isLeaf: true },
-      { id: '_srv-forge', label: 'Forge',        angle:   36, desc: 'Provision game servers via Ronin Forge',      color: '#888888', isLeaf: true },
+      { id: '_srv-forge', label: 'Forge',        angle:   36, desc: 'Provision game servers via Ronin Forge',      color: '#888888', isLeaf: true, minRole: 'admin' },
       { id: '_srv-add',   label: 'Add Server',   angle:  108, desc: 'Register an existing RSM machine',            color: '#44aa55', isNav: true, href: 'servers.html' },
       { id: '_back',      label: '↩ Back',       angle:  180, desc: 'Return to main web',                          color: '#886644', isBack: true },
     ],
@@ -188,10 +224,10 @@ const LEVELS = {
   firewall: {
     label: 'Firewall',
     nodes: [
-      { id: '_fw-view',    label: 'View Rules',  angle: -108, desc: 'See all active firewall rules', color: '#00e5ff', isLeaf:  true },
-      { id: '_fw-add',     label: 'Add Port',    angle:  -36, desc: 'Open a new firewall port',      color: '#00cc44', isAction: true, action: 'Open a new firewall port?' },
-      { id: '_fw-remove',  label: 'Remove Port', angle:   36, desc: 'Close a firewall port rule',    color: '#cc3300', isAction: true, action: 'Remove a firewall port rule?' },
-      { id: '_fw-refresh', label: 'Refresh',     angle:  108, desc: 'Refresh the port rules list',   color: '#00e5ff', isAction: true, action: 'Refresh firewall rules?' },
+      { id: '_fw-view',    label: 'View Rules',  angle: -108, desc: 'See all active firewall rules', color: '#00e5ff', isAction: true, apiAction: 'fw-view',    action: 'View firewall rules',        minRole: 'community_admin' },
+      { id: '_fw-add',     label: 'Add Port',    angle:  -36, desc: 'Open a new firewall port',      color: '#00cc44', isAction: true, apiAction: 'fw-add',     action: 'Open a new firewall port?',  minRole: 'admin' },
+      { id: '_fw-remove',  label: 'Remove Port', angle:   36, desc: 'Close a firewall port rule',    color: '#cc3300', isAction: true, apiAction: 'fw-remove',  action: 'Remove a firewall port rule?', minRole: 'admin' },
+      { id: '_fw-refresh', label: 'Refresh',     angle:  108, desc: 'Refresh the port rules list',   color: '#00e5ff', isAction: true, apiAction: 'fw-refresh', action: 'Refresh firewall rules?',    minRole: 'community_admin' },
       { id: '_back',       label: '↩ Back',      angle:  180, desc: 'Return to main web',            color: '#886644', isBack: true },
     ],
   },
@@ -200,10 +236,10 @@ const LEVELS = {
   storage: {
     label: 'Storage',
     nodes: [
-      { id: '_scan',   label: 'Scan Drive', angle: -108, desc: 'Storage integration coming soon', color: '#00e5ff', isLeaf: true },
-      { id: '_browse', label: 'Browse',     angle:  -36, desc: 'Storage integration coming soon', color: '#00e5ff', isLeaf: true },
-      { id: '_move',   label: 'Move Files', angle:   36, desc: 'Storage integration coming soon', color: '#cc8800', isLeaf: true },
-      { id: '_delete', label: 'Delete',     angle:  108, desc: 'Storage integration coming soon', color: '#cc3300', isLeaf: true },
+      { id: '_scan',   label: 'Scan Drive', angle: -108, desc: 'Storage integration coming soon', color: '#00e5ff', isLeaf: true, minRole: 'admin' },
+      { id: '_browse', label: 'Browse',     angle:  -36, desc: 'Storage integration coming soon', color: '#00e5ff', isLeaf: true, minRole: 'admin' },
+      { id: '_move',   label: 'Move Files', angle:   36, desc: 'Storage integration coming soon', color: '#cc8800', isLeaf: true, minRole: 'admin' },
+      { id: '_delete', label: 'Delete',     angle:  108, desc: 'Storage integration coming soon', color: '#cc3300', isLeaf: true, minRole: 'admin' },
       { id: '_back',   label: '↩ Back',     angle:  180, desc: 'Return to main web',               color: '#886644', isBack: true },
     ],
   },
@@ -212,9 +248,9 @@ const LEVELS = {
   system: {
     label: 'System',
     nodes: [
-      { id: '_rsm-status',  label: 'RSM Status',  angle: -90, desc: 'View RSM process status',            color: '#00e5ff', isLeaf:  true },
-      { id: '_rsm-restart', label: 'RSM Restart', angle:   0, desc: 'Restart the RSM process',            color: '#cc8800', isAction: true, action: 'Restart Ronin Server Manager?' },
-      { id: '_rsm-stop',    label: 'RSM Stop',    angle:  90, desc: 'Stop RSM — coming in a future release', color: '#cc3300', isLeaf: true },
+      { id: '_rsm-status',  label: 'RSM Status',  angle: -90, desc: 'View RSM process status',            color: '#00e5ff', isAction: true, apiAction: 'rsm-status',  action: 'Check RSM status',             minRole: 'community_admin' },
+      { id: '_rsm-restart', label: 'RSM Restart', angle:   0, desc: 'Restart the RSM process',            color: '#cc8800', isAction: true, apiAction: 'rsm-restart', action: 'Restart Ronin Server Manager?', minRole: 'admin' },
+      { id: '_rsm-stop',    label: 'RSM Stop',    angle:  90, desc: 'Stop RSM — coming in a future release', color: '#cc3300', isLeaf: true, minRole: 'owner' },
       { id: '_back',        label: '↩ Back',      angle: 180, desc: 'Return to main web',                 color: '#886644', isBack: true },
     ],
   },
@@ -304,7 +340,16 @@ function buildWeb(levelId) {
 
   const { cx, cy, maxRadius } = computeDims();
   const { rings, nodeRingFactor, nodeR } = CFG;
-  const nodes = level.nodes;
+
+  // ARIA: present the web as a labelled navigation region for assistive tech.
+  svg.setAttribute('role', 'navigation');
+  svg.setAttribute('aria-label', `${level.label} navigation web`);
+
+  // Role filter: hide nodes the current user's role can't reach. `_back` and
+  // un-gated nodes always pass.
+  const nodes = level.nodes.filter(n =>
+    !n.minRole || _roleIndex(_userRole) >= _roleIndex(n.minRole)
+  );
 
   // ── Defs ─────────────────────────────────────────────────────────────────
   const defs     = el('defs');
@@ -409,6 +454,9 @@ function buildWeb(levelId) {
 
     const g = el('g', { class: 'wnode', 'data-id': node.id });
     g.style.cursor = 'pointer';
+    g.setAttribute('role', 'button');
+    g.setAttribute('tabindex', '0');
+    g.setAttribute('aria-label', node.label + (node.desc ? ': ' + node.desc : ''));
 
     const glowRing = el('circle', {
       cx: nx, cy: ny,
@@ -483,6 +531,16 @@ function buildWeb(levelId) {
     });
 
     g.addEventListener('click', () => handleClick(node, nx, ny));
+    g.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(node, nx, ny); }
+    });
+    // Keyboard focus should surface the same tooltip as hover.
+    g.addEventListener('focus', () => {
+      tooltipTitle.textContent = node.label;
+      tooltipDesc.textContent  = node.desc || '';
+      tooltip.classList.add('visible');
+    });
+    g.addEventListener('blur', () => tooltip.classList.remove('visible'));
     svg.appendChild(g);
   });
 
@@ -527,7 +585,7 @@ function handleClick(node, nx, ny) {
   if (node.isBack)   { navigateBack();                    return; }
   if (node.isNav)    { window.location.href = node.href;  return; }
   if (node.isModal)  { openNodeModal(node.modalId);       return; }
-  if (node.isAction) { showActionPanel(node);             return; }
+  if (node.isAction) { _dispatchAction(node);             return; }
   if (node.isLeaf || !LEVELS[node.id]) {
     pulseNode(nx, ny, node.color || CFG.nodeDefaultColor);
     return;
@@ -597,14 +655,49 @@ function navigateBack() {
   .to(webContainer, { opacity: 1, scale: 1, duration: CFG.backInDuration, ease: CFG.backInEase });
 }
 
-// ── Action panel ──────────────────────────────────────────────────────────────
-function showActionPanel(node) {
+// ── Action dispatch ─────────────────────────────────────────────────────────────
+// Each isAction node carries an `apiAction`. Read-only / input-gathering actions
+// (firewall view/add/remove, status) open the dashboard's firewall panel; the only
+// destructive one-shot (RSM restart) routes through the confirm/deny panel. All
+// machine-level work flows through the portal relay (POST /api/agent/:id/command).
+function _dispatchAction(node) {
+  const dash = window.RC_dashboard;
+  if (!dash) { _toast('Dashboard controller not ready.', 'error'); return; }
+
+  switch (node.apiAction) {
+    case 'fw-view':
+    case 'fw-remove':   dash.openFirewall('list');          break;
+    case 'fw-refresh':  dash.openFirewall('list', true);    break;
+    case 'fw-add':      dash.openFirewall('add');           break;
+    case 'rsm-status':  dash.rsmStatus();                   break;
+    case 'rsm-restart': _confirmAction(node, () => dash.rsmRestart()); break;
+    default:            _toast(`Unknown action: ${node.apiAction}`, 'error');
+  }
+}
+
+function _toast(msg, type) {
+  if (typeof window.RC_showToast === 'function') window.RC_showToast(msg, type);
+  else console[type === 'error' ? 'error' : 'log']('[RC]', msg);
+}
+
+// Confirm/deny panel for destructive one-shot actions. Runs `onConfirm` then
+// returns the web to root with the existing zoom animation.
+function _confirmAction(node, onConfirm) {
   actionTitle.textContent = node.action || node.label;
   actionDesc.textContent  = node.desc   || '';
   actionPanel.classList.add('visible');
 
-  actionConfirm.onclick = () => {
+  actionConfirm.onclick = async () => {
     actionPanel.classList.remove('visible');
+    actionConfirm.disabled = true;
+    try {
+      await onConfirm();
+    } catch (err) {
+      _toast(err.message || 'Action failed.', 'error');
+    } finally {
+      actionConfirm.disabled = false;
+    }
+
     currentLevel = 'root';
     navStack = [];
     const tl = gsap.timeline();
@@ -676,32 +769,50 @@ function updateBreadcrumb() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-// Restore spider web state from the URL if a section is encoded in the path.
-if (typeof Router !== 'undefined') {
-  const { orgSlug } = Router.parse();
-  if (orgSlug) {
-    const restored = stateFromUrl(orgSlug);
-    navStack     = restored.navStack;
-    currentLevel = restored.currentLevel;
-  }
-}
-buildWeb(currentLevel);
+let resizeTimer;
+let _webInitDone = false;
 
-// Browser back/forward: re-derive state from the new URL.
-window.addEventListener('popstate', () => {
+// Entry point — call from dashboard.js after initShell() resolves, passing the
+// user's role for the selected org. Restores URL state, renders, and wires
+// popstate + a ResizeObserver. Idempotent: a second call only updates the role.
+function webInit(userRole) {
+  _userRole = userRole || 'viewer';
+
+  if (_webInitDone) { buildWeb(currentLevel); return; }
+  _webInitDone = true;
+
   if (typeof Router !== 'undefined') {
     const { orgSlug } = Router.parse();
     if (orgSlug) {
       const restored = stateFromUrl(orgSlug);
       navStack     = restored.navStack;
       currentLevel = restored.currentLevel;
-      buildWeb(currentLevel);
     }
   }
-});
+  buildWeb(currentLevel);
 
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => buildWeb(currentLevel), CFG.resizeDebounceMs);
-});
+  // Browser back/forward: re-derive state from the new URL.
+  window.addEventListener('popstate', () => {
+    if (typeof Router !== 'undefined') {
+      const { orgSlug } = Router.parse();
+      if (orgSlug) {
+        const restored = stateFromUrl(orgSlug);
+        navStack     = restored.navStack;
+        currentLevel = restored.currentLevel;
+        buildWeb(currentLevel);
+      }
+    }
+  });
+
+  // ResizeObserver is more accurate than window.resize and avoids firing on
+  // unrelated viewport chrome changes (scrollbars, DevTools docking).
+  const ro = new ResizeObserver(() => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => buildWeb(currentLevel), CFG.resizeDebounceMs);
+  });
+  ro.observe(webContainer);
+}
+
+// Expose for the (optional) dashboard controller.
+window.webInit = webInit;
+window.RC_setSelectedMachine = (m) => { _selectedMachine = m; };

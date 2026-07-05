@@ -92,8 +92,8 @@ const PAGE_CONFIG = {
       title:   'Ronin Disk Manager',
       icon:    '💾',
       img:     'images/cards/tree-view.webp',
-      desc:    'NTFS-native disk analysis using MFT scanning for near-instant results. Bulk move and delete operations with dry-run preview before anything changes.',
-      tags:    ['MFT Scanning', 'Bulk Operations', 'Dry-Run Preview'],
+      desc:    'NTFS-native disk analysis using MFT scanning for near-instant results. Tree and treemap views, duplicate and largest-file finders, and safe file operations that default to the Recycle Bin.',
+      tags:    ['MFT Scanning', 'Duplicate Finder', 'Safe Cleanup'],
       href:    '/tools/disk',
     },
     {
