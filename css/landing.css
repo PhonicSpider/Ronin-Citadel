@@ -212,12 +212,11 @@
 }
 
 #card-disk .card-img {
-  background:
-    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
-    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
-    radial-gradient(ellipse at 28% 32%, #003848 0%, transparent 52%),
-    radial-gradient(ellipse at 75% 72%, #001828 0%, transparent 52%),
-    linear-gradient(155deg, #030a10 0%, #020508 100%);
+  /* Real app screenshot instead of the atmospheric gradient. The .card-img::after
+     overlay still darkens the lower half for title legibility. */
+  background-image: url('../images/screenshots/tree-view.png');
+  background-size: cover;
+  background-position: center top;
 }
 
 #card-forge .card-img {

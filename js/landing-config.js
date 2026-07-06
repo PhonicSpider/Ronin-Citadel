@@ -91,7 +91,7 @@ const PAGE_CONFIG = {
       eyebrow: 'Storage Analysis',
       title:   'Ronin Disk Manager',
       icon:    '💾',
-      img:     'images/screenshots/tree-view.png',
+      // img set in css/landing.css (#card-disk .card-img) like the other cards
       desc:    'NTFS-native disk analysis using MFT scanning for near-instant results. Tree and treemap views, duplicate and largest-file finders, and safe file operations that default to the Recycle Bin.',
       tags:    ['MFT Scanning', 'Duplicate Finder', 'Safe Cleanup'],
       href:    '/disk-manager',
