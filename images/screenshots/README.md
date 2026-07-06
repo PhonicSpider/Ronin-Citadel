@@ -1,6 +1,6 @@
 # Disk Manager tool-page screenshots
 
-Drop screenshots for the `/tools/disk` page here. Each feature tile on the page
+Drop screenshots for the `/disk-manager` page here. Each feature tile on the page
 shows the image named below above its explanation. Until a file exists, that tile
 renders cleanly as text only (a missing image is dropped automatically, no broken
 icon), so you can add them one at a time.

@@ -74,7 +74,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/rsm.jpg',
       desc:    'Start, stop, and restart game server processes with real-time CPU & RAM monitoring, live console output, and direct command input. Fully remote.',
       tags:    ['Process Control', 'Live Console', 'CPU / RAM', 'Multi-Server'],
-      href:    '/tools/rsm',
+      href:    '/server-manager',
     },
     {
       id:      'portier',
@@ -84,7 +84,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/portier.jpg',
       desc:    'Open and close Windows Firewall ports remotely. Persistent port lists, grouped rules, and per-server profiles - all visible and manageable from the portal.',
       tags:    ['Firewall Rules', 'Port Profiles', 'Rule Grouping'],
-      href:    '/tools/portier',
+      href:    '/firewall',
     },
     {
       id:      'disk',
@@ -94,7 +94,7 @@ const PAGE_CONFIG = {
       img:     'images/cards/tree-view.webp',
       desc:    'NTFS-native disk analysis using MFT scanning for near-instant results. Tree and treemap views, duplicate and largest-file finders, and safe file operations that default to the Recycle Bin.',
       tags:    ['MFT Scanning', 'Duplicate Finder', 'Safe Cleanup'],
-      href:    '/tools/disk',
+      href:    '/disk-manager',
     },
     {
       id:    'forge',
@@ -104,7 +104,7 @@ const PAGE_CONFIG = {
       // img: 'images/cards/forge.jpg',
       desc:  'Download and install game server files by game type. Supports Minecraft, Space Engineers, Ark, and more. Built-in config editor. Run standalone or import directly into RSM.',
       tags:  ['Auto-Download', 'Config Editor', 'RSM Integration'],
-      href:  '/tools/forge',
+      href:  '/forge',
     },
     {
       id:      'console',
@@ -114,7 +114,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/console.jpg',
       desc:    'Stream live console output from any managed server directly in your browser. Send commands, read responses, and monitor activity in real time.',
       tags:    ['Live Output', 'Command Input', 'Per-Server', 'No RDP Needed'],
-      href:    '/tools/console',
+      href:    '/live-console',
     },
     {
       id:      'monitor',
@@ -124,7 +124,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/monitor.jpg',
       desc:    "Track CPU and memory usage per server in real time. Catch runaway processes before they affect players, and check your machine's health without logging in.",
       tags:    ['Live Metrics', 'Per-Server Stats', 'Always Visible', 'Status Bar'],
-      href:    '/tools/monitor',
+      href:    '/resource-monitor',
     },
     {
       id:      'roles',
@@ -134,7 +134,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/roles.jpg',
       desc:    'Grant exactly the right level of access to each team member. Owners control everything, admins manage day-to-day operations, and community members get only what they need.',
       tags:    ['Custom Roles', 'Per-Node Permissions', 'Granular Control', 'Role Inheritance'],
-      href:    '/tools/roles',
+      href:    '/role-based-access',
     },
     {
       id:      '2fa',
@@ -144,7 +144,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/2fa.jpg',
       desc:    'Protect your portal with TOTP-based two-factor authentication. Every login requires a time-based code from an authenticator app. A stolen password on its own gets you nowhere.',
       tags:    ['TOTP Standard', 'QR Code Setup', 'Authenticator App', 'Brute Force Proof'],
-      href:    '/tools/2fa',
+      href:    '/two-factor-auth',
     },
     {
       id:      'team',
@@ -154,7 +154,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/team.jpg',
       desc:    'Invite community admins, assign roles, and manage your whole team from one place. Add or remove members without touching any config files. Access changes take effect immediately.',
       tags:    ['Invite System', 'Role Assignment', 'Instant Changes', 'Community Scale'],
-      href:    '/tools/team',
+      href:    '/team-management',
     },
     {
       id:      'remote',
@@ -164,7 +164,7 @@ const PAGE_CONFIG = {
       // img:  'images/cards/remote.jpg',
       desc:    'Manage your entire server setup from any device, any location. HTTPS with a proper TLS certificate keeps your connection encrypted. Just a browser and your credentials.',
       tags:    ['HTTPS Encrypted', 'Any Device', 'No VPN Required', 'Rate Limited Login'],
-      href:    '/tools/remote',
+      href:    '/remote-access',
     },
   ],
 };

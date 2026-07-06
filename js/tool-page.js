@@ -3,19 +3,27 @@
    Reads ?id= from the URL and builds the full page from TOOLS config.        */
 
 // ── Resolve tool from URL ─────────────────────────────────────────────────────
-// Supports both /tools/{slug} (production) and ?id={slug} (fallback)
+// Reads the last URL segment: /{slug} (production, e.g. /disk-manager) or
+// ?id={slug} (local preview fallback, e.g. tool.html?id=disk).
 const SLUG_TO_ID = {
+  // Canonical single-segment live URLs (see Caddyfile @tools matcher)
+  'disk-manager':       'disk',
+  'server-manager':     'rsm',
+  'firewall':           'portier',
+  'forge':              'forge',
+  'live-console':       'console',
+  'resource-monitor':   'monitor',
+  'role-based-access':  'roles',
+  'two-factor-auth':    '2fa',
+  'team-management':    'team',
+  'remote-access':      'remote',
+  // Legacy brand slugs — kept as aliases so old links still resolve
   'ronin-server-manager': 'rsm',
   'ronin-portier':        'portier',
   'ronin-disk-manager':   'disk',
   'ronin-forge':          'forge',
-  'live-console':         'console',
   'cpu-ram-monitor':      'monitor',
-  'role-based-access':    'roles',
-  'two-factor-auth':      '2fa',
-  'team-management':      'team',
-  'remote-access':        'remote',
-  // short IDs also accepted directly
+  // short IDs also accepted directly (used by the local ?id= preview)
   'rsm': 'rsm', 'portier': 'portier', 'disk': 'disk', 'forge': 'forge',
   'console': 'console', 'monitor': 'monitor', 'roles': 'roles',
   '2fa': '2fa', 'team': 'team', 'remote': 'remote',
