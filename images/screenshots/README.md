@@ -26,3 +26,36 @@ treemap-with-age-heatmap shot, save that as `disk-treemap.png` and point the
 - PNG is fine. Match the filename exactly (case-sensitive on the server).
 - The optional wider walkthrough shots referenced (commented) in the `screenshots`
   array can also live here: `disk-treemap.png`, `disk-cleanup.png`.
+
+---
+
+# Ronin Portier tool-page screenshots
+
+Same pattern as above, for the `/firewall` page. `portier-overview.png` (the hero
+image and first Screenshots-section entry) is already in place. The six feature
+tiles below are referenced in `js/tool-page-config.js` but the files don't exist
+yet — each degrades cleanly to text-only until you drop the image in.
+
+## Files the page looks for
+
+| Filename                  | Feature tile              | What to capture |
+|----------------------------|---------------------------|------------------|
+| `portier-rules.png`        | System-Wide Rule Browser  | The **Firewall Rules** tab with a good mix of rows — ideally several with a real value in the Process column, so the live lookup is obvious at a glance. |
+| `portier-ports.png`        | Portier Ports              | The **Portier Ports** tab with 2-3 saved profiles, showing the status icon, TCP/UDP/Out checkmarks, and a Process value for at least one active row. |
+| `portier-search.png`       | Live Process Lookup        | Type a port number or process name into the top search bar and capture the filtered grid underneath it, so the search-to-result connection reads clearly. |
+| `portier-addrule.png`      | Add & Edit Rules           | The right-hand panel in **ADD NEW RULE** state with the Name/Ports fields filled in and a protocol checked, right before clicking Apply. |
+| `portier-inspector.png`    | Foreign Rule Inspector     | Select a rule Portier didn't create (in the Firewall Rules tab) so the right panel shows the read-only inspector with **Use as Template** / **Remove**, ideally with a process name visible. |
+| `portier-conflict.png`     | Port Conflict Detection    | Trigger the "Port Conflict Detected" dialog by applying a rule whose ports overlap an existing one — capture the dialog itself (Windows Snipping Tool works fine for a native dialog). |
+
+## Capture tips
+
+- Same crop behavior as Disk Manager's tiles: landscape, full width at 180px tall
+  (centered), so keep the important content centered rather than at the edges.
+- Run the app maximized (or close to it) before capturing so the grid columns
+  aren't cramped.
+- For `portier-rules.png` and `portier-ports.png`, resize the window a bit wider
+  than default first — the Process column is the whole point of the shot, so it
+  needs to be visible without scrolling.
+- The `screenshots` array in `js/tool-page-config.js` has two more entries
+  commented out (`portier-ports.png`, `portier-search.png`) for a wider walkthrough
+  once you've captured them — uncomment as you add each file.
