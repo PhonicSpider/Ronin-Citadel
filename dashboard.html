@@ -650,6 +650,104 @@
       .home-actions { padding: 0 8px; }
       .action-row   { padding: 14px 16px; }
     }
+
+    /* ── Toasts ── */
+    #toastContainer {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: var(--bg-card, #0d0d0d);
+      border: 1px solid var(--border, #1e1e1e);
+      border-left: 3px solid var(--cyan);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      max-width: 340px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      animation: toastIn 0.2s ease;
+    }
+    .toast-error   { border-left-color: var(--red-bright); }
+    .toast-success { border-left-color: #00cc44; }
+    .toast-warn    { border-left-color: #ffaa00; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Slide-in side panels (firewall + console) ── */
+    .side-panel {
+      position: fixed;
+      inset-block: 0;
+      inset-inline-end: 0;
+      width: min(520px, 100vw);
+      background: #060809;
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 400;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+    }
+    .side-panel.open { transform: translateX(0); }
+    .side-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .side-panel-header .sp-title { flex: 1; font-size: 14px; font-weight: 700; color: var(--text); }
+    .side-panel-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
+    .sp-iconbtn {
+      background: none; border: none; color: var(--text-dim); cursor: pointer;
+      font-size: 16px; padding: 4px 8px; border-radius: 4px;
+    }
+    .sp-iconbtn:hover { background: var(--bg-3); color: var(--text); }
+
+    /* ── Firewall rule rows ── */
+    .fw-rule {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border: 1px solid var(--border);
+      border-radius: 5px; margin-bottom: 6px; background: #0a0d0e;
+    }
+    .fw-rule-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .fw-rule-name { font-size: 12px; color: var(--text); }
+    .fw-rule-meta { font-size: 10px; color: var(--text-muted); font-family: 'Cascadia Code','Consolas',monospace; }
+    .fw-rule-actions { display: flex; gap: 6px; }
+    .fw-btn { font-size: 11px; padding: 4px 10px; }
+    .fw-btn-danger { background: var(--red); color: var(--text); border: none; border-radius: 4px; cursor: pointer; }
+    .fw-btn-danger:hover { background: var(--red-bright); }
+    .fw-add-form { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .fw-add-form label { display:block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin: 8px 0 4px; }
+    .fw-add-form input[type=text], .fw-add-form input[type=number] {
+      width: 100%; padding: 7px 10px; background: #131313; border: 1px solid #222;
+      border-radius: 4px; color: var(--text); font-size: 13px; outline: none;
+    }
+    .fw-add-form input:focus { border-color: var(--red); }
+    .fw-proto { display: flex; gap: 16px; margin-top: 8px; font-size: 12px; color: var(--text-dim); }
+
+    /* ── Console panel ── */
+    .console-output {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px;
+      margin: 0;
+      font: 11px/1.5 'Cascadia Code','Consolas',monospace;
+      color: #aaffaa;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overscroll-behavior: contain;
+    }
+    .log-error { color: #ff4444; }
+    .log-warn  { color: #ffaa00; }
+    .log-info  { color: #aaffaa; }
   </style>
 </head>
 <body>
@@ -746,134 +844,65 @@
     </div>
   </div>
 
+  <!-- ── Machine Picker Modal ── -->
+  <div class="modal-overlay" id="machinePickerModal">
+    <div class="modal-card">
+      <div class="modal-title">Select a Machine</div>
+      <div class="modal-sub">This organization has more than one machine. Choose which one to act on.</div>
+      <div id="machinePickerList"></div>
+    </div>
+  </div>
+
+  <!-- ── Firewall Panel ── -->
+  <aside class="side-panel" id="firewallPanel" aria-label="Firewall rules" hidden>
+    <div class="side-panel-header">
+      <span class="sp-title">Firewall — <span id="firewallMachineName"></span></span>
+      <button class="sp-iconbtn" id="firewallAddToggle"  aria-label="Toggle add form" title="Add rule">＋</button>
+      <button class="sp-iconbtn" id="firewallRefresh"    aria-label="Refresh rules"   title="Refresh">⟳</button>
+      <button class="sp-iconbtn" id="firewallClose"      aria-label="Close">✕</button>
+    </div>
+    <div class="side-panel-body">
+      <div id="firewallRules"></div>
+      <div class="fw-add-form" id="firewallAddForm" style="display:none;">
+        <label for="fwName">Rule name</label>
+        <input type="text" id="fwName" placeholder="e.g. Minecraft 25565">
+        <label for="fwPort">Port</label>
+        <input type="number" id="fwPort" min="1" max="65535" placeholder="25565">
+        <div class="fw-proto">
+          <label><input type="checkbox" id="fwTcp" checked> TCP</label>
+          <label><input type="checkbox" id="fwUdp"> UDP</label>
+        </div>
+        <button class="btn btn-primary" id="fwAddBtn" style="margin-top:12px;">Add Rule</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Console Panel ── -->
+  <aside class="side-panel" id="consolePanel" aria-label="Server console" hidden>
+    <div class="side-panel-header">
+      <span class="sp-title" id="consolePanelTitle">Console</span>
+      <select id="consoleFilter" aria-label="Filter log level" class="modal-input" style="width:auto;padding:4px 8px;">
+        <option value="all">All</option>
+        <option value="warn">Warnings</option>
+        <option value="error">Errors</option>
+      </select>
+      <button class="sp-iconbtn" id="consoleClose" aria-label="Close console">✕</button>
+    </div>
+    <pre id="consoleOutput" class="console-output" aria-live="polite" aria-relevant="additions"></pre>
+  </aside>
+
+  <!-- ── Toasts ── -->
+  <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="js/router.js"></script>
   <script src="js/api.js"></script>
   <script src="js/shell.js"></script>
-  <script>
-    initShell('dashboard', async function (user, orgSlug) {
-      // Wire org-scoped sidebar nav links
-      if (orgSlug) {
-        document.getElementById('navOrgs').href     = '/' + orgSlug + '/orgs';
-        document.getElementById('navMachines').href = '/' + orgSlug + '/machines';
-        document.getElementById('navSettings').href = '/' + orgSlug + '/settings';
-      }
-      if (RC.DEV_MODE) {
-        document.getElementById('devBadge').style.display = 'flex';
-        const section = document.getElementById('sidebarServers');
-        section.innerHTML = '<div class="sb-label">Servers</div>'
-          + '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">Dev mode — no API calls.</div>';
-        return;
-      }
-      await loadSidebarServers();
-    });
-
-    async function loadSidebarServers() {
-      const section = document.getElementById('sidebarServers');
-
-      const orgsRes  = await RC.apiFetch('/api/orgs');
-      const orgsData = await orgsRes.json();
-
-      if (!orgsRes.ok || !orgsData.orgs?.length) {
-        section.innerHTML = '<div class="sb-label">Servers</div>'
-          + '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">No orgs yet — <a href="/register" style="color:var(--cyan-dim);">create one</a>.</div>';
-        return;
-      }
-
-      const results = await Promise.all(
-        orgsData.orgs.map(org =>
-          RC.apiFetch(`/api/servers?orgId=${org.id}`).then(r => r.json())
-        )
-      );
-
-      const servers = results.flatMap(r => r.servers ?? []);
-      section.innerHTML = `<div class="sb-label">Servers (${servers.length})</div>`;
-
-      if (servers.length === 0) {
-        section.innerHTML += '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;">No servers yet.</div>';
-        return;
-      }
-
-      servers.forEach(srv => {
-        const div = document.createElement('div');
-        div.className = 'server-entry ' + (srv.status?.toLowerCase() === 'online' ? 'online' : 'offline');
-        div.innerHTML = `<span class="status-dot"></span><span class="server-name">${escHtml(srv.name)}</span>`;
-        section.appendChild(div);
-      });
-    }
-
-    function escHtml(s) {
-      return String(s)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-    }
-
-    function closeModal(id) {
-      document.getElementById(id)?.classList.remove('open');
-    }
-
-    async function changePassword() {
-      const current = document.getElementById('pwdCurrent').value;
-      const newPwd  = document.getElementById('pwdNew').value;
-      const confirm = document.getElementById('pwdConfirm').value;
-      const errEl   = document.getElementById('pwdModalError');
-      const btn     = document.getElementById('pwdSaveBtn');
-
-      errEl.classList.remove('visible');
-
-      if (!current || !newPwd || !confirm) {
-        errEl.textContent = 'All fields are required.';
-        errEl.classList.add('visible');
-        return;
-      }
-      if (newPwd !== confirm) {
-        errEl.textContent = 'New passwords do not match.';
-        errEl.classList.add('visible');
-        return;
-      }
-      if (newPwd.length < 8) {
-        errEl.textContent = 'New password must be at least 8 characters.';
-        errEl.classList.add('visible');
-        return;
-      }
-
-      btn.disabled    = true;
-      btn.textContent = 'Saving…';
-
-      const res  = await RC.apiFetch('/api/users/password', {
-        method: 'POST',
-        body: JSON.stringify({ currentPassword: current, newPassword: newPwd }),
-      });
-      const data = await res.json();
-
-      btn.disabled    = false;
-      btn.textContent = 'Save Password';
-
-      if (!res.ok) {
-        errEl.textContent = data.error ?? 'Failed to update password.';
-        errEl.classList.add('visible');
-        return;
-      }
-
-      closeModal('changePasswordModal');
-      ['pwdCurrent','pwdNew','pwdConfirm'].forEach(id => { document.getElementById(id).value = ''; });
-    }
-
-    document.getElementById('pwdSaveBtn').addEventListener('click', changePassword);
-    document.getElementById('pwdCancelBtn').addEventListener('click', () => closeModal('changePasswordModal'));
-
-    ['pwdCurrent','pwdNew','pwdConfirm'].forEach(id => {
-      document.getElementById(id).addEventListener('keydown', e => {
-        if (e.key === 'Enter') changePassword();
-      });
-    });
-
-    document.getElementById('changePasswordModal').addEventListener('click', function (e) {
-      if (e.target === this) closeModal('changePasswordModal');
-    });
-  </script>
+  <!-- spiderweb.js defines webInit(); console.js defines RC_openConsole();
+       dashboard.js boots the page and calls webInit() after initShell resolves. -->
   <script src="js/spiderweb.js"></script>
-  <!-- spiderweb.js loads after router.js so Router is available for pushState -->
+  <script src="js/console.js"></script>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>

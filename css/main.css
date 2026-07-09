@@ -1,4 +1,12 @@
 /* ════════════════════════════════════════════════════════════════════════════
+   CASCADE LAYERS — declares the intended ordering so future rules can opt into
+   layers (@layer components { … }) with predictable precedence. Existing rules
+   below are intentionally left unlayered (unlayered styles win over any layer),
+   so this declaration is additive and changes nothing about current rendering.
+   ════════════════════════════════════════════════════════════════════════════ */
+@layer reset, tokens, base, components, utilities;
+
+/* ════════════════════════════════════════════════════════════════════════════
    SHARED DESIGN TOKENS — every colour, size, and timing value used across
    the portal lives here. Edit these vars; do not scatter magic numbers.
    ════════════════════════════════════════════════════════════════════════════ */
@@ -220,4 +228,29 @@ body {
 
 @media (max-width: 480px) {
   .logo-text { display: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ACCESSIBILITY & MOTION — additive global rules (kept unlayered so they are not
+   overridden by the unlayered component styles above).
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Visible keyboard focus for every interactive element. Mouse clicks don't
+   trigger :focus-visible, so this only shows for keyboard/AT navigation. */
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Honour the OS "reduce motion" setting. GSAP is handled separately in
+   spiderweb.js (_reducedMotion); this covers all CSS transitions/animations.
+   !important + unlayered so it wins over component styles. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
