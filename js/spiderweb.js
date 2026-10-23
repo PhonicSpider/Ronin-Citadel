@@ -13,31 +13,31 @@ const CFG = {
   sagFactor:      0.92,
   ringJitter: [1, 0.96, 1.03, 0.98, 1.02, 0.97, 1.01, 0.99, 1.0],
 
-  ambientColor:        '#8b150008',
+  ambientColor:        '#3a0c031a',
   ambientWidth:        80,
-  ambientRadiusFactor: 0.85,
+  ambientRadiusFactor: 0.80,
 
   glowBlur:     5,
   glowRingBlur: 3,
 
-  strandMainColor:   '#7a1200',
-  strandMainWidth:   1.5,
-  strandMainOpacity: 0.85,
+  strandMainColor:   '#ff2a003f',
+  strandMainWidth:   1.75,
+  strandMainOpacity: 0.95,
 
-  strandSecColor:     '#4a0800',
-  strandSecWidth:     1,
-  strandSecOpacity:   0.55,
+  strandSecColor:     '#d824003a',
+  strandSecWidth:     1.1,
+  strandSecOpacity:   0.7,
   strandSecStartRing: 2,
 
-  ringColorOuter:  '#8b1500',
-  ringColorInner:  '#6b0800',
-  ringWidthOuter:  1.5,
-  ringWidthInner:  1,
-  ringOpacityBase: 0.15,
-  ringOpacityRange: 0.6,
+  ringColorOuter:  '#ff1e004f',
+  ringColorInner:  '#ff1e0042',
+  ringWidthOuter:  1.75,
+  ringWidthInner:  1.1,
+  ringOpacityBase: 0.3,
+  ringOpacityRange: 0.65,
 
-  secSegOpacityFactor: 0.65,
-  secSegWidth:         0.8,
+  secSegOpacityFactor: 0.8,
+  secSegWidth:         0.9,
 
   nodeFill:         '#040c0d',
   nodeStrokeWidth:  2,
@@ -74,7 +74,7 @@ const CFG = {
   entranceRingDuration:   0.55,
   entranceRingEase:       'power2.out',
   entranceRingDelay:      0.05,
-  entranceStrandOpacity:  0.75,
+  entranceStrandOpacity:  0.95,
   entranceStrandDuration: 0.4,
   entranceStrandStagger:  0.04,
   entranceStrandDelay:    0.1,
@@ -425,7 +425,9 @@ function buildWeb(levelId) {
       const y1  = cy + Math.sin(a1) * radius;
       const x2  = cx + Math.cos(a2) * radius;
       const y2  = cy + Math.sin(a2) * radius;
-      const aMid = (a1 + a2) / 2;
+      // Midpoint along the SHORT arc. A plain average puts the control point on the
+      // opposite side of the web for the segment that wraps past ±180°.
+      const aMid = a1 + Math.atan2(Math.sin(a2 - a1), Math.cos(a2 - a1)) / 2;
       const cxP  = cx + Math.cos(aMid) * radius * CFG.sagFactor;
       const cyP  = cy + Math.sin(aMid) * radius * CFG.sagFactor;
 
