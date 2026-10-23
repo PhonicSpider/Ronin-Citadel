@@ -533,7 +533,8 @@
           return '/' + org.slug;
         }
       } catch {}
-      return '/';
+      // Signed in but no organization yet: send them to where one is created.
+      return '/dashboard/orgs';
     }
 
     // ── Step 1 submit ───────────────────────────────────────────────────────
