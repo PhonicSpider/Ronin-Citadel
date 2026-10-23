@@ -203,7 +203,7 @@ const LEVELS = {
     label: 'Servers',
     nodes: [
       { id: 'srv-portal', label: 'Portal',       angle: -108, desc: 'Register servers and manage agent tokens',    color: '#00e5ff' },
-      { id: '_srv-live',  label: 'Live Servers', angle:  -36, desc: 'RSM-connected servers (API integration TBD)', color: '#444444', isLeaf: true },
+      { id: '_srv-live',  label: 'Live Console', angle:  -36, desc: 'Stream live console output from a machine', color: '#00e5ff', isAction: true, apiAction: 'srv-console', action: 'Open live console', minRole: 'community_admin' },
       { id: '_srv-forge', label: 'Forge',        angle:   36, desc: 'Provision game servers via Ronin Forge',      color: '#888888', isLeaf: true, minRole: 'admin' },
       { id: '_srv-add',   label: 'Add Server',   angle:  108, desc: 'Register an existing RSM machine',            color: '#44aa55', isNav: true, href: 'servers.html' },
       { id: '_back',      label: '↩ Back',       angle:  180, desc: 'Return to main web',                          color: '#886644', isBack: true },
@@ -657,9 +657,11 @@ function navigateBack() {
 
 // ── Action dispatch ─────────────────────────────────────────────────────────────
 // Each isAction node carries an `apiAction`. Read-only / input-gathering actions
-// (firewall view/add/remove, status) open the dashboard's firewall panel; the only
-// destructive one-shot (RSM restart) routes through the confirm/deny panel. All
-// machine-level work flows through the portal relay (POST /api/agent/:id/command).
+// (firewall view/add/remove, status, live console) open the dashboard's panels;
+// the only destructive one-shot (RSM restart) routes through the confirm/deny
+// panel. Machine-level work flows through the portal relay
+// (POST /api/agent/:id/command); the console instead opens an SSE stream
+// (GET /api/agent/:id/stream) via console.js.
 function _dispatchAction(node) {
   const dash = window.RC_dashboard;
   if (!dash) { _toast('Dashboard controller not ready.', 'error'); return; }
@@ -671,6 +673,7 @@ function _dispatchAction(node) {
     case 'fw-add':      dash.openFirewall('add');           break;
     case 'rsm-status':  dash.rsmStatus();                   break;
     case 'rsm-restart': _confirmAction(node, () => dash.rsmRestart()); break;
+    case 'srv-console': dash.openConsole();                 break;
     default:            _toast(`Unknown action: ${node.apiAction}`, 'error');
   }
 }

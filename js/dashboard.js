@@ -339,8 +339,16 @@
     showToast(data.message || 'RSM is restarting…', 'success', 5000);
   }
 
+  // ── Live console ─────────────────────────────────────────────────────────────
+  async function openConsole() {
+    const machine = await ensureMachine();
+    if (!machine) return;
+    if (typeof window.RC_openConsole !== 'function') { showToast('Console unavailable.', 'error'); return; }
+    window.RC_openConsole(machine.id, machine.name);
+  }
+
   // Expose the controller for spiderweb.js's action dispatcher.
-  window.RC_dashboard = { ensureMachine, openFirewall, closeFirewall, refreshFirewall, rsmStatus, rsmRestart };
+  window.RC_dashboard = { ensureMachine, openFirewall, closeFirewall, refreshFirewall, rsmStatus, rsmRestart, openConsole };
 
   // ── Change-password modal ──────────────────────────────────────────────────────
   function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
