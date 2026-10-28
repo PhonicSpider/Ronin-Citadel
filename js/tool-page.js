@@ -9,6 +9,8 @@ const SLUG_TO_ID = {
   // Canonical single-segment live URLs (see Caddyfile @tools matcher)
   'disk-manager':       'disk',
   'server-manager':     'rsm',
+  'system-health':      'vitals',
+  'private':            'vitals',
   'firewall':           'portier',
   'forge':              'forge',
   'live-console':       'console',
@@ -19,12 +21,13 @@ const SLUG_TO_ID = {
   'remote-access':      'remote',
   // Legacy brand slugs — kept as aliases so old links still resolve
   'ronin-server-manager': 'rsm',
-  'ronin-portier':        'portier',
-  'ronin-disk-manager':   'disk',
-  'ronin-forge':          'forge',
-  'cpu-ram-monitor':      'monitor',
+  'ronin-private':      'vitals',
+  'ronin-portier':      'portier',
+  'ronin-disk-manager': 'disk',
+  'ronin-forge':        'forge',
+  'cpu-ram-monitor':    'monitor',
   // short IDs also accepted directly (used by the local ?id= preview)
-  'rsm': 'rsm', 'portier': 'portier', 'disk': 'disk', 'forge': 'forge',
+  'rsm': 'rsm', 'private': 'vitals', 'portier': 'portier', 'disk': 'disk', 'forge': 'forge',
   'console': 'console', 'monitor': 'monitor', 'roles': 'roles',
   '2fa': '2fa', 'team': 'team', 'remote': 'remote',
 };
@@ -43,7 +46,7 @@ document.title = tool.name + ' — Ronin Citadel';
 
 // ── Render navbar ────────────────────────────────────────────────────────────
 document.getElementById('navLogo').innerHTML =
-  `<span class="logo-icon">${SITE.logoIcon}</span><span class="logo-text">${SITE.logoText}</span>`;
+  `<img class="logo-icon" src="${SITE.logoIcon}" alt="Ronin Citadel Logo">`;
 document.getElementById('navTitle').textContent = SITE.navTitle;
 
 const navActionsEl = document.getElementById('navActions');

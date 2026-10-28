@@ -118,9 +118,14 @@ body {
   text-decoration: none;
 }
 
+/* .logo-icon is the <img> itself (see landing.js) and already contains the
+   "Ronin Citadel" wordmark, so it fills the navbar height with a small margin
+   and keeps its aspect ratio. */
 .logo-icon {
-  font-size: var(--font-xl);
-  line-height: 1;
+  display: block;
+  height: calc(var(--navbar-height) - var(--space-xs) * 2);
+  width: auto;
+  object-fit: contain;
 }
 
 .logo-text {

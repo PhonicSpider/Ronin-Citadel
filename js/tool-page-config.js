@@ -4,7 +4,7 @@
 
 // ── Shared site identity (used by the navbar on every tool page) ─────────────
 const SITE = {
-  logoIcon: '⛩',
+  logoIcon: '/images/screenshots/rclogo.webp',
   logoText: 'Ronin Citadel',
   navTitle: 'Ronin Empire',
   navLinks: [
@@ -62,6 +62,35 @@ const TOOLS = {
       { icon: '📁', title: 'Server Profiles', desc: 'Store startup commands, working directories, and environment variables per server. Launch with one click every time.' },
       // To attach a screenshot to a specific feature tile, add:
       // img: 'images/screenshots/rsm-profiles.jpg'
+    ],
+  },
+
+  // ── Ronin Vitals ─────────────────────────────────────────────────────────
+  vitals: {
+    id:       'private',
+    name:     'Ronin Vitals',
+    eyebrow:  'System Health',
+    tagline:  'Automatically diagnose system health and performance issues.',
+    icon:     '🩺',
+    type:     'app',
+    img:      'images/screenshots/vitals-home.png',
+    desc:     'Automatically diagnose system health and performance issues. Provides actionable insights and recommendations to keep your system running optimally.',
+    platform: 'Windows 10 / 11',
+    requires: 'Administrator (self-contained exe)',
+    version:  '1.0.0',
+    size:     '~25 MB',
+    download: '#',
+    github:   'https://github.com/PhonicSpider/Ronin-Vitals',
+    screenshots: [
+      { src: 'images/screenshots/vitals-home.png', caption: 'Overview of system health and performance diagnostics.', layout: 'full' },
+    ],
+    features: [
+      { icon: '🩺', title: 'Health Checks', desc: 'Perform comprehensive health checks on your system to identify potential issues.' },
+      { icon: '🛠', title: 'System Checks', desc: 'Run checks for parts of your system that aren\'t working correctly. Just choose the symptom that matches your issue and follow the guided steps.' },
+      { icon: '⚡', title: 'Performance Monitoring', desc: 'Monitor CPU, RAM, and disk usage in real time to ensure optimal performance.' },
+      { icon: '🤖', title: 'Automated Insights', desc: 'Receive actionable insights and recommendations based on system diagnostics.' },
+      { icon: '🛡', title: 'System Security', desc: 'Scan your system for suspicious files/folders. See what suspicious tasks are running on your system, and even check for apps or executables that may be malicious' },
+      { icon: '🧹', title: 'Debloating', desc: 'Easily remove unnecessary files and bloatware to keep your system clean and efficient.' },
     ],
   },
 

@@ -9,7 +9,7 @@
 const PAGE_CONFIG = {
 
   // ── Site identity ──────────────────────────────────────────────────────
-  logoIcon: '⛩',
+  logoIcon: '/images/screenshots/rclogo.webp',
   logoText: 'Ronin Citadel',
   navTitle: 'Ronin Empire',
 
@@ -25,6 +25,7 @@ const PAGE_CONFIG = {
     titleLine1:     'One dashboard.',
     titleHighlight: 'Every tool you need.',
     subtitle:       'Manage game servers, firewall rules, disk storage, and server provisioning from a single secure web interface. No need to RDP into your machine.',
+    subtitleHighlight: 'Don\'t have a game server? No worries, take care of your personal system with the separate apps that RSM is built on, such as Ronin Vitals for system health, Portier for port management, and Disk for storage analysis.',
     cta: [
       { label: 'Open Portal',   href: '/login',    style: 'primary' },
       { label: 'View Features', href: '#features',    style: 'ghost'   },
@@ -46,6 +47,7 @@ const PAGE_CONFIG = {
   featureList: [
     { label: 'Setup Guide',         card: 'setup'   },
     { label: 'Server Management',   card: 'rsm'     },
+    { label: 'System Health',       card: 'private' },
     { label: 'Firewall Control',    card: 'portier' },
     { label: 'Disk Analysis',       card: 'disk'    },
     { label: 'Server Provisioning', card: 'forge'   },
@@ -75,6 +77,16 @@ const PAGE_CONFIG = {
       desc:    'Start, stop, and restart game server processes with real-time CPU & RAM monitoring, live console output, and direct command input. Fully remote.',
       tags:    ['Process Control', 'Live Console', 'CPU / RAM', 'Multi-Server'],
       href:    '/server-manager',
+    },
+    {
+      id:      'private',
+      eyebrow: 'System Health',
+      title:   'Ronin Vitals',
+      icon:    '🩺',
+      // img:  'images/cards/self-diagnosing.jpg',
+      desc:    'Take care of your personal system with Ronin Vitals. Scan, monitor, secure, and optimize your system\'s health and performance effortlessly.',
+      tags:    ['Health Checks', 'Performance Monitoring', 'Automated Insights', 'System Checks', 'System Security', 'Debloating'],
+      href:    '/system-health',
     },
     {
       id:      'portier',

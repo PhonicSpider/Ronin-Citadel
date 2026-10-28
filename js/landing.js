@@ -4,7 +4,7 @@
 
 // ── Render navbar ────────────────────────────────────────────────────────────
 const navLogo = document.getElementById('navLogo');
-navLogo.innerHTML = `<span class="logo-icon">${PAGE_CONFIG.logoIcon}</span><span class="logo-text">${PAGE_CONFIG.logoText}</span>`;
+navLogo.innerHTML = `<img class="logo-icon" src="${PAGE_CONFIG.logoIcon}" alt="Ronin Citadel Logo">`;
 
 document.getElementById('navTitle').textContent = PAGE_CONFIG.navTitle;
 
@@ -26,6 +26,7 @@ document.getElementById('hero').innerHTML = `
     <span>${hero.titleHighlight}</span>
   </h1>
   <p class="hero-sub">${hero.subtitle}</p>
+  <p class="hero-sub-highlight">${hero.subtitleHighlight}</p>
   <div class="hero-actions">
     ${hero.cta.map(c => `<a href="${c.href}" class="btn btn-${c.style}">${c.label}</a>`).join('')}
   </div>

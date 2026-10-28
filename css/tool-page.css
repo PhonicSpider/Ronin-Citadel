@@ -157,6 +157,15 @@
     linear-gradient(155deg, #060912 0%, #020408 100%);
 }
 
+.tool-hero--private {
+  background:
+    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(255,255,255,0.008) 40px),
+    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(255,255,255,0.008) 40px),
+    radial-gradient(ellipse at 30% 30%, #3a1c1c 0%, transparent 52%),
+    radial-gradient(ellipse at 70% 70%, #1c0f0f 0%, transparent 52%),
+    linear-gradient(155deg, #0c0404 0%, #050202 100%);
+}
+
 .tool-hero--portier {
   background:
     repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(255,255,255,0.008) 40px),

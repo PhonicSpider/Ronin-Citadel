@@ -16,6 +16,7 @@
   /* ── Hero ── */
   --hero-title-size: 52px;
   --hero-sub-size:   17px;
+  --hero-sub-highlight-size: 15px;
   --hero-top-pad:    40px;
 
   /* ── Feature cards ── */
@@ -49,6 +50,18 @@
   display: grid;
   grid-template-columns: var(--sidebar-left-width) 1fr var(--sidebar-right-width);
   min-height: calc(100vh - 60px);
+}
+
+/* ── Navbar logo ─────────────────────────────────────────────────────────────
+   Centre the logo over the left sidebar column. The navbar has horizontal
+   padding, so pull the logo box back by that amount, then give it the
+   sidebar's width. Only when the sidebar is visible (it hides at 768px). */
+@media (min-width: 769px) {
+  .navbar .nav-logo {
+    width: var(--sidebar-left-width);
+    margin-left: calc(var(--navbar-pad-h) * -1);
+    justify-content: center;
+  }
 }
 
 /* ── Left sidebar ────────────────────────────────────────────────────────── */
@@ -202,13 +215,14 @@
     linear-gradient(155deg, #060912 0%, #020408 100%);
 }
 
+#card-private .card-img {
+  background-image: url('../images/screenshots/vitals-home.png');
+  background-position: center;
+}
+
 #card-portier .card-img {
-  background:
-    repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
-    repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(255,255,255,0.013) 40px),
-    radial-gradient(ellipse at 75% 22%, #4a0808 0%, transparent 52%),
-    radial-gradient(ellipse at 20% 75%, #280300 0%, transparent 52%),
-    linear-gradient(155deg, #0c0404 0%, #050202 100%);
+  background-image: url('../images/screenshots/portier-overview.png');
+  background-position: center;
 }
 
 #card-disk .card-img {
@@ -313,8 +327,8 @@
 }
 
 .card-eyebrow {
-  font-size: var(--font-xs);
-  font-weight: 700;
+  font-size: calc(var(--font-xs) * 2);
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--red-bright);
@@ -345,7 +359,7 @@
 }
 
 .card-desc {
-  font-size: 12.5px;
+  font-size: 15px;
   line-height: 1.55;
   color: rgba(195, 195, 205, 0.65);
   margin-bottom: 12px;
@@ -411,9 +425,17 @@
 
 .hero-sub {
   font-size: var(--hero-sub-size);
-  color: var(--text-dim);
+  color: var(--text);
   line-height: 1.65;
   max-width: 600px;
+  margin: 0 auto 26px;
+}
+
+.hero-sub-highlight {
+  font-size: var(--hero-sub-highlight-size);
+  color: var(--text-dim);
+  line-height: 1.65;
+  max-width: 800px;
   margin: 0 auto 26px;
 }
 
@@ -442,8 +464,9 @@
    RESPONSIVE — landing page
    ════════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
+  :root { --sidebar-left-width: 180px; }  /* navbar logo centring reads this too */
   .page-layout {
-    grid-template-columns: 180px 1fr;
+    grid-template-columns: var(--sidebar-left-width) 1fr;
   }
   .sidebar-right { display: none; }
 }
