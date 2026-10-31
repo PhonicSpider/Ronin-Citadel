@@ -76,8 +76,11 @@
       const data = await res.json();
       if (!res.ok || !Array.isArray(data.orgs)) return 'viewer';
 
-      const org = orgSlug
-        ? data.orgs.find(o => o.slug === orgSlug)
+      // /dashboard (and /dashboard/orgs, /dashboard/settings) are the generic portal
+      // addresses, not an organization. Without a real org slug, use the first org.
+      const wanted = orgSlug && orgSlug !== 'dashboard' ? orgSlug : null;
+      const org = wanted
+        ? data.orgs.find(o => o.slug === wanted)
         : data.orgs[0];
       if (org) {
         ctx.orgId = org.id;

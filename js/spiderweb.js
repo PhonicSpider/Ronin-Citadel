@@ -177,7 +177,7 @@ const LEVELS = {
   root: {
     label: 'Home',
     nodes: [
-      { id: 'orgs',     label: 'Organizations', angle: -90,  desc: 'Manage server groups and team members',   color: '#00e5ff', minRole: 'community_admin' },
+      { id: 'orgs',     label: 'Organizations', angle: -90,  desc: 'Manage server groups and team members',   color: '#00e5ff' },
       { id: 'servers',  label: 'Servers',        angle: -30,  desc: 'Manage and monitor your game servers' },
       { id: 'firewall', label: 'Firewall',       angle:  30,  desc: 'Windows Firewall port management via Portier', minRole: 'admin' },
       { id: 'storage',  label: 'Storage',        angle:  90,  desc: 'Disk usage analysis, duplicates, and safe file cleanup', minRole: 'admin' },
@@ -192,8 +192,8 @@ const LEVELS = {
     nodes: [
       { id: '_orgs-list',  label: 'My Orgs',    angle: -108, desc: 'View and manage your organizations',  color: '#00e5ff', isNav: true, href: 'orgs.html' },
       { id: '_orgs-new',   label: 'New Org',    angle:  -36, desc: 'Create a new organization',          color: '#00cc44', isNav: true, href: 'orgs.html' },
-      { id: '_orgs-inv',   label: 'Add Member', angle:   36, desc: 'Invite a user to your organization', color: '#00e5ff', isNav: true, href: 'orgs.html' },
-      { id: '_orgs-roles', label: 'Roles',      angle:  108, desc: 'Assign and manage member roles',     color: '#00e5ff', isNav: true, href: 'orgs.html' },
+      { id: '_orgs-inv',   label: 'Add Member', angle:   36, desc: 'Invite a user to your organization', color: '#00e5ff', isNav: true, href: 'orgs.html', minRole: 'admin' },
+      { id: '_orgs-roles', label: 'Roles',      angle:  108, desc: 'Assign and manage member roles',     color: '#00e5ff', isNav: true, href: 'orgs.html', minRole: 'admin' },
       { id: '_back',       label: '↩ Back',     angle:  180, desc: 'Return to main web',                 color: '#886644', isBack: true },
     ],
   },
