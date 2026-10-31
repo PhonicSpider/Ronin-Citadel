@@ -364,7 +364,7 @@
 
     if (!current || !newPwd || !confirm) { errEl.textContent = 'All fields are required.'; errEl.classList.add('visible'); return; }
     if (newPwd !== confirm)              { errEl.textContent = 'New passwords do not match.'; errEl.classList.add('visible'); return; }
-    if (newPwd.length < 8)               { errEl.textContent = 'New password must be at least 8 characters.'; errEl.classList.add('visible'); return; }
+    if (newPwd.length < 12)              { errEl.textContent = 'New password must be at least 12 characters.'; errEl.classList.add('visible'); return; }
 
     btn.disabled = true; btn.textContent = 'Saving…';
 

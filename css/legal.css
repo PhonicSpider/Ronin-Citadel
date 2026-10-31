@@ -1,0 +1,56 @@
+/* Shared by the legal pages: /cookies, /privacy, /terms. */
+html, body { height: 100%; }
+body { display: flex; flex-direction: column; min-height: 100vh; }
+
+.doc-body {
+  flex: 1;
+  padding: var(--space-xl) var(--space-md);
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(139,21,0,0.07) 0%, transparent 70%),
+    var(--bg);
+}
+
+.doc {
+  max-width: 760px;
+  margin: 0 auto;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--red-bright);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  color: var(--text-dim);
+  font-size: var(--font-base);
+  line-height: 1.65;
+}
+
+.doc h1 { font-size: var(--font-xl); color: var(--text); margin-bottom: var(--space-xs); }
+.doc h2 { font-size: var(--font-lg, 1.1rem); color: var(--text); margin: var(--space-xl) 0 var(--space-sm); }
+.doc p  { margin-bottom: var(--space-sm); }
+.doc .updated { font-size: var(--font-xs); color: var(--text-muted); margin-bottom: var(--space-md); }
+.doc a  { color: var(--cyan); text-decoration: underline; text-underline-offset: 2px; }
+.doc code { font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 0.9em; color: var(--text); }
+
+.table-wrap { overflow-x: auto; margin: var(--space-sm) 0 var(--space-md); }
+.doc table { width: 100%; border-collapse: collapse; font-size: var(--font-sm); }
+.doc th, .doc td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.doc th {
+  font-size: var(--font-xs); text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-dim); border-bottom: 1px solid var(--border-2);
+}
+
+.page-footer { padding: var(--space-md); text-align: center; font-size: var(--font-xs); color: var(--text-muted); border-top: 1px solid var(--border); }
+.page-footer a { color: var(--text-dim); }
+.linkish { background: none; border: 0; padding: 0; font: inherit; color: var(--text-dim); text-decoration: underline; cursor: pointer; }
+
+.doc .draft-banner {
+  margin-bottom: var(--space-md);
+  padding: 10px 14px;
+  border: 1px solid rgba(200, 140, 0, 0.5);
+  background: rgba(200, 140, 0, 0.1);
+  border-radius: var(--radius-md);
+  color: #e6a817;
+  font-size: var(--font-sm);
+}
+.doc ul { margin: 0 0 var(--space-sm) 1.2em; }
+.doc li { margin-bottom: 4px; }
+.doc [data-unset] { background: rgba(200, 140, 0, 0.25); color: #e6a817; padding: 0 4px; border-radius: 3px; }

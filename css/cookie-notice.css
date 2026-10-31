@@ -1,0 +1,93 @@
+/* Cookie consent (js/cookie-notice.js). No animation, so nothing to gate on
+   prefers-reduced-motion and nothing competing with GSAP. */
+
+.cookie-notice {
+  position: fixed;
+  left: var(--space-md);
+  right: var(--space-md);
+  bottom: var(--space-md);
+  z-index: 400; /* above the navbar and sidebar, below modal dialogs (500) */
+  max-width: 720px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-2);
+  border: 1px solid var(--border-2);
+  border-top: 2px solid var(--red-bright);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  color: var(--text-dim);
+
+  & .cookie-notice-text { margin: 0; flex: 1; }
+  & a { color: var(--cyan); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+  & .cookie-notice-actions { display: flex; flex-wrap: wrap; gap: 8px; flex: none; }
+}
+
+/* Reject and Accept look the same on purpose: declining must be as easy as accepting. */
+.cookie-btn {
+  padding: 8px 16px;
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover { border-color: var(--text-dim); }
+
+  &.cookie-btn-link { background: none; border-color: transparent; color: var(--cyan); text-decoration: underline; text-underline-offset: 2px; }
+  &.cookie-btn-primary { background: var(--red); border-color: var(--red); }
+  &.cookie-btn-primary:hover { background: var(--red-bright); }
+}
+
+.cookie-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.cookie-dialog {
+  width: 100%;
+  max-width: 520px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: var(--space-xl);
+  background: var(--bg-2);
+  border: 1px solid var(--border-2);
+  border-top: 2px solid var(--red-bright);
+  border-radius: var(--radius-lg);
+  color: var(--text-dim);
+  font-size: var(--font-sm);
+  line-height: 1.55;
+
+  & .cookie-dialog-title { font-size: var(--font-xl); color: var(--text); margin-bottom: var(--space-sm); }
+  & .cookie-dialog-intro { margin-bottom: var(--space-md); }
+  & .cookie-rows { display: flex; flex-direction: column; gap: var(--space-md); margin-bottom: var(--space-md); }
+  & .cookie-row { padding-bottom: var(--space-md); border-bottom: 1px solid var(--border); }
+  & .cookie-row:last-child { border-bottom: none; padding-bottom: 0; }
+  & .cookie-row p { margin: 4px 0 0; }
+  & .cookie-row-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); color: var(--text); }
+  & .cookie-row-state { font-size: var(--font-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  & .cookie-row-note { font-size: var(--font-xs); color: #e6a817; }
+  & .cookie-switch { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; cursor: pointer; }
+  & .cookie-switch input { width: 18px; height: 18px; accent-color: var(--red); }
+  & .cookie-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: var(--space-md); }
+  & .cookie-dialog-foot { font-size: var(--font-xs); color: var(--text-muted); margin: 0; }
+  & a { color: var(--cyan); text-decoration: underline; text-underline-offset: 2px; }
+}
+
+@media (max-width: 640px) {
+  .cookie-notice { flex-direction: column; align-items: stretch; }
+  .cookie-notice .cookie-notice-actions { flex-direction: column; }
+  .cookie-notice .cookie-btn { text-align: center; }
+}

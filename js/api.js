@@ -46,17 +46,36 @@ const RC = (() => {
     } catch { return false; }
   }
 
-  async function refresh() {
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/refresh`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      if (!res.ok) return null;
-      const data = await res.json();
-      setSession(data.accessToken, data.user);
-      return data;
-    } catch { return null; }
+  // One refresh at a time per page: several calls that hit a 401 together share
+  // the same request instead of each rotating the session cookie.
+  let _refreshing = null;
+
+  function refresh() {
+    if (!_refreshing) {
+      _refreshing = (async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include',
+          });
+          if (!res.ok) return null;
+          const data = await res.json();
+          setSession(data.accessToken, data.user);
+          return data;
+        } catch { return null; }
+      })().finally(() => { _refreshing = null; });
+    }
+    return _refreshing;
+  }
+
+  // The server ended this session (signed out from another device, password
+  // changed, idle too long, or revoked as a precaution). Drop local state and go
+  // to sign-in with an explanation instead of leaving a half-working page.
+  function sessionEnded() {
+    clearSession();
+    if (DEV_MODE) return;
+    const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = '/login?reason=ended&redirect=' + redirect;
   }
 
   // Synthetic response for when the backend is unreachable.
@@ -86,9 +105,12 @@ const RC = (() => {
       });
     } catch { return _netErr(); }
 
-    if (res.status === 401) {
+    // Only a 401 that says the credential is the problem is worth a refresh. Any
+    // other 401 (e.g. "current password is incorrect") is a real answer, and
+    // retrying it would submit the request twice.
+    if (res.status === 401 && ['auth_required', 'session_ended'].includes((await res.clone().json().catch(() => null))?.code)) {
       const refreshed = await refresh();
-      if (!refreshed) return res;
+      if (!refreshed) { sessionEnded(); return res; }
       try {
         res = await fetch(`${API_BASE}${path}`, {
           ...options,

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ronin Citadel is a web portal for managing your game servers, firewall rules and team from anywhere, with no inbound ports to open.">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
@@ -68,11 +69,11 @@
     // If the visitor already has a live session, swap the CTAs so they don't
     // see "Sign Up / Open Portal" — instead give them direct portal nav links.
     (function () {
+      // Display hint only: the access token lives in memory and cannot be read
+      // here, so use the non-secret user record that api.js keeps in sessionStorage.
+      // The dashboard still verifies the real session before showing anything.
       try {
-        const raw = sessionStorage.getItem('rc_access_token');
-        if (!raw) return;
-        const payload = JSON.parse(atob(raw.split('.')[1]));
-        if (payload.exp * 1000 < Date.now() + 10_000) return;
+        if (!JSON.parse(sessionStorage.getItem('rc_user'))?.username) return;
       } catch { return; }
 
       // Replace navbar action buttons
@@ -88,5 +89,14 @@
       }
     })();
   </script>
+  <footer class="site-footer">
+    <div class="site-footer-links">
+      Ronin Citadel · Ronin Empire &nbsp;·&nbsp; <a href="/terms">Terms</a> &nbsp;·&nbsp; <a href="/privacy">Privacy</a> &nbsp;·&nbsp; <a href="/cookies">Cookies</a> &nbsp;·&nbsp; <button type="button" class="footer-link" data-cookie-settings>Cookie settings</button>
+    </div>
+    <div class="site-footer-note">
+      Game names, logos, images and other marks are the property of their respective owners and are used only to identify the games the service works with. Ronin Citadel is not affiliated with or endorsed by them.
+    </div>
+  </footer>
+  <script src="/js/cookie-notice.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Which cookies and browser storage Ronin Citadel uses, what each is for, and how long it lasts.">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080808">
+  <title>Ronin Citadel — Cookie Policy</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/legal.css">
+</head>
+<body>
+
+  <div class="top-accent-bar"></div>
+
+  <nav class="navbar">
+    <a href="/" class="nav-logo">
+      <img class="logo-icon" src="/images/screenshots/rclogo.webp" alt="Ronin Citadel Logo">
+    </a>
+    <div class="nav-center">
+      <span class="nav-title">Ronin Empire</span>
+    </div>
+    <div class="nav-actions">
+      <a href="/login" class="btn btn-ghost">Sign In</a>
+    </div>
+  </nav>
+
+  <main class="doc-body">
+    <article class="doc">
+      <h1>Cookie policy</h1>
+      <p class="updated">Last updated: 29 October 2026</p>
+
+      <p>
+        Ronin Citadel uses a single cookie, and only after you sign in. It keeps you signed in.
+        We do not use advertising cookies, analytics cookies, or any tracker that follows you to other sites.
+      </p>
+
+      <h2>Cookies we set</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Name</th><th scope="col">What it is for</th><th scope="col">How long</th><th scope="col">Type</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>__Secure-rc_session</code></td>
+              <td>
+                Proves that your browser owns your signed-in session so the site can renew your access without asking for
+                your password again. It cannot be read by page scripts (HttpOnly), is only sent to this site (SameSite=Strict),
+                and only over HTTPS. It is deleted when you sign out.
+              </td>
+              <td>Renewed each time you use the site. Ends after 7 days without use, and at most 30 days after you signed in.</td>
+              <td>Strictly necessary</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Cookies that are strictly necessary to provide something you asked for, such as staying signed in, do not need
+        your consent, so we do not ask you to agree to it.
+      </p>
+
+      <h2>Browser storage (not cookies)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Name</th><th scope="col">What it is for</th><th scope="col">How long</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>rc_user</code> (sessionStorage)</td>
+              <td>Your username and email, so pages can show your name without asking the server again. Contains no password or token.</td>
+              <td>Until you close the tab or sign out</td>
+            </tr>
+            <tr>
+              <td><code>rc_consent</code> (localStorage)</td>
+              <td>Remembers your cookie choices so the notice does not appear on every page.</td>
+              <td>12 months, or until you clear site data</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Your sign-in token for the current page is kept only in the page's memory and is gone when you leave the page.</p>
+
+      <h2>Other companies</h2>
+      <p>
+        Every script, style and image on this site is served from the site itself. Your browser does not contact any
+        other company's server to load a page. The site does sit behind Cloudflare, which protects it from attacks and may set
+        its own security cookie (for example <code>__cf_bm</code>) to tell real visitors from bots. That cookie is strictly
+        necessary for the same reason. See the <a href="/privacy">Privacy Policy</a> for how we handle personal data.
+      </p>
+
+      <h2>Controlling cookies</h2>
+      <p>
+        You can delete or block cookies in your browser settings. If you block the sign-in cookie you will not be able to
+        stay signed in. You can see every browser and device signed in to your account, and sign any of them out, under
+        Settings &rarr; Where you're signed in.
+      </p>
+
+      <h2>Optional cookies: analytics and advertising</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Category</th><th scope="col">Status today</th><th scope="col">What it would be for</th></tr></thead>
+          <tbody>
+            <tr><td>Analytics</td><td>Not in use</td><td>Anonymous statistics about how the portal is used, to improve it.</td></tr>
+            <tr><td>Advertising</td><td>Not in use</td><td>Showing and measuring ads, which may involve cookies set by advertising partners.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        You can say yes or no to each category now, using the notice on first visit or
+        <button class="linkish" type="button" data-cookie-settings>Cookie settings</button> in the footer. Your choice is stored in
+        your browser for 12 months and then we ask again. Nothing optional runs unless you said yes, so today your choice has no
+        effect, but it will apply from the first day we add either category. You can change your mind at any time.
+      </p>
+      <p>
+        If your browser sends the Global Privacy Control signal, advertising stays off and cannot be switched on here.
+      </p>
+      <p>
+        Before we add any optional cookie we will update this page and the <a href="/privacy">Privacy Policy</a> to name the
+        provider, what it collects and for how long.
+      </p>
+    </article>
+  </main>
+
+  <footer class="page-footer">
+    Ronin Citadel · Ronin Empire &nbsp;·&nbsp; <a href="/terms">Terms</a> &nbsp;·&nbsp; <a href="/privacy">Privacy</a> &nbsp;·&nbsp; <button class="linkish" type="button" data-cookie-settings>Cookie settings</button>
+  </footer>
+
+  <script src="/js/cookie-notice.js" defer></script>
+</body>
+</html>

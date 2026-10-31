@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
@@ -335,6 +336,7 @@
   let _orgs         = [];
   let _selectedOrg  = null;
   let _currentUser  = null;
+  let _invitations  = [];
 
   initShell('orgs', async function (user, orgSlug) {
     if (orgSlug) {
@@ -430,14 +432,14 @@
            <div class="danger-zone-title">Danger Zone</div>
            <div class="danger-row">
              <div class="danger-desc">Permanently delete this organization and all its servers.</div>
-             <button class="btn-danger" onclick="openDeleteOrgModal('${id}','${escHtml(name)}')">Delete Organization</button>
+             <button class="btn-danger" data-act="delete-org">Delete Organization</button>
            </div>
          </div>`
       : `<div class="danger-zone">
            <div class="danger-zone-title">Danger Zone</div>
            <div class="danger-row">
              <div class="danger-desc">Remove yourself from this organization.</div>
-             <button class="btn-danger" onclick="leaveOrg('${id}','${escHtml(name)}')">Leave Organization</button>
+             <button class="btn-danger" data-act="leave-org">Leave Organization</button>
            </div>
          </div>`;
 
@@ -488,7 +490,7 @@
         <span class="role-badge ${m.role}">${roleLabel(m.role)}</span>
         ${showRole
           ? `<button class="btn-icon" title="Change to ${nextRole}"
-                     onclick="changeRole('${orgId}','${m.user_id}','${escHtml(m.username)}','${nextRole}')"
+                     data-act="change-role" data-user-id="${escHtml(m.user_id)}" data-next-role="${nextRole}"
                      style="font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid var(--border-2);
                             background:transparent;color:var(--text-dim);cursor:pointer;font-family:inherit;">
                ${nextRole}
@@ -496,7 +498,7 @@
           : ''}
         ${showRemove
           ? `<button class="btn-icon" title="Remove member"
-                     onclick="removeMember('${orgId}','${m.user_id}','${escHtml(m.username)}')">&#x2715;</button>`
+                     data-act="remove-member" data-user-id="${escHtml(m.user_id)}">&#x2715;</button>`
           : '<span style="width:24px;"></span>'}
       </div>`;
   }
@@ -648,6 +650,7 @@
       return;
     }
 
+    _invitations = data.invitations;
     el.innerHTML = data.invitations.map(inv => `
       <div class="member-row" style="justify-content:space-between;">
         <div style="flex:1;min-width:0;">
@@ -659,7 +662,7 @@
           </div>
         </div>
         <button class="btn-icon" title="Cancel invitation"
-                onclick="cancelInvitation('${escHtml(orgId)}','${escHtml(inv.id)}','${escHtml(inv.email)}')">✕</button>
+                data-act="cancel-invite" data-invite-id="${escHtml(inv.id)}">✕</button>
       </div>`
     ).join('');
   }
@@ -758,7 +761,7 @@
   // ── Leave org ──────────────────────────────────────────────────────────────
   async function leaveOrg(orgId, name) {
     openConfirmModal(
-      `Leave "${escHtml(name)}"?`,
+      `Leave "${name}"?`,
       'You will lose access to all servers in this organization.',
       'Leave Organization',
       async () => {
@@ -809,6 +812,38 @@
   function roleLabel(role) {
     return escHtml(String(role ?? '').replace(/_/g, ' '));
   }
+
+  // Buttons rendered into the org detail carry only ids in data-* attributes.
+  // Names and emails are looked up from state here, never spliced into inline
+  // JS: HTML-escaping stops protecting a value once it sits inside onclick="…",
+  // because the browser decodes &#39; back to ' before running the handler.
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-act]');
+    if (!btn || !_selectedOrg) return;
+    const org = _selectedOrg;
+    const member = () => org.members.find(m => m.user_id === btn.dataset.userId);
+
+    switch (btn.dataset.act) {
+      case 'delete-org': openDeleteOrgModal(org.id, org.name); break;
+      case 'leave-org':  leaveOrg(org.id, org.name); break;
+      case 'change-role': {
+        const m = member();
+        if (m) changeRole(org.id, m.user_id, m.username, btn.dataset.nextRole);
+        break;
+      }
+      case 'remove-member': {
+        const m = member();
+        if (m) removeMember(org.id, m.user_id, m.username);
+        break;
+      }
+      case 'cancel-invite': {
+        const inv = _invitations.find(i => i.id === btn.dataset.inviteId);
+        if (inv) cancelInvitation(org.id, inv.id, inv.email);
+        break;
+      }
+    }
+  });
 </script>
+  <script src="/js/cookie-notice.js" defer></script>
 </body>
 </html>

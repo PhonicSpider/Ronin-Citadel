@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create a free Ronin Citadel account to manage your game servers from anywhere.">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
@@ -128,6 +129,19 @@
     .form-input.error {
       border-color: var(--red-bright);
       box-shadow: 0 0 0 2px rgba(204, 34, 0, 0.2);
+    }
+
+    .terms-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: var(--font-sm);
+      line-height: 1.5;
+      color: var(--text-dim);
+      cursor: pointer;
+
+      & input { margin-top: 3px; accent-color: var(--red); flex: none; }
+      & a { color: var(--cyan); }
     }
 
     .form-hint {
@@ -270,7 +284,7 @@
     <div class="auth-card">
 
       <div class="auth-card-header">
-        <div class="auth-card-title">Create Account</div>
+        <div class="auth-card-title" role="heading" aria-level="1">Create Account</div>
         <div class="auth-card-sub">Join the Ronin Empire portal</div>
       </div>
 
@@ -346,6 +360,31 @@
           <span class="form-error" id="confirmError"></span>
         </div>
 
+        <div class="form-group">
+          <label class="form-label" for="dateOfBirth">Date of Birth</label>
+          <input
+            class="form-input"
+            type="date"
+            id="dateOfBirth"
+            name="dateOfBirth"
+            autocomplete="bday"
+            style="color-scheme: dark;"
+          >
+          <span class="form-hint">
+            You must be at least 16. We use it to confirm your age and for anonymous statistics. It cannot be changed later.
+          </span>
+          <span class="form-error" id="dobError"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="terms-check">
+            <input type="checkbox" id="acceptTerms" name="acceptTerms">
+            <span>I am at least 16 and I agree to the <a href="/terms" target="_blank" rel="noopener">Terms of Service</a>
+              and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+          </label>
+          <span class="form-error" id="termsError"></span>
+        </div>
+
         <button type="submit" class="btn-auth" id="submitBtn">Create Account</button>
 
       </form>
@@ -358,7 +397,7 @@
   </div>
 
   <footer class="page-footer">
-    Ronin Citadel · Ronin Empire &nbsp;·&nbsp; Self-hosted portal
+    Ronin Citadel · Ronin Empire &nbsp;·&nbsp; Self-hosted portal &nbsp;·&nbsp; <a href="/terms">Terms</a> &nbsp;·&nbsp; <a href="/privacy">Privacy</a> &nbsp;·&nbsp; <a href="/cookies">Cookies</a> &nbsp;·&nbsp; <button type="button" class="footer-link" data-cookie-settings>Cookie settings</button>
   </footer>
 
   <script src="/js/api.js"></script>
@@ -415,6 +454,8 @@
     }
 
     function clearErrors() {
+      document.getElementById('termsError').classList.remove('visible');
+      document.getElementById('dobError').classList.remove('visible');
       ['username', 'email', 'password', 'confirm'].forEach(id => {
         const errEl = document.getElementById(id + 'Error') ||
                       document.getElementById('confirmError');
@@ -437,6 +478,25 @@
       const password = document.getElementById('password').value;
       const confirm  = document.getElementById('confirmPassword').value;
 
+      const dob = document.getElementById('dateOfBirth').value;
+      if (!dob) {
+        setError('dateOfBirth', 'dobError', 'Date of birth is required.');
+        ok = false;
+      } else {
+        const [y, m, d] = dob.split('-').map(Number);
+        const now = new Date();
+        const turns16 = new Date(y + 16, m - 1, d);
+        if (turns16 > new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+          setError('dateOfBirth', 'dobError', 'You must be at least 16 years old to create an account.');
+          ok = false;
+        }
+      }
+
+      if (!document.getElementById('acceptTerms').checked) {
+        setError('acceptTerms', 'termsError', 'You must accept the Terms of Service and Privacy Policy.');
+        ok = false;
+      }
+
       if (!username) {
         setError('username', 'usernameError', 'Username is required.');
         ok = false;
@@ -456,8 +516,8 @@
       if (!password) {
         setError('password', 'passwordError', 'Password is required.');
         ok = false;
-      } else if (password.length < 8) {
-        setError('password', 'passwordError', 'Password must be at least 8 characters.');
+      } else if (password.length < 12) {
+        setError('password', 'passwordError', 'Password must be at least 12 characters.');
         ok = false;
       }
 
@@ -485,7 +545,7 @@
       fetch(`${RC.API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, email, password, acceptTerms: true, dateOfBirth: document.getElementById('dateOfBirth').value }),
       })
         .then(async res => {
           const data = await res.json();
@@ -506,16 +566,19 @@
         });
     });
 
+    document.getElementById('acceptTerms').addEventListener('change', () => document.getElementById('termsError').classList.remove('visible'));
+
     // Clear field errors on input
-    ['username', 'email', 'password', 'confirmPassword'].forEach(id => {
+    ['username', 'email', 'password', 'confirmPassword', 'dateOfBirth'].forEach(id => {
       document.getElementById(id).addEventListener('input', () => {
         document.getElementById(id).classList.remove('error');
-        const errId = id === 'confirmPassword' ? 'confirmError' : id + 'Error';
+        const errId = id === 'confirmPassword' ? 'confirmError' : id === 'dateOfBirth' ? 'dobError' : id + 'Error';
         const err = document.getElementById(errId);
         if (err) err.classList.remove('visible');
       });
     });
   </script>
 
+  <script src="/js/cookie-notice.js" defer></script>
 </body>
 </html>

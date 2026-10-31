@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#080808">
+  <title>Ronin Citadel — Staff</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/portal.css">
+  <link rel="stylesheet" href="/css/staff-charts.css">
+  <style>
+    .st-wrap { width: 100%; max-width: 1100px; }
+
+    .st-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--space-lg); border-bottom: 1px solid var(--border); }
+    .st-tab {
+      background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 14px; margin-bottom: -1px;
+      color: var(--text-dim); font: inherit; font-weight: 700; cursor: pointer;
+
+      &:hover { color: var(--text); }
+      &[aria-selected="true"] { color: var(--text); border-bottom-color: var(--red-bright); }
+    }
+
+    .st-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-md); }
+    .st-stat { padding: var(--space-md); background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .st-stat-n { font-size: var(--font-2xl, 1.8rem); font-weight: 700; color: var(--text); }
+    .st-stat-l { font-size: var(--font-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); }
+
+    .st-bar { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: var(--space-md); }
+    .st-search { display: flex; gap: 10px; margin-bottom: var(--space-md); }
+    .st-search .field-input { flex: 1; }
+
+    .st-table-wrap { overflow-x: auto; }
+    .st-table { width: 100%; border-collapse: collapse; font-size: var(--font-sm); }
+    .st-table th, .st-table td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .st-table th { font-size: var(--font-xs); text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); white-space: nowrap; }
+    .st-table tbody tr[data-open] { cursor: pointer; }
+    .st-table tbody tr[data-open]:hover { background: color-mix(in srgb, var(--bg-card) 80%, white); }
+
+    .st-detail { margin-top: var(--space-lg); }
+    .st-detail h3 { font-size: var(--font-md, 1rem); color: var(--text); margin: var(--space-lg) 0 var(--space-sm); }
+    .st-detail h3:first-child { margin-top: 0; }
+    .st-meta { color: var(--text-dim); font-size: var(--font-sm); margin-bottom: var(--space-sm); }
+    .st-empty { color: var(--text-muted); font-size: var(--font-sm); }
+
+    .st-pill {
+      display: inline-block; font-size: var(--font-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 1px 7px; margin: 0 4px 2px 0; border-radius: var(--radius-md); border: 1px solid var(--border-2); color: var(--text-dim);
+    }
+    .st-pill.owner  { color: var(--red-bright); border-color: var(--red-bright); }
+    .st-pill.role   { color: var(--cyan); border-color: color-mix(in srgb, var(--cyan) 50%, transparent); }
+    .st-pill.low    { color: #44dd88; border-color: rgba(0, 170, 68, 0.5); }
+    .st-pill.medium { color: #e6a817; border-color: rgba(230, 168, 23, 0.5); }
+    .st-pill.high   { color: #ff6655; border-color: var(--red); }
+
+    .st-note { padding: 10px 14px; border-radius: var(--radius-md); margin-bottom: var(--space-md); font-size: var(--font-sm); }
+
+    /* Permission lists (role detail, role editor, assignment dialog) */
+    .st-perm-group { margin-bottom: var(--space-md); }
+    .st-perm-group-name { font-size: var(--font-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); margin-bottom: 6px; }
+    .st-check { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; cursor: pointer; font-size: var(--font-sm); line-height: 1.45; }
+    .st-check input { margin-top: 3px; accent-color: var(--red); flex: none; }
+    .st-check[data-locked] { opacity: 0.55; cursor: not-allowed; }
+    .st-check b { color: var(--text); }
+    .st-check small { display: block; color: var(--text-muted); }
+    .st-scroll { max-height: 46vh; overflow-y: auto; padding-right: 6px; margin-bottom: var(--space-md); }
+    .st-modal-wide { max-width: 560px; }
+  </style>
+</head>
+<body>
+<div class="dash-layout">
+  <div class="sidebar-overlay"></div>
+
+  <aside class="dash-sidebar">
+    <a href="/" class="sidebar-logo" style="text-decoration:none; color:inherit;">
+      <img class="logo-icon" src="/images/screenshots/rclogo.webp" alt="Ronin Citadel Logo">
+    </a>
+
+    <div class="sb-section">
+      <div class="sb-label">Portal</div>
+      <nav class="side-nav">
+        <a href="/dashboard" class="side-nav-item" data-nav="dashboard">⛩ Dashboard</a>
+        <a href="/dashboard/orgs" class="side-nav-item" data-nav="orgs">⊞ Organizations</a>
+        <a href="/dashboard/settings" class="side-nav-item" data-nav="settings">◎ Account</a>
+        <a href="/staff" class="side-nav-item" data-nav="staff">★ Staff</a>
+      </nav>
+    </div>
+
+    <div class="sb-footer">
+      <a href="#" class="logout-btn">↩ Logout</a>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <div class="dash-topbar">
+      <button class="sb-toggle" aria-label="Toggle menu">☰</button>
+      <div class="breadcrumb">
+        <span class="crumb active">Staff</span>
+      </div>
+      <div class="topbar-user">
+        <span class="user-name"></span>
+        <div class="user-avatar"></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="st-wrap">
+
+        <div id="stNote" class="st-note alert" hidden></div>
+
+        <!-- Claim the owner account (only reachable with ?claim=1 while unclaimed) -->
+        <div class="section-card" id="claimCard" hidden>
+          <div class="section-title" style="margin-bottom:4px;">Claim the platform owner account</div>
+          <div class="section-sub" style="margin-bottom:var(--space-md);">
+            Paste the one-time secret from the <code>ROOT_CLAIM_TOKEN</code> setting. Your account needs two-factor authentication on.
+            This works once, while nobody holds the owner account. Afterwards delete the setting.
+          </div>
+          <div class="field">
+            <label class="field-label" for="claimToken">Claim secret</label>
+            <input class="field-input" type="password" id="claimToken" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="modal-actions" style="margin-top:var(--space-md);">
+            <button class="btn btn-primary" id="claimBtn" type="button">Claim owner account</button>
+          </div>
+        </div>
+
+        <div id="staffArea" hidden>
+          <div class="st-tabs" role="tablist" aria-label="Staff sections" id="stTabs"></div>
+
+          <section id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" hidden class="sc-root">
+            <div class="sc-filters">
+              <div class="sc-seg" role="group" aria-label="Time range" id="dashRange">
+                <button type="button" data-days="7"   aria-pressed="false">7 days</button>
+                <button type="button" data-days="30"  aria-pressed="true">30 days</button>
+                <button type="button" data-days="90"  aria-pressed="false">90 days</button>
+                <button type="button" data-days="180" aria-pressed="false">180 days</button>
+              </div>
+              <span class="sc-updated" id="dashUpdated"></span>
+            </div>
+            <div class="sc-grid-area" id="dashArea" aria-live="polite"></div>
+          </section>
+
+          <section id="panel-reports" role="tabpanel" aria-labelledby="tab-reports" hidden>
+            <div class="section-card" id="reportForm" hidden style="margin-bottom:var(--space-lg);">
+              <div class="section-title" style="margin-bottom:4px;">Request a report</div>
+              <div class="section-sub" id="reportHint" style="margin-bottom:var(--space-md);">Choose a report.</div>
+              <div class="field">
+                <label class="field-label" for="reportType">Report</label>
+                <select class="field-input" id="reportType"></select>
+              </div>
+              <div id="reportRange" style="display:flex; gap:var(--space-md); flex-wrap:wrap;">
+                <div class="field" style="flex:1; min-width:150px;">
+                  <label class="field-label" for="reportFrom">From</label>
+                  <input class="field-input" type="date" id="reportFrom" style="color-scheme:dark;">
+                </div>
+                <div class="field" style="flex:1; min-width:150px;">
+                  <label class="field-label" for="reportTo">To</label>
+                  <input class="field-input" type="date" id="reportTo" style="color-scheme:dark;">
+                </div>
+              </div>
+              <div class="field" id="reportReasonWrap" hidden>
+                <label class="field-label" for="reportReason">Why do you need it? (the approver reads this)</label>
+                <textarea class="field-input" id="reportReason" rows="2" maxlength="500"></textarea>
+              </div>
+              <div id="reportAlert" class="alert alert-error" style="display:none; margin-bottom:var(--space-md);"></div>
+              <div class="modal-actions">
+                <button class="btn btn-primary" id="reportSubmit" type="button">Request report</button>
+              </div>
+            </div>
+
+            <div class="st-bar">
+              <div class="sc-seg" role="group" aria-label="Which requests" id="reportScope">
+                <button type="button" data-scope="mine" aria-pressed="true">My requests</button>
+                <button type="button" data-scope="pending" aria-pressed="false" id="scopePending" hidden>Waiting for approval</button>
+                <button type="button" data-scope="all" aria-pressed="false" id="scopeAll" hidden>All requests</button>
+              </div>
+            </div>
+            <div class="st-table-wrap"><table class="st-table">
+              <thead><tr><th>Report</th><th>Period</th><th>Requested by</th><th>Status</th><th>When</th><th></th></tr></thead>
+              <tbody id="reportRows"></tbody>
+            </table></div>
+            <div class="st-detail" id="reportDetail" aria-live="polite"></div>
+          </section>
+
+          <section id="panel-orgs" role="tabpanel" aria-labelledby="tab-orgs" hidden>
+            <form class="st-search" data-search="orgs">
+              <input class="field-input" type="search" id="orgQ" placeholder="Search organizations by name or URL name" aria-label="Search organizations">
+              <button class="btn btn-ghost" type="submit">Search</button>
+            </form>
+            <div class="st-table-wrap"><table class="st-table">
+              <thead><tr><th>Name</th><th>URL name</th><th>Owner</th><th>Members</th><th>Machines</th><th>Servers</th><th>Created</th></tr></thead>
+              <tbody id="orgRows"></tbody>
+            </table></div>
+            <div class="st-detail" id="orgDetail" aria-live="polite"></div>
+          </section>
+
+          <section id="panel-users" role="tabpanel" aria-labelledby="tab-users" hidden>
+            <form class="st-search" data-search="users">
+              <input class="field-input" type="search" id="userQ" placeholder="Search users by username or email" aria-label="Search users">
+              <button class="btn btn-ghost" type="submit">Search</button>
+            </form>
+            <div class="st-table-wrap"><table class="st-table">
+              <thead><tr><th>Username</th><th>Email</th><th>2FA</th><th>Staff roles</th><th>Joined</th></tr></thead>
+              <tbody id="userRows"></tbody>
+            </table></div>
+            <div class="st-detail" id="userDetail" aria-live="polite"></div>
+          </section>
+
+          <section id="panel-team" role="tabpanel" aria-labelledby="tab-team" hidden>
+            <div class="st-meta" id="teamHelp"></div>
+            <div class="st-table-wrap"><table class="st-table">
+              <thead><tr><th>Username</th><th>Email</th><th>Roles</th><th>2FA</th><th></th></tr></thead>
+              <tbody id="teamRows"></tbody>
+            </table></div>
+          </section>
+
+          <section id="panel-roles" role="tabpanel" aria-labelledby="tab-roles" hidden>
+            <div class="st-bar">
+              <div class="st-meta" id="rolesHelp" style="margin:0;"></div>
+              <button class="btn btn-primary btn-sm" type="button" id="newRoleBtn" hidden>New role</button>
+            </div>
+            <div class="st-table-wrap"><table class="st-table">
+              <thead><tr><th>Role</th><th>Type</th><th>Permissions</th><th>People</th></tr></thead>
+              <tbody id="roleRows"></tbody>
+            </table></div>
+            <div class="st-detail" id="roleDetail" aria-live="polite"></div>
+          </section>
+
+          <section id="panel-audit" role="tabpanel" aria-labelledby="tab-audit" hidden>
+            <div class="st-search">
+              <select class="field-input" id="auditAction" aria-label="Filter by action">
+                <option value="">All staff actions</option>
+                <option value="staff.viewed_org">Viewed an organization</option>
+                <option value="staff.viewed_user">Viewed a user</option>
+                <option value="staff.roles_changed">Roles assigned or removed</option>
+                <option value="staff.role_created">Role created</option>
+                <option value="staff.role_updated">Role changed</option>
+                <option value="staff.role_deleted">Role deleted</option>
+                <option value="staff.root_claimed">Owner account claimed</option>
+              </select>
+            </div>
+            <div class="st-table-wrap"><table class="st-table">
+              <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Details</th></tr></thead>
+              <tbody id="auditRows"></tbody>
+            </table></div>
+          </section>
+        </div>
+
+      </div>
+    </div><!-- /.page-content -->
+  </main>
+</div>
+
+<!-- ── Create / edit a role ── -->
+<div class="modal-overlay" id="roleEditModal">
+  <div class="modal-card st-modal-wide">
+    <div class="modal-title" id="roleEditTitle">Role</div>
+    <div class="modal-sub" id="roleEditSub">You can only include permissions you hold yourself.</div>
+
+    <div class="field">
+      <label class="field-label" for="roleName">Name</label>
+      <input class="field-input" type="text" id="roleName" maxlength="40" autocomplete="off">
+    </div>
+    <div class="field">
+      <label class="field-label" for="roleDesc">Description</label>
+      <input class="field-input" type="text" id="roleDesc" maxlength="200" autocomplete="off">
+    </div>
+
+    <div class="st-scroll" id="rolePerms"></div>
+
+    <label class="st-check" id="roleOwnerOnlyWrap" hidden>
+      <input type="checkbox" id="roleOwnerOnly">
+      <span><b>Only the platform owner can assign this role</b><small>Use it for roles that carry sensitive access. Master admins cannot give it to anyone.</small></span>
+    </label>
+
+    <div class="field">
+      <label class="field-label" for="roleEditPassword">Your password</label>
+      <input class="field-input" type="password" id="roleEditPassword" autocomplete="current-password">
+    </div>
+
+    <div id="roleEditAlert" class="alert alert-error" style="display:none;"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="roleEditSave" type="button">Save role</button>
+      <button class="btn btn-ghost" id="roleEditCancel" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Assign roles to a person ── -->
+<div class="modal-overlay" id="assignModal">
+  <div class="modal-card st-modal-wide">
+    <div class="modal-title" id="assignTitle">Staff roles</div>
+    <div class="modal-sub">
+      Tick the roles this person should hold. They need two-factor authentication on. Roles you cannot give are greyed out.
+    </div>
+
+    <div class="st-scroll" id="assignRoles"></div>
+
+    <div class="field">
+      <label class="field-label" for="assignPassword">Your password</label>
+      <input class="field-input" type="password" id="assignPassword" autocomplete="current-password">
+    </div>
+
+    <div id="assignAlert" class="alert alert-error" style="display:none;"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="assignSave" type="button">Save</button>
+      <button class="btn btn-ghost" id="assignCancel" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Approve or reject a report ── -->
+<div class="modal-overlay" id="decideModal">
+  <div class="modal-card">
+    <div class="modal-title" id="decideTitle">Review report request</div>
+    <div class="modal-sub" id="decideSummary"></div>
+    <div class="modal-sub" id="decideReason"></div>
+    <div class="field">
+      <label class="field-label" for="decideNote">Note (required when rejecting)</label>
+      <input class="field-input" type="text" id="decideNote" maxlength="500" autocomplete="off">
+    </div>
+    <div class="field">
+      <label class="field-label" for="decidePassword">Your password</label>
+      <input class="field-input" type="password" id="decidePassword" autocomplete="current-password">
+    </div>
+    <div id="decideAlert" class="alert alert-error" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="decideApprove" type="button">Approve and generate</button>
+      <button class="btn btn-ghost" id="decideReject" type="button" style="color:var(--red-bright); border-color:var(--red-bright);">Reject</button>
+      <button class="btn btn-ghost" id="decideCancel" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Delete a role ── -->
+<div class="modal-overlay" id="roleDeleteModal">
+  <div class="modal-card">
+    <div class="modal-title" id="roleDeleteTitle">Delete role</div>
+    <div class="modal-sub">This cannot be undone. A role that people still hold cannot be deleted.</div>
+    <div class="field">
+      <label class="field-label" for="roleDeletePassword">Your password</label>
+      <input class="field-input" type="password" id="roleDeletePassword" autocomplete="current-password">
+    </div>
+    <div id="roleDeleteAlert" class="alert alert-error" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="roleDeleteBtn" type="button" style="background:var(--red-bright); border-color:var(--red-bright);">Delete role</button>
+      <button class="btn btn-ghost" id="roleDeleteCancel" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/router.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/shell.js"></script>
+<script src="/js/staff-charts.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  let me = null;            // from /api/staff/me
+  let catalog = [];         // from /api/staff/permissions
+  let rolesCache = [];      // from /api/staff/roles
+  let editingRole = null;   // role being edited, or null when creating
+  let assignTarget = null;  // { id, username, roleIds }
+  let deletingRole = null;
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  const when = iso => iso ? new Date(iso).toLocaleString() : '—';
+  const has = perm => me.permissions.includes(perm);
+
+  const TABS = [
+    { id: 'overview', label: 'Overview',      perm: 'dashboard.view', load: () => loadOverview() },
+    { id: 'reports',  label: 'Reports',       any: ['reports.request', 'reports.view', 'reports.approve'], load: () => loadReports() },
+    { id: 'orgs',     label: 'Organizations', perm: 'orgs.read',      load: () => { if (!$('orgRows').children.length) loadOrgs(); } },
+    { id: 'users',    label: 'Users',         perm: 'users.read',     load: () => { if (!$('userRows').children.length) loadUsers(); } },
+    { id: 'team',     label: 'Staff team',    perm: 'staff.read',     load: () => loadTeam() },
+    { id: 'roles',    label: 'Roles',         perm: 'staff.read',     load: () => loadRoles() },
+    { id: 'audit',    label: 'Audit log',     perm: 'audit.read',     load: () => loadAudit() },
+  ];
+
+  function note(kind, msg) {
+    const n = $('stNote');
+    n.className = 'st-note alert alert-' + kind;
+    n.textContent = msg;
+    n.hidden = false;
+  }
+
+  function rolePills(list) {
+    return (list || []).map(r => '<span class="st-pill role">' + esc(r.name ?? r) + '</span>').join('');
+  }
+
+  async function api(path, opts) {
+    const res  = await RC.apiFetch(path, opts);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { const e = new Error(data.error || 'Request failed (' + res.status + ').'); e.data = data; throw e; }
+    return data;
+  }
+  const get = path => api(path);
+
+  function table(headers, rows) {
+    if (!rows.length) return '<div class="st-empty">None.</div>';
+    return '<div class="st-table-wrap"><table class="st-table"><thead><tr>' + headers.map(h => '<th>' + esc(h) + '</th>').join('') +
+      '</tr></thead><tbody>' + rows.map(r => '<tr>' + r.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>';
+  }
+
+  // ── Tabs ────────────────────────────────────────────────────────────────────
+  function buildTabs() {
+    const visible = TABS.filter(t => t.any ? t.any.some(has) : has(t.perm));
+    $('stTabs').innerHTML = visible.map(t =>
+      '<button class="st-tab" role="tab" id="tab-' + t.id + '" aria-selected="false" aria-controls="panel-' + t.id + '" data-tab="' + t.id + '">' + esc(t.label) + '</button>').join('');
+    return visible;
+  }
+  function showTab(name) {
+    document.querySelectorAll('.st-tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
+    document.querySelectorAll('[role="tabpanel"]').forEach(p => { p.hidden = p.id !== 'panel-' + name; });
+    const tab = TABS.find(t => t.id === name);
+    if (tab) tab.load();
+  }
+  $('stTabs').addEventListener('click', e => {
+    const t = e.target.closest('.st-tab');
+    if (t) showTab(t.dataset.tab);
+  });
+  $('stTabs').addEventListener('keydown', e => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const tabs = Array.from(document.querySelectorAll('.st-tab'));
+    const i = tabs.findIndex(t => t.getAttribute('aria-selected') === 'true');
+    const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+    next.focus();
+    showTab(next.dataset.tab);
+  });
+
+  // ── Overview (dashboard) ────────────────────────────────────────────────────
+  let dashDays = 30;
+
+  function deltaText(now, prev, days) {
+    if (!prev) return 'No earlier period to compare';
+    const pct = Math.round(((now - prev) / prev) * 100);
+    return (pct > 0 ? '▲ ' : pct < 0 ? '▼ ' : '● ') + Math.abs(pct) + '% vs previous ' + days + ' days';
+  }
+
+  function tile(label, value, sub, spark) {
+    const t = document.createElement('div'); t.className = 'sc-tile';
+    const l = document.createElement('div'); l.className = 'sc-tile-label'; l.textContent = label;
+    const row = document.createElement('div'); row.className = 'sc-tile-row';
+    const v = document.createElement('div'); v.className = 'sc-tile-value'; v.textContent = StaffCharts.compact(value);
+    v.title = StaffCharts.full(value);
+    row.appendChild(v);
+    if (spark) row.appendChild(StaffCharts.sparkline(spark));
+    t.append(l, row);
+    if (sub) { const d = document.createElement('div'); d.className = 'sc-tile-delta'; d.textContent = sub; t.appendChild(d); }
+    return t;
+  }
+
+  function card(title, sub) {
+    const c = document.createElement('div'); c.className = 'sc-card';
+    const h = document.createElement('h3'); h.textContent = title;
+    c.appendChild(h);
+    if (sub) { const p = document.createElement('div'); p.className = 'sc-sub'; p.textContent = sub; c.appendChild(p); }
+    const body = document.createElement('div'); c.appendChild(body);
+    return { el: c, body };
+  }
+
+  function renderDashboard(d) {
+    const area = $('dashArea');
+    area.textContent = '';
+    const labels = d.series.map(x => x.day);
+    const sum = k => d.series.reduce((a, x) => a + (x[k] || 0), 0);
+
+    const hero = document.createElement('div'); hero.className = 'sc-hero';
+    const hv = document.createElement('div'); hv.className = 'sc-hero-value'; hv.textContent = StaffCharts.full(d.current.users);
+    const hl = document.createElement('div'); hl.className = 'sc-hero-label';
+    hl.textContent = 'Users, ' + StaffCharts.full(d.period.newUsers) + ' new in the last ' + d.days + ' days';
+    hero.append(hv, hl);
+    area.appendChild(hero);
+
+    const tiles = document.createElement('div'); tiles.className = 'sc-tiles';
+    tiles.append(
+      tile('Active users', d.period.activeUsers, deltaText(d.period.activeUsers, d.period.activeUsersPrev, d.days), StaffCharts.bucket(d.series.map(x => x.active_users), 12)),
+      tile('New users', d.period.newUsers, deltaText(d.period.newUsers, d.period.newUsersPrev, d.days), StaffCharts.bucket(d.series.map(x => x.new_users), 12)),
+      tile('Organizations', d.current.orgs, '+' + StaffCharts.full(sum('new_orgs')) + ' in ' + d.days + ' days'),
+      tile('Machines', d.current.machines, '+' + StaffCharts.full(sum('new_machines')) + ' in ' + d.days + ' days'),
+      tile('Game servers', d.current.servers),
+      tile('Signed in now', d.current.active_sessions, 'Live sessions'),
+      tile('Staff', d.current.staff)
+    );
+    const tfa = tile('Two-factor adoption', d.current.users ? Math.round((d.current.users_2fa / d.current.users) * 100) : 0,
+      StaffCharts.full(d.current.users_2fa) + ' of ' + StaffCharts.full(d.current.users) + ' accounts');
+    tfa.querySelector('.sc-tile-value').textContent = (d.current.users ? Math.round((d.current.users_2fa / d.current.users) * 100) : 0) + '%';
+    const meter = document.createElement('div'); meter.className = 'sc-meter'; meter.setAttribute('role', 'img');
+    meter.setAttribute('aria-label', d.current.users_2fa + ' of ' + d.current.users + ' accounts use two-factor authentication');
+    const fill = document.createElement('span'); fill.style.width = (d.current.users ? (d.current.users_2fa / d.current.users) * 100 : 0) + '%';
+    meter.appendChild(fill); tfa.appendChild(meter);
+    tiles.appendChild(tfa);
+    area.appendChild(tiles);
+
+    const cards = document.createElement('div'); cards.className = 'sc-cards';
+    const span = 'last ' + d.days + ' days (UTC)';
+
+    const c1 = card('New users per day', span);
+    StaffCharts.columns(c1.body, { labels, values: d.series.map(x => x.new_users), name: 'New users', color: 'var(--sc-series-1)',
+      ariaLabel: 'New users per day over the ' + span + ': ' + sum('new_users') + ' in total. Use the arrow keys to move through the days.' });
+
+    const c2 = card('Active users per day', 'People who signed in or used the portal that day. Counted from when tracking began.');
+    const act = d.series.map(x => x.active_users);
+    StaffCharts.lines(c2.body, { labels, series: [{ name: 'Active users', color: 'var(--sc-series-1)', values: act }],
+      ariaLabel: 'Active users per day over the ' + span + '. Use the arrow keys to move through the days.' });
+
+    const c3 = card('Sign-ins and failed sign-ins', span);
+    StaffCharts.lines(c3.body, { labels, series: [
+      { name: 'Sign-ins', color: 'var(--sc-series-1)', values: d.series.map(x => x.logins) },
+      { name: 'Failed sign-ins', color: 'var(--sc-series-2)', values: d.series.map(x => x.failed_logins) }],
+      ariaLabel: 'Sign-ins and failed sign-ins per day over the ' + span + '. Use the arrow keys to move through the days.' });
+
+    const c4 = card('From sign-up to a connected machine', 'People, all time. Each step is part of the one before.');
+    StaffCharts.hbars(c4.body, { items: d.funnel, colors: ['var(--sc4-1)', 'var(--sc4-2)', 'var(--sc4-3)', 'var(--sc4-4)'], unit: 'people',
+      ariaLabel: 'Funnel: ' + d.funnel.map(f => f.label + ' ' + f.value).join(', ') });
+
+    const c5 = card('Game servers by game', 'Top games; the rest are grouped as Other.');
+    StaffCharts.hbars(c5.body, { items: d.serversByGame, color: 'var(--sc-series-1)', unit: 'servers',
+      ariaLabel: 'Game servers by game: ' + (d.serversByGame.map(f => f.label + ' ' + f.value).join(', ') || 'none yet') });
+
+    const c6 = card('Organizations by size', 'Members per organization.');
+    StaffCharts.hbars(c6.body, { items: d.orgSizes, colors: ['var(--sc4-1)', 'var(--sc4-2)', 'var(--sc4-3)', 'var(--sc4-4)'], unit: 'organizations',
+      ariaLabel: 'Organizations by size: ' + d.orgSizes.map(f => f.label + ' ' + f.value).join(', ') });
+
+    cards.append(c1.el, c2.el, c3.el, c4.el, c5.el, c6.el);
+
+    if (d.machinesByStatus.length) {
+      const c7 = card('Machines by status', 'Right now.');
+      StaffCharts.hbars(c7.body, { items: d.machinesByStatus, color: 'var(--sc-series-1)', unit: 'machines',
+        ariaLabel: 'Machines by status: ' + d.machinesByStatus.map(f => f.label + ' ' + f.value).join(', ') });
+      cards.appendChild(c7.el);
+    }
+    if (d.ageRanges) {
+      const c8 = card('Age ranges', 'From dates of birth, combined. Groups under 5 are hidden.');
+      StaffCharts.hbars(c8.body, { items: d.ageRanges.ranges, unit: 'people', hiddenText: 'fewer than 5',
+        colors: ['var(--sc6-1)', 'var(--sc6-2)', 'var(--sc6-3)', 'var(--sc6-4)', 'var(--sc6-5)', 'var(--sc6-6)'],
+        ariaLabel: 'Age ranges: ' + d.ageRanges.ranges.map(f => f.label + ' ' + (f.value == null ? 'fewer than 5' : f.value)).join(', ') });
+      cards.appendChild(c8.el);
+    }
+    area.appendChild(cards);
+    StaffCharts.flush();           // everything is in the page now, so the charts can measure and draw
+    $('dashUpdated').textContent = 'Updated ' + new Date(d.generatedAt).toLocaleTimeString();
+  }
+
+  async function loadOverview() {
+    const area = $('dashArea');
+    area.classList.add('is-loading');          // keep the old frame, dimmed, while refetching
+    try { renderDashboard(await get('/api/staff/dashboard?days=' + dashDays)); }
+    catch (e) { note('error', e.message); }
+    finally { area.classList.remove('is-loading'); }
+  }
+
+  $('dashRange').addEventListener('click', e => {
+    const b = e.target.closest('button[data-days]');
+    if (!b) return;
+    dashDays = parseInt(b.dataset.days, 10);
+    $('dashRange').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    loadOverview();
+  });
+
+  // ── Organizations ───────────────────────────────────────────────────────────
+  async function loadOrgs() {
+    try {
+      const { orgs } = await get('/api/staff/orgs?q=' + encodeURIComponent($('orgQ').value.trim()));
+      $('orgRows').innerHTML = orgs.length ? orgs.map(o =>
+        '<tr data-open="org" data-id="' + esc(o.id) + '" tabindex="0">' +
+        '<td>' + esc(o.name) + '</td><td>' + esc(o.slug) + '</td><td>' + esc(o.owner ?? '—') + '</td>' +
+        '<td>' + o.members + '</td><td>' + o.machines + '</td><td>' + o.servers + '</td><td>' + esc(when(o.created_at)) + '</td></tr>'
+      ).join('') : '<tr><td colspan="7" class="st-empty">No organizations found.</td></tr>';
+    } catch (e) { note('error', e.message); }
+  }
+
+  async function openOrg(id) {
+    const box = $('orgDetail');
+    box.textContent = 'Loading…';
+    try {
+      const d = await get('/api/staff/orgs/' + encodeURIComponent(id));
+      const canUsers = has('users.read');
+      box.innerHTML =
+        '<h3>' + esc(d.org.name) + ' <span class="st-pill">' + esc(d.org.slug) + '</span></h3>' +
+        '<div class="st-meta">Owner: ' + esc(d.org.owner ?? '—') + ' · Created ' + esc(when(d.org.created_at)) + '</div>' +
+        '<h3>Members (' + d.members.length + ')</h3>' +
+        table(['Username', 'Email', 'Role', 'Joined'], d.members.map(m => [
+          canUsers ? '<a href="#" data-open="user" data-id="' + esc(m.user_id) + '">' + esc(m.username) + '</a>' : esc(m.username),
+          esc(m.email), esc(m.role), esc(when(m.joined_at))])) +
+        '<h3>Machines (' + d.machines.length + ')</h3>' +
+        table(['Name', 'URL name', 'Status', 'Active tokens', 'Last seen'], d.machines.map(m => [
+          esc(m.name), esc(m.slug), esc(m.status), m.active_tokens, esc(when(m.last_seen))])) +
+        '<h3>Game servers (' + d.servers.length + ')</h3>' +
+        table(['Name', 'Game', 'Status'], d.servers.map(s => [esc(s.name), esc(s.game ?? '—'), esc(s.status)])) +
+        '<h3>Invitations (' + d.invitations.length + ')</h3>' +
+        table(['Email', 'Role', 'Sent', 'State'], d.invitations.map(i => [
+          esc(i.email), esc(i.role), esc(when(i.created_at)),
+          i.accepted_at ? 'Accepted' : (new Date(i.expires_at) < new Date() ? 'Expired' : 'Pending')])) +
+        '<h3>Recent activity</h3>' +
+        (d.activityHidden
+          ? '<div class="st-empty">Your role does not include the organization activity log.</div>'
+          : table(['When', 'Who', 'Action', 'Item'], d.activity.map(a => [
+              esc(when(a.created_at)), esc(a.username ?? '—'), esc(a.action), esc([a.resource_type, a.resource_id].filter(Boolean).join(' '))])));
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { box.textContent = ''; note('error', e.message); }
+  }
+
+  // ── Users ───────────────────────────────────────────────────────────────────
+  async function loadUsers() {
+    try {
+      const { users } = await get('/api/staff/users?q=' + encodeURIComponent($('userQ').value.trim()));
+      $('userRows').innerHTML = users.length ? users.map(u =>
+        '<tr data-open="user" data-id="' + esc(u.id) + '" tabindex="0">' +
+        '<td>' + esc(u.username) + '</td><td>' + esc(u.email) + '</td><td>' + (u.totp_enabled ? 'Yes' : 'No') + '</td>' +
+        '<td>' + (u.is_root ? '<span class="st-pill owner">Owner</span>' : '') + esc(u.roles ?? '') + '</td><td>' + esc(when(u.created_at)) + '</td></tr>'
+      ).join('') : '<tr><td colspan="5" class="st-empty">No users found.</td></tr>';
+    } catch (e) { note('error', e.message); }
+  }
+
+  async function openUser(id) {
+    showTab('users');
+    const box = $('userDetail');
+    box.textContent = 'Loading…';
+    try {
+      const d = await get('/api/staff/users/' + encodeURIComponent(id));
+      const u = d.user;
+      const canAssign = has('staff.assign') && !u.is_root;
+      box.innerHTML =
+        '<h3>' + esc(u.username) + ' ' + (u.is_root ? '<span class="st-pill owner">Owner</span>' : '') + rolePills(d.staffRoles) + '</h3>' +
+        '<div class="st-meta">' + esc(u.email) + ' · Joined ' + esc(when(u.created_at)) + ' · 2FA ' + (u.totp_enabled ? 'on' : 'off') +
+        ' · Terms ' + (u.terms_accepted_at ? 'accepted ' + esc(when(u.terms_accepted_at)) + ' (v' + esc(u.terms_version) + ')' : 'not accepted') + '</div>' +
+        (canAssign ? '<button class="btn btn-ghost btn-sm" type="button" data-assign-user="' + esc(u.id) + '" data-assign-name="' + esc(u.username) +
+          '" data-assign-roles="' + esc(d.staffRoles.map(r => r.id).join(',')) + '">Change staff roles</button>' : '') +
+        '<h3>Organizations (' + d.organizations.length + ')</h3>' +
+        table(['Name', 'URL name', 'Role', 'Joined'], d.organizations.map(o => [
+          has('orgs.read') ? '<a href="#" data-open="org" data-id="' + esc(o.org_id) + '">' + esc(o.name) + '</a>' : esc(o.name),
+          esc(o.slug), esc(o.role), esc(when(o.joined_at))])) +
+        '<h3>Signed-in sessions (' + d.sessions.length + ')</h3>' +
+        table(['Method', 'Address', 'Device', 'Signed in', 'Last active'], d.sessions.map(s => [
+          esc(s.auth_method), esc(s.last_ip ?? '—'), esc((s.user_agent ?? '').slice(0, 60)), esc(when(s.created_at)), esc(when(s.last_seen_at))])) +
+        '<h3>Recent activity</h3>' +
+        table(['When', 'Action', 'Item'], d.activity.map(a => [esc(when(a.created_at)), esc(a.action), esc([a.resource_type, a.resource_id].filter(Boolean).join(' '))]));
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { box.textContent = ''; note('error', e.message); }
+  }
+
+  // ── Staff team ──────────────────────────────────────────────────────────────
+  async function loadTeam() {
+    $('teamHelp').textContent = has('staff.assign')
+      ? 'You can give and remove the roles you hold the permissions for. The owner account cannot be changed.'
+      : 'You can see who has staff access. Changing it needs the "Assign roles to people" permission.';
+    try {
+      const { team } = await get('/api/staff/team');
+      $('teamRows').innerHTML = team.map(t =>
+        '<tr><td>' + esc(t.username) + '</td><td>' + esc(t.email) + '</td><td>' +
+        (t.is_root ? '<span class="st-pill owner">Owner</span>' : '') + rolePills(t.roles) + '</td><td>' + (t.totp_enabled ? 'Yes' : 'No') + '</td><td>' +
+        (has('staff.assign') && !t.is_root
+          ? '<button class="btn btn-ghost btn-sm" type="button" data-assign-user="' + esc(t.id) + '" data-assign-name="' + esc(t.username) +
+            '" data-assign-roles="' + esc(t.roles.map(r => r.id).join(',')) + '">Edit roles</button>' : '') +
+        '</td></tr>').join('');
+    } catch (e) { note('error', e.message); }
+  }
+
+  // ── Roles ───────────────────────────────────────────────────────────────────
+  async function ensureCatalog() {
+    if (!catalog.length) catalog = (await get('/api/staff/permissions')).permissions;
+    return catalog;
+  }
+
+  async function loadRoles() {
+    $('rolesHelp').textContent = has('roles.manage')
+      ? 'Roles are sets of permissions. You can only use permissions you hold yourself.'
+      : 'Roles are sets of permissions. Creating and editing roles needs the "Create and edit roles" permission.';
+    $('newRoleBtn').hidden = !has('roles.manage');
+    try {
+      await ensureCatalog();
+      rolesCache = (await get('/api/staff/roles')).roles;
+      $('roleRows').innerHTML = rolesCache.map(r =>
+        '<tr data-open="role" data-id="' + esc(r.id) + '" tabindex="0"><td>' + esc(r.name) +
+        (r.ownerAssignOnly ? ' <span class="st-pill owner">Owner assigns</span>' : '') + '<div class="st-meta" style="margin:0;">' + esc(r.description) + '</div></td>' +
+        '<td>' + (r.builtin ? 'Built-in' : 'Custom') + '</td><td>' + r.permissions.length + '</td><td>' + r.members + '</td></tr>').join('');
+    } catch (e) { note('error', e.message); }
+  }
+
+  async function openRole(id) {
+    const box = $('roleDetail');
+    box.textContent = 'Loading…';
+    try {
+      await ensureCatalog();
+      const d = await get('/api/staff/roles/' + encodeURIComponent(id));
+      const r = d.role;
+      const held = catalog.filter(p => r.permissions.includes(p.key));
+      const groups = {};
+      held.forEach(p => { (groups[p.group] = groups[p.group] || []).push(p); });
+      box.innerHTML =
+        '<h3>' + esc(r.name) + ' <span class="st-pill">' + (r.builtin ? 'Built-in' : 'Custom') + '</span>' +
+        (r.ownerAssignOnly ? '<span class="st-pill owner">Only the owner assigns it</span>' : '') + '</h3>' +
+        '<div class="st-meta">' + esc(r.description || 'No description.') + '</div>' +
+        '<div style="margin-bottom:var(--space-md);">' +
+        (r.canEdit ? '<button class="btn btn-ghost btn-sm" type="button" data-role-edit="' + esc(r.id) + '">Edit role</button> ' : '') +
+        (r.canDelete ? '<button class="btn btn-ghost btn-sm" type="button" data-role-delete="' + esc(r.id) + '" style="color:var(--red-bright); border-color:var(--red-bright);">Delete role</button>' : '') +
+        (!r.canEdit && r.builtinKey === 'master_admin' ? '<span class="st-empty">Master admin always holds every permission and cannot be edited.</span>' : '') +
+        '</div>' +
+        '<h3>What it can do (' + held.length + ')</h3>' +
+        (held.length ? Object.keys(groups).map(g => '<div class="st-perm-group"><div class="st-perm-group-name">' + esc(g) + '</div>' +
+          groups[g].map(p => '<div class="st-check"><span><b>' + esc(p.label) + '</b> <span class="st-pill ' + esc(p.risk) + '">' + esc(p.risk) + '</span><small>' + esc(p.description) + '</small></span></div>').join('') + '</div>').join('')
+          : '<div class="st-empty">No permissions.</div>') +
+        '<h3>People (' + d.members.length + ')</h3>' +
+        (d.members.length ? table(['Username', 'Since'], d.members.map(m => [esc(m.username), esc(when(m.assigned_at))])) : '<div class="st-empty">Nobody holds this role.</div>');
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { box.textContent = ''; note('error', e.message); }
+  }
+
+  // Role editor (create or edit)
+  async function openRoleEditor(role) {
+    await ensureCatalog();
+    editingRole = role || null;
+    $('roleEditTitle').textContent = role ? 'Edit role: ' + role.name : 'New role';
+    $('roleName').value = role ? role.name : '';
+    $('roleName').disabled = !!(role && role.builtin);
+    $('roleDesc').value = role ? role.description : '';
+    $('roleEditPassword').value = '';
+    $('roleEditAlert').style.display = 'none';
+    $('roleOwnerOnlyWrap').hidden = !me.isRoot || !!(role && role.builtin);
+    $('roleOwnerOnly').checked = !!(role && role.ownerAssignOnly);
+
+    const selected = role ? role.permissions : [];
+    const groups = {};
+    catalog.forEach(p => { (groups[p.group] = groups[p.group] || []).push(p); });
+    $('rolePerms').innerHTML = Object.keys(groups).map(g =>
+      '<div class="st-perm-group"><div class="st-perm-group-name">' + esc(g) + '</div>' +
+      groups[g].map(p => {
+        const locked = !p.held && !me.isRoot;
+        return '<label class="st-check"' + (locked ? ' data-locked title="You do not hold this permission, so you cannot give it."' : '') + '>' +
+          '<input type="checkbox" value="' + esc(p.key) + '"' + (selected.includes(p.key) ? ' checked' : '') + (locked ? ' disabled' : '') + '>' +
+          '<span><b>' + esc(p.label) + '</b> <span class="st-pill ' + esc(p.risk) + '">' + esc(p.risk) + '</span><small>' + esc(p.description) + '</small></span></label>';
+      }).join('') + '</div>').join('');
+    $('roleEditModal').classList.add('open');
+    $('roleName').disabled ? $('roleDesc').focus() : $('roleName').focus();
+  }
+
+  $('newRoleBtn').addEventListener('click', () => openRoleEditor(null));
+  $('roleEditCancel').addEventListener('click', () => $('roleEditModal').classList.remove('open'));
+  $('roleEditSave').addEventListener('click', async () => {
+    const btn = $('roleEditSave'), alertEl = $('roleEditAlert');
+    const body = {
+      name: $('roleName').value,
+      description: $('roleDesc').value,
+      permissions: Array.from($('rolePerms').querySelectorAll('input:checked')).map(i => i.value),
+      password: $('roleEditPassword').value,
+    };
+    if (me.isRoot && !$('roleOwnerOnlyWrap').hidden) body.ownerAssignOnly = $('roleOwnerOnly').checked;
+    btn.disabled = true;
+    try {
+      const url = editingRole ? '/api/staff/roles/' + encodeURIComponent(editingRole.id) : '/api/staff/roles';
+      const data = await api(url, { method: editingRole ? 'PUT' : 'POST', body: JSON.stringify(body) });
+      $('roleEditModal').classList.remove('open');
+      note('success', (editingRole ? 'Role updated: ' : 'Role created: ') + data.role.name);
+      await loadRoles();
+      openRole(data.role.id);
+    } catch (e) {
+      alertEl.textContent = e.message; alertEl.style.display = 'flex';
+    } finally { btn.disabled = false; }
+  });
+
+  // Delete role
+  $('roleDeleteCancel').addEventListener('click', () => $('roleDeleteModal').classList.remove('open'));
+  $('roleDeleteBtn').addEventListener('click', async () => {
+    const alertEl = $('roleDeleteAlert');
+    try {
+      const data = await api('/api/staff/roles/' + encodeURIComponent(deletingRole.id), {
+        method: 'DELETE', body: JSON.stringify({ password: $('roleDeletePassword').value }) });
+      $('roleDeleteModal').classList.remove('open');
+      $('roleDetail').innerHTML = '';
+      note('success', data.message);
+      loadRoles();
+    } catch (e) { alertEl.textContent = e.message; alertEl.style.display = 'flex'; }
+  });
+
+  // ── Assign roles to a person ────────────────────────────────────────────────
+  async function openAssign(target) {
+    assignTarget = target;
+    if (!rolesCache.length) rolesCache = (await get('/api/staff/roles')).roles;
+    $('assignTitle').textContent = 'Staff roles for ' + target.username;
+    $('assignPassword').value = '';
+    $('assignAlert').style.display = 'none';
+    $('assignRoles').innerHTML = rolesCache.map(r => {
+      const locked = !r.canAssign;
+      const why = r.ownerAssignOnly ? 'Only the platform owner can assign this role.' : 'You can only assign roles whose permissions you hold yourself.';
+      return '<label class="st-check"' + (locked ? ' data-locked title="' + esc(why) + '"' : '') + '>' +
+        '<input type="checkbox" value="' + esc(r.id) + '"' + (target.roleIds.includes(r.id) ? ' checked' : '') + (locked ? ' disabled' : '') + '>' +
+        '<span><b>' + esc(r.name) + '</b>' + (r.ownerAssignOnly ? ' <span class="st-pill owner">Owner assigns</span>' : '') +
+        '<small>' + esc(r.description || '') + ' (' + r.permissions.length + ' permissions)</small></span></label>';
+    }).join('');
+    $('assignModal').classList.add('open');
+  }
+  $('assignCancel').addEventListener('click', () => $('assignModal').classList.remove('open'));
+  $('assignSave').addEventListener('click', async () => {
+    const btn = $('assignSave'), alertEl = $('assignAlert');
+    btn.disabled = true;
+    try {
+      // Boxes that are greyed out but ticked stay in the list, so they are not removed by accident.
+      const roleIds = Array.from($('assignRoles').querySelectorAll('input:checked')).map(i => i.value);
+      const data = await api('/api/staff/team/' + encodeURIComponent(assignTarget.id), {
+        method: 'PUT', body: JSON.stringify({ roleIds, password: $('assignPassword').value }) });
+      $('assignModal').classList.remove('open');
+      note('success', data.message || 'Saved.');
+      $('userRows').innerHTML = '';
+      loadTeam();
+      if ($('userDetail').textContent) openUser(assignTarget.id);
+    } catch (e) { alertEl.textContent = e.message; alertEl.style.display = 'flex'; }
+    finally { btn.disabled = false; }
+  });
+
+  // ── Audit log ───────────────────────────────────────────────────────────────
+  async function loadAudit() {
+    try {
+      const { entries } = await get('/api/staff/audit?action=' + encodeURIComponent($('auditAction').value));
+      $('auditRows').innerHTML = entries.length ? entries.map(a => {
+        const meta = a.metadata ? (typeof a.metadata === 'string' ? a.metadata : JSON.stringify(a.metadata)) : '';
+        return '<tr><td>' + esc(when(a.created_at)) + '</td><td>' + esc(a.username ?? '—') + '</td><td>' + esc(a.action) + '</td><td>' +
+          esc([a.resource_type, a.resource_id].filter(Boolean).join(' ')) + (meta ? '<div class="st-meta" style="margin:0;">' + esc(meta) + '</div>' : '') + '</td></tr>';
+      }).join('') : '<tr><td colspan="4" class="st-empty">Nothing yet.</td></tr>';
+    } catch (e) { note('error', e.message); }
+  }
+  $('auditAction').addEventListener('change', loadAudit);
+
+  // ── Clicks ──────────────────────────────────────────────────────────────────
+  document.addEventListener('click', async e => {
+    // Buttons first: some sit inside clickable table rows and must not open the row.
+    const dl = e.target.closest('[data-download]');
+    if (dl) { downloadReport(dl.dataset.download, dl.dataset.format); return; }
+    const decideBtn = e.target.closest('[data-decide]');
+    if (decideBtn) { openDecision(decideBtn.dataset.decide).catch(err => note('error', err.message)); return; }
+    const cancelBtn = e.target.closest('[data-cancel-report]');
+    if (cancelBtn) {
+      try { await api('/api/staff/reports/' + encodeURIComponent(cancelBtn.dataset.cancelReport) + '/cancel', { method: 'POST' }); note('success', 'Request withdrawn.'); await loadReportList(); openReport(cancelBtn.dataset.cancelReport); }
+      catch (err) { note('error', err.message); }
+      return;
+    }
+    const open = e.target.closest('[data-open]');
+    if (open) {
+      e.preventDefault();
+      if (open.dataset.open === 'org')  { showTab('orgs'); openOrg(open.dataset.id); }
+      if (open.dataset.open === 'user') { openUser(open.dataset.id); }
+      if (open.dataset.open === 'role') { openRole(open.dataset.id); }
+      if (open.dataset.open === 'report') { openReport(open.dataset.id); }
+      return;
+    }
+    const assignBtn = e.target.closest('[data-assign-user]');
+    if (assignBtn) {
+      openAssign({ id: assignBtn.dataset.assignUser, username: assignBtn.dataset.assignName,
+        roleIds: (assignBtn.dataset.assignRoles || '').split(',').filter(Boolean) });
+      return;
+    }
+    const edit = e.target.closest('[data-role-edit]');
+    if (edit) { openRoleEditor(rolesCache.find(r => r.id === edit.dataset.roleEdit)); return; }
+    const del = e.target.closest('[data-role-delete]');
+    if (del) {
+      deletingRole = rolesCache.find(r => r.id === del.dataset.roleDelete);
+      $('roleDeleteTitle').textContent = 'Delete role: ' + deletingRole.name;
+      $('roleDeletePassword').value = '';
+      $('roleDeleteAlert').style.display = 'none';
+      $('roleDeleteModal').classList.add('open');
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('tr[data-open]')) {
+      e.preventDefault();
+      e.target.click();
+    }
+  });
+
+  document.querySelectorAll('form[data-search]').forEach(f => f.addEventListener('submit', e => {
+    e.preventDefault();
+    if (f.dataset.search === 'orgs') loadOrgs(); else loadUsers();
+  }));
+
+  // ── Reports ─────────────────────────────────────────────────────────────────
+  let reportTypes = [];
+  let reportScope = 'mine';
+  let decidingReport = null;
+
+  const STATUS_TEXT = { pending: 'Waiting for approval', generated: 'Ready', rejected: 'Rejected', cancelled: 'Withdrawn', expired: 'Expired' };
+  const ymd = d => d.toISOString().slice(0, 10);
+  function periodText(r) { return r.params && r.params.from ? r.params.from + ' to ' + r.params.to : 'As of the request'; }
+
+  async function loadReports() {
+    try {
+      if (!reportTypes.length) reportTypes = (await get('/api/staff/reports/types')).types;
+      const canRequest = has('reports.request');
+      $('reportForm').hidden = !canRequest;
+      $('scopePending').hidden = !(has('reports.approve') || has('reports.view'));
+      $('scopeAll').hidden = $('scopePending').hidden;
+      if (canRequest && !$('reportType').options.length) {
+        $('reportType').innerHTML = reportTypes.map(t => '<option value="' + esc(t.key) + '">' + esc(t.label) + '</option>').join('');
+        const to = new Date(); const from = new Date(); from.setUTCDate(from.getUTCDate() - 29);
+        $('reportTo').value = ymd(to); $('reportTo').max = ymd(to); $('reportFrom').value = ymd(from);
+        syncReportForm();
+      }
+      if (!canRequest && reportScope === 'mine' && !$('scopePending').hidden) setScope('pending', true);
+      await loadReportList();
+    } catch (e) { note('error', e.message); }
+  }
+
+  function syncReportForm() {
+    const t = reportTypes.find(x => x.key === $('reportType').value);
+    if (!t) return;
+    $('reportHint').textContent = t.description + (t.requiresApproval
+      ? ' A second person with approval rights has to approve it before you can open it.'
+      : ' It runs straight away.');
+    $('reportRange').hidden = !t.needsRange;
+    $('reportReasonWrap').hidden = !t.requiresApproval;
+    $('reportAlert').style.display = 'none';
+  }
+  $('reportType').addEventListener('change', syncReportForm);
+
+  $('reportSubmit').addEventListener('click', async () => {
+    const t = reportTypes.find(x => x.key === $('reportType').value);
+    const body = { type: t.key, reason: $('reportReason').value };
+    if (t.needsRange) { body.from = $('reportFrom').value; body.to = $('reportTo').value; }
+    const btn = $('reportSubmit'), alertEl = $('reportAlert');
+    btn.disabled = true; alertEl.style.display = 'none';
+    try {
+      const data = await api('/api/staff/reports', { method: 'POST', body: JSON.stringify(body) });
+      note('success', data.request.status === 'generated' ? t.label + ' report is ready.' : 'Requested. You will see it here once it is approved.');
+      $('reportReason').value = '';
+      setScope('mine', true);
+      openReport(data.request.id);
+    } catch (e) { alertEl.textContent = e.message; alertEl.style.display = 'flex'; }
+    finally { btn.disabled = false; }
+  });
+
+  function setScope(scope, quiet) {
+    reportScope = scope;
+    $('reportScope').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.scope === scope)));
+    if (!quiet) loadReportList();
+    else loadReportList();
+  }
+  $('reportScope').addEventListener('click', e => {
+    const b = e.target.closest('button[data-scope]');
+    if (b) setScope(b.dataset.scope);
+  });
+
+  async function loadReportList() {
+    const { requests } = await get('/api/staff/reports?scope=' + reportScope);
+    const me_ = RC.getUser();
+    $('reportRows').innerHTML = requests.length ? requests.map(r => {
+      const own = me_ && r.requestedBy && r.requestedBy.id === me_.id;
+      const canDecide = r.status === 'pending' && has('reports.approve') && (!own || me.isRoot);
+      return '<tr data-open="report" data-id="' + esc(r.id) + '" tabindex="0"><td>' + esc(r.label) + '</td><td>' + esc(periodText(r)) + '</td>' +
+        '<td>' + esc(r.requestedBy ? r.requestedBy.username : 'deleted account') + '</td><td>' + esc(STATUS_TEXT[r.status] || r.status) + '</td>' +
+        '<td>' + esc(when(r.createdAt)) + '</td><td>' +
+        (canDecide ? '<button class="btn btn-ghost btn-sm" type="button" data-decide="' + esc(r.id) + '">Review</button>' : '') + '</td></tr>';
+    }).join('') : '<tr><td colspan="6" class="st-empty">Nothing here yet.</td></tr>';
+  }
+
+  async function openReport(id) {
+    const box = $('reportDetail');
+    box.textContent = 'Loading…';
+    try {
+      const d = await get('/api/staff/reports/' + encodeURIComponent(id));
+      const r = d.request, me_ = RC.getUser();
+      const own = me_ && r.requestedBy && r.requestedBy.id === me_.id;
+      let html = '<h3>' + esc(r.label) + ' <span class="st-pill">' + esc(STATUS_TEXT[r.status] || r.status) + '</span></h3>' +
+        '<div class="st-meta">' + esc(periodText(r)) + ' · requested by ' + esc(r.requestedBy ? r.requestedBy.username : 'a deleted account') +
+        ' on ' + esc(when(r.createdAt)) + (r.decidedBy ? ' · decided by ' + esc(r.decidedBy.username) + ' on ' + esc(when(r.decidedAt)) : '') + '</div>' +
+        (r.reason ? '<div class="st-meta">Reason: ' + esc(r.reason) + '</div>' : '') +
+        (r.decisionNote ? '<div class="st-meta">Decision note: ' + esc(r.decisionNote) + '</div>' : '');
+      html += '<div style="margin:var(--space-sm) 0 var(--space-md);">';
+      if (d.preview) {
+        html += '<button class="btn btn-ghost btn-sm" type="button" data-download="' + esc(r.id) + '" data-format="csv">Download CSV</button> ' +
+                '<button class="btn btn-ghost btn-sm" type="button" data-download="' + esc(r.id) + '" data-format="json">Download JSON</button> ';
+      }
+      if (r.status === 'pending' && own) html += '<button class="btn btn-ghost btn-sm" type="button" data-cancel-report="' + esc(r.id) + '">Withdraw request</button> ';
+      if (r.status === 'pending' && has('reports.approve') && (!own || me.isRoot)) html += '<button class="btn btn-primary btn-sm" type="button" data-decide="' + esc(r.id) + '">Review request</button>';
+      html += '</div>';
+      if (d.preview) {
+        html += '<div class="st-meta">Showing ' + d.preview.rows.length + ' of ' + d.preview.totalRows + ' rows. Available until ' + esc(when(r.expiresAt)) + '.</div>' +
+          table(d.preview.columns.map(c => c.label), d.preview.rows.map(row => d.preview.columns.map(c => esc(row[c.key] == null ? '' : row[c.key]))));
+      } else if (r.status === 'pending') {
+        html += '<div class="st-empty">The data appears here once the request is approved.</div>';
+      }
+      box.innerHTML = html;
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { box.textContent = ''; note('error', e.message); }
+  }
+
+  async function downloadReport(id, format) {
+    const res = await RC.apiFetch('/api/staff/reports/' + encodeURIComponent(id) + '/download?format=' + format);
+    if (!res.ok) { const j = await res.json().catch(() => ({})); note('error', j.error || 'Could not download.'); return; }
+    const blob = await res.blob();
+    const m = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') || '');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = m ? m[1] : 'report.' + format;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
+
+  async function openDecision(id) {
+    const d = await get('/api/staff/reports/' + encodeURIComponent(id));
+    decidingReport = d.request;
+    const r = d.request;
+    $('decideSummary').textContent = r.label + ' (' + periodText(r) + ') requested by ' + (r.requestedBy ? r.requestedBy.username : 'a deleted account') + '.';
+    $('decideReason').textContent = r.reason ? 'Reason given: ' + r.reason : 'No reason given.';
+    $('decideNote').value = ''; $('decidePassword').value = '';
+    $('decideAlert').style.display = 'none';
+    $('decideModal').classList.add('open');
+  }
+  async function decide(approve) {
+    const alertEl = $('decideAlert');
+    alertEl.style.display = 'none';
+    try {
+      const data = await api('/api/staff/reports/' + encodeURIComponent(decidingReport.id) + '/decision', {
+        method: 'POST', body: JSON.stringify({ approve, note: $('decideNote').value, password: $('decidePassword').value }) });
+      $('decideModal').classList.remove('open');
+      note('success', data.message);
+      await loadReportList();
+      openReport(decidingReport.id);
+    } catch (e) { alertEl.textContent = e.message; alertEl.style.display = 'flex'; }
+  }
+  $('decideApprove').addEventListener('click', () => decide(true));
+  $('decideReject').addEventListener('click', () => decide(false));
+  $('decideCancel').addEventListener('click', () => $('decideModal').classList.remove('open'));
+
+  // ── Claim owner account ─────────────────────────────────────────────────────
+  $('claimBtn').addEventListener('click', async () => {
+    const btn = $('claimBtn');
+    btn.disabled = true;
+    try {
+      const data = await api('/api/staff/claim-root', { method: 'POST', body: JSON.stringify({ token: $('claimToken').value }) });
+      note('success', data.message);
+      $('claimCard').hidden = true;
+      const u = RC.getUser();
+      if (u) RC.setSession(RC.getToken(), Object.assign({}, u, { isStaff: true, isRoot: true }));
+      start();
+    } catch (e) { note('error', e.message); }
+    finally { btn.disabled = false; $('claimToken').value = ''; }
+  });
+
+  // ── Start ───────────────────────────────────────────────────────────────────
+  async function start() {
+    try { me = await get('/api/staff/me'); } catch (e) { note('error', e.message); return; }
+
+    const wantsClaim = new URLSearchParams(location.search).get('claim') === '1';
+    if (wantsClaim && me.canClaimRoot) $('claimCard').hidden = false;
+
+    if (!me.isStaff) {
+      if (!(wantsClaim && me.canClaimRoot)) window.location.replace('/dashboard');
+      return;
+    }
+    if (!me.totpEnabled) {
+      note('warn', 'Turn on two-factor authentication in Account settings to use staff tools.');
+      return;
+    }
+    const tabs = buildTabs();
+    if (!tabs.length) { note('warn', 'Your roles do not include any staff permissions yet.'); return; }
+    $('staffArea').hidden = false;
+    showTab(tabs[0].id);
+  }
+
+  initShell('staff', function () { start(); });
+})();
+</script>
+<script src="/js/cookie-notice.js" defer></script>
+</body>
+</html>
